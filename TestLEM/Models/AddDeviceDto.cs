@@ -1,4 +1,6 @@
-﻿namespace TestLEM.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace TestLEM.Models
 {
     public class AddDeviceDto
     {
@@ -9,10 +11,6 @@
         public bool? IsCalibrated { get; set; }
         public bool? IsCalibrationCloseToExpire { get; set; }
         public string? StorageLocation { get; set; }
-        public string ModelName { get; set; }
-        public string ModelSerialNumber { get; set; }
-        public string Company { get; set; }
-        public ICollection<MeasuredValueDto>? MeasuredValues { get; set; }
-        //public ICollection<string>? RelatedDevicesNames { get; set; }
+        public ModelDto Model { get; set; }
     }
 }

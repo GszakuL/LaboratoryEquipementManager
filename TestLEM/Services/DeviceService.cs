@@ -29,7 +29,10 @@ namespace TestLEM.Services
             }
             var device = mapper.Map<Device>(addDeviceDto);
 
-            var model = device.Model;
+            //poniższy kod powinien polecieć do modelService
+
+            var model = mapper.Map<Model>(addDeviceDto.Model);
+            device.Model = model;
 
             var modelExists = modelRepository.ChcekIfModelAlreadyExistsInDatabase(model.Name, model.SerialNumber);
             if (modelExists)
@@ -40,7 +43,7 @@ namespace TestLEM.Services
                 return;
             }
 
-            var measuredValuesDto = addDeviceDto.MeasuredValues;
+            var measuredValuesDto = addDeviceDto.Model.MeasuredValues;
             var measuredValues = new List<MeasuredValue>();
 
             foreach(var measuredValueDto in measuredValuesDto)
@@ -59,14 +62,6 @@ namespace TestLEM.Services
 
             device.Model.MeasuredValues = measuredValues;
             
-
-            //var model = mapper.Map<Model>(addDeviceDto);
-            //var company = mapper.Map<Company>(addDeviceDto);
-
-            // tutaj pytanie czy powinienem sprawdzać wszystkie pozostałe powiązane wartości czy istnieją? jak to zrobić
-            // przez serwisy? w sensie robię serwisy dla każdej encji i wstrzykuję je do tego serwisu i przez ich funkcje sprawdzam
-            // czy istnieją? czy mam tworzyć przez automapper każdą z encji i dodawać ją tudaj do device, model etc?
-
             deviceRepository.AddDeviceToDatabase(device);
         }
 
