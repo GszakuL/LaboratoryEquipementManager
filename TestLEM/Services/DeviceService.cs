@@ -30,7 +30,6 @@ namespace TestLEM.Services
             var device = mapper.Map<Device>(addDeviceDto);
 
             var model = device.Model;
-            var comapny = model.Company;
 
             var modelExists = modelRepository.ChcekIfModelAlreadyExistsInDatabase(model.Name, model.SerialNumber);
             if (modelExists)
@@ -38,7 +37,28 @@ namespace TestLEM.Services
                 var modelId = modelRepository.GetModelId(model.Name);
                 device.Model = null;
                 device.ModelId = modelId;
+                return;
             }
+
+            var measuredValuesDto = addDeviceDto.MeasuredValues;
+            var measuredValues = new List<MeasuredValue>();
+
+            foreach(var measuredValueDto in measuredValuesDto)
+            {
+                var measuredValue = new MeasuredValue
+                {
+                    PhysicalMagnitude = new PhysicalMagnitude
+                    {
+                        Name = measuredValueDto.PhysicalMagnitudeName,
+                        Unit = measuredValueDto.PhysicalMagnitudeUnit
+                    },
+                    MeasuredRanges = GetMeasuredRanges(measuredValueDto.MeasuredRanges)
+                };
+                measuredValues.Add(measuredValue);
+            }
+
+            device.Model.MeasuredValues = measuredValues;
+            
 
             //var model = mapper.Map<Model>(addDeviceDto);
             //var company = mapper.Map<Company>(addDeviceDto);
@@ -48,6 +68,22 @@ namespace TestLEM.Services
             // czy istnieją? czy mam tworzyć przez automapper każdą z encji i dodawać ją tudaj do device, model etc?
 
             deviceRepository.AddDeviceToDatabase(device);
+        }
+
+        private List<MeasuredRange> GetMeasuredRanges(ICollection<MeasuredRangesDto> measuredRangesDto)
+        {
+            var list = new List<MeasuredRange>();
+
+            foreach(var measuredRangeDto in measuredRangesDto)
+            {
+                var measuredRange = new MeasuredRange
+                {
+                    Range = measuredRangeDto.Range,
+                    AccuracyInPercet = measuredRangeDto.AccuracyInPercent
+                };
+                list.Add(measuredRange);
+            }
+            return list;
         }
     }
 }
