@@ -1,5 +1,6 @@
 ﻿using Domain.Abstraction;
 using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
@@ -12,12 +13,17 @@ namespace Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        //jak ugryźć error przy dodawaniu? dać tu taska i asynca?
         public async Task AddDevice(Device device, CancellationToken cancellationToken)
         {
             _dbContext.Devices.Add(device);
 
             await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task<bool> CheckIfDeviceExists(string identificationNumber, CancellationToken cancellationToken = default)
+        {
+            var result = await _dbContext.Devices.FirstAsync(x => x.IdentifiactionNumber == identificationNumber, cancellationToken);
+            return result != null;
         }
     }
 }

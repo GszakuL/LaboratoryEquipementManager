@@ -3,8 +3,8 @@ using Application.Models;
 
 namespace Application.Devices.Commands;
 
-public class CreateDeviceCommand(AddDeviceDto addDeviceDto) : ICommand<int>
+public class CreateDeviceCommand(AddDeviceDto addDeviceDto) : ICommand<string>
 {
-    public AddDeviceDto AddDeviceDto { get; set; } = addDeviceDto;
+    public AddDeviceDto AddDeviceDto { get; set; }
 }
 
