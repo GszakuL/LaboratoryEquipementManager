@@ -7,7 +7,9 @@ namespace Application
     {
         public static IServiceCollection RegisterApplicationServices(this IServiceCollection services)
         {
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+            
             return services;
         }
     }
