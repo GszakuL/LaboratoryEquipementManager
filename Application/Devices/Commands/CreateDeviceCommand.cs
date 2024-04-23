@@ -5,6 +5,6 @@ namespace Application.Devices.Commands;
 
 public class CreateDeviceCommand(AddDeviceDto addDeviceDto) : ICommand<string>
 {
-    public AddDeviceDto AddDeviceDto { get; set; }
+    public AddDeviceDto AddDeviceDto { get; set; } = addDeviceDto;
 }
 

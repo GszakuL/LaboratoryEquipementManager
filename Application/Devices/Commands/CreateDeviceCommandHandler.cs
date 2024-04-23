@@ -26,7 +26,7 @@ namespace Application.Devices.Commands
         public async Task<string> Handle(CreateDeviceCommand request, CancellationToken cancellationToken)
         {
             var identificationNumber = request.AddDeviceDto.IdentifiactionNumber;
-            var deviceExists = await _deviceRepository.CheckIfDeviceExists(identificationNumber);
+            var deviceExists = await _deviceRepository.CheckIfDeviceExists(identificationNumber, cancellationToken);
 
             if (deviceExists)
             {
