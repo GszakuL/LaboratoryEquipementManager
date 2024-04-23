@@ -5,13 +5,13 @@ VisualStudioVersion = 17.8.34525.116
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestLEM", "TestLEM\TestLEM.csproj", "{7A4113B5-4C1D-4A40-ABC2-8421F0CA574E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{8D728207-BA1F-4ABE-ACAA-5D2DD54788A3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "Domain\Domain.csproj", "{8D728207-BA1F-4ABE-ACAA-5D2DD54788A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\Application.csproj", "{BAA63C52-F147-4AED-81D9-19ABEA65A7E2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application", "Application\Application.csproj", "{BAA63C52-F147-4AED-81D9-19ABEA65A7E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{593F7C55-29C8-4BEF-A8C5-914BA1FDA21E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{593F7C55-29C8-4BEF-A8C5-914BA1FDA21E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web", "Web\Web.csproj", "{534B8289-AF5D-4B4C-B03C-0158A539104C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web", "Web\Web.csproj", "{534B8289-AF5D-4B4C-B03C-0158A539104C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

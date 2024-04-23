@@ -22,8 +22,8 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> CheckIfDeviceExists(string identificationNumber, CancellationToken cancellationToken = default)
         {
-            var result = await _dbContext.Devices.FirstAsync(x => x.IdentifiactionNumber == identificationNumber, cancellationToken);
-            return result != null;
+            var result = await _dbContext.Devices.AnyAsync(x => x.IdentifiactionNumber == identificationNumber);
+            return result;
         }
     }
 }

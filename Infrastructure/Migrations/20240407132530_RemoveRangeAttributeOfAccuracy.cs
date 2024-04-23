@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace TestLEM.Migrations
+namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class RemoveRangeAttributeOfAccuracy : Migration

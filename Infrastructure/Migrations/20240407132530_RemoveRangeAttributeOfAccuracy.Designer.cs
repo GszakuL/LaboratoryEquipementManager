@@ -5,11 +5,10 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using TestLEM;
 
 #nullable disable
 
-namespace TestLEM.Migrations
+namespace Infrastructure.Migrations
 {
     [DbContext(typeof(LemDbContext))]
     [Migration("20240407132530_RemoveRangeAttributeOfAccuracy")]

@@ -4,11 +4,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using TestLEM;
 
 #nullable disable
 
-namespace TestLEM.Migrations
+namespace Infrastructure.Migrations
 {
     [DbContext(typeof(LemDbContext))]
     partial class LemDbContextModelSnapshot : ModelSnapshot
