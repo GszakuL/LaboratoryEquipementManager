@@ -16,13 +16,24 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<LemDbContext>(
-        option => option.UseSqlServer(builder.Configuration.GetConnectionString("TestLemDbConnectionString"))
-    );
+        option => option.UseSqlServer(builder.Configuration.GetConnectionString("TestLemDbConnectionString")
+        ,x => x.MigrationsAssembly("Infrastructure")
+    ));
 
 builder.Services.AddScoped<IModelRepository, ModelRepository>();
 builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
 
 var app = builder.Build();
+
+using var scope = app.Services.CreateScope();
+
+var dbContext = scope.ServiceProvider.GetService<LemDbContext>();
+
+var pendingMigrations = dbContext.Database.GetPendingMigrations();
+if (pendingMigrations.Any())
+{
+    dbContext.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
