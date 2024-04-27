@@ -15,6 +15,7 @@ namespace Infrastructure
         public DbSet<MeasuredValue> MeasuredValues { get; set; }
         public DbSet<MeasuredRange> MeasuredRanges { get; set; }
         public DbSet<PhysicalMagnitude> PhysicalMagnitudes { get; set; }
+        public DbSet<Document> Documents { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,6 +27,10 @@ namespace Infrastructure
 
                 d.HasIndex(x => x.IdentifiactionNumber)
                 .IsUnique();
+
+                d.HasMany(x => x.Documents)
+                .WithOne(x => x.Device)
+                .HasForeignKey(x => x.DeviceId);
             });
 
             modelBuilder.Entity<Model>(m =>
@@ -43,18 +48,16 @@ namespace Infrastructure
                 m.HasMany(x => x.MeasuredValues)
                 .WithOne(x => x.Model)
                 .HasForeignKey(x => x.ModelId);
+
+                m.HasMany(x => x.Documents)
+                .WithOne(x => x.Model)
+                .HasForeignKey(x => x.ModelId);
             });
 
             modelBuilder.Entity<Company>(x => x.HasIndex(x => x.Name).IsUnique());
 
             modelBuilder.Entity<PhysicalMagnitude>(pm =>
             {
-                pm.HasIndex(x => x.Unit)
-                .IsUnique();
-
-                pm.HasIndex(x => x.Name)
-                .IsUnique();
-
                 pm.HasMany(x => x.MeasuredValues)
                 .WithOne(x => x.PhysicalMagnitude)
                 .HasForeignKey(x => x.PhysicalMagnitudeId);

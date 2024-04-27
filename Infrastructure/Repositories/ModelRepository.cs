@@ -13,8 +13,8 @@ namespace Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<bool> ChcekIfModelExists(string name, string serialNumber) =>  await _dbContext.Models.AnyAsync(x => x.SerialNumber == serialNumber || x.Name == name);
-        public int GetModelId(string modelName) => _dbContext.Models.First(x => x.Name == modelName).Id;
+        public async Task<bool> ChcekIfModelExists(string name, string serialNumber) =>  await _dbContext.Models.AnyAsync(x => x.SerialNumber == serialNumber || x.Name == name); //trzeba jakoś ograć co w przypadku gdy użtkownik poda nieistenijący serial, a istenijącą nazwę
+        public int GetModelId(string name, string serialNumber) => _dbContext.Models.First(x =>x.SerialNumber == serialNumber || x.Name == name).Id;
 
         public async Task AddModel(Model model, CancellationToken cancellationToken)
         {

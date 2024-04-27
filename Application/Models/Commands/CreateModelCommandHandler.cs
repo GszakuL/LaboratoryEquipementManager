@@ -1,7 +1,9 @@
 ﻿using Application.Abstractions.Messaging;
+using Application.Documents;
 using AutoMapper;
 using Domain.Abstraction;
 using Domain.Entities;
+using MediatR;
 
 namespace Application.Models.Commands
 {
@@ -9,11 +11,13 @@ namespace Application.Models.Commands
     {
         private readonly IModelRepository _modelRepository;
         private readonly IMapper _mapper;
+        private readonly ISender _sender;
 
-        public CreateModelCommandHandler(IModelRepository modelRepository, IMapper mapper)
+        public CreateModelCommandHandler(IModelRepository modelRepository, IMapper mapper, ISender sender)
         {
             _modelRepository = modelRepository;
             _mapper = mapper;
+            _sender = sender;
         }
 
         public async Task<int> Handle(CreateModelCommand request, CancellationToken cancellationToken)
@@ -21,7 +25,7 @@ namespace Application.Models.Commands
             var modelExists = await _modelRepository.ChcekIfModelExists(request.ModelDto.Name, request.ModelDto.SerialNumber);
             if (modelExists)
             {
-                return _modelRepository.GetModelId(request.ModelDto.Name);
+                return _modelRepository.GetModelId(request.ModelDto.Name, request.ModelDto.SerialNumber);
             }
 
             var model = _mapper.Map<Model>(request.ModelDto);
@@ -31,6 +35,14 @@ namespace Application.Models.Commands
             model.MeasuredValues = measuredValues;
 
             await _modelRepository.AddModel(model);
+
+            var documents = request.ModelDto.Documents;
+            if (documents.Any())
+            {
+                var documentsNames = await _sender.Send(
+                    new AddDocumentsCommand(documents, model.Id, null),
+                    cancellationToken);
+            }
 
             return model.Id;
         }

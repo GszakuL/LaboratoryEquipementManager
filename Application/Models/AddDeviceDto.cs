@@ -1,4 +1,6 @@
-﻿namespace Application.Models
+﻿using Microsoft.AspNetCore.Http;
+
+namespace Application.Models
 {
     public class AddDeviceDto
     {
@@ -9,6 +11,7 @@
         public bool? IsCalibrated { get; set; }
         public bool? IsCalibrationCloseToExpire { get; set; }
         public string? StorageLocation { get; set; }
+        public ICollection<IFormFile> Documents { get; set; }
         public ModelDto Model { get; set; }
     }
 }

@@ -13,5 +13,6 @@
         public int ModelId { get; set; }
 
         public virtual Model Model { get; set; }
+        public virtual ICollection<Document> Documents { get; set; }
     }
 }

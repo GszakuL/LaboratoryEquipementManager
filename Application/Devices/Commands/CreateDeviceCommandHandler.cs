@@ -1,4 +1,5 @@
 ﻿using Application.Abstractions.Messaging;
+using Application.Documents;
 using Application.Models.Commands;
 using AutoMapper;
 using Domain.Abstraction;
@@ -11,14 +12,12 @@ namespace Application.Devices.Commands
     internal class CreateDeviceCommandHandler : ICommandHandler<CreateDeviceCommand, string>
     {
         private readonly IDeviceRepository _deviceRepository;
-        private readonly IModelRepository _modelRepository;
         private readonly IMapper _mapper;
         private readonly ISender _sender;
 
-        public CreateDeviceCommandHandler(IDeviceRepository deviceRepository, IModelRepository modelRepository, IMapper mapper, ISender sender)
+        public CreateDeviceCommandHandler(IDeviceRepository deviceRepository, IMapper mapper, ISender sender)
         {
             _deviceRepository = deviceRepository;
-            _modelRepository = modelRepository;
             _mapper = mapper;
             _sender = sender;
         }
@@ -43,6 +42,14 @@ namespace Application.Devices.Commands
             device.ModelId = modelId;
 
             await _deviceRepository.AddDevice(device);
+
+            var documents = request.AddDeviceDto.Documents;
+            if (documents.Any())
+            {
+                var documentsNames = await _sender.Send(
+                    new AddDocumentsCommand(documents, null, device.Id),
+                    cancellationToken);
+            }
 
             return identificationNumber;
         }
