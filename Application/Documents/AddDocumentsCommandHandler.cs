@@ -46,7 +46,7 @@ namespace Application.Documents
                     throw new WrongDocumentException(file.Name);
                 }
             }
-            return await _documentRepository.AddDocumentsAsync(documents);
+            return await _documentRepository.AddDocumentsAsync(documents, request.ModelId, request.DeviceId);
         }
     }
 }
