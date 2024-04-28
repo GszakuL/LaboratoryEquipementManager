@@ -69,6 +69,25 @@ namespace Infrastructure
                 .WithOne(x => x.MeasuredValue)
                 .HasForeignKey(x => x.MeasuredValueId);
             });
+
+            modelBuilder.Entity<ModelCooperation>(mc =>
+            {
+                mc.HasOne(x => x.ModelFrom)
+                .WithMany(x => x.CooperateFrom)
+                .HasForeignKey(x => x.ModelFromId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+                mc.HasOne(x => x.ModelTo)
+                .WithMany(x => x.CooperateTo)
+                .HasForeignKey(x => x.ModelToId)
+                .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<MeasuredRange>(mr =>
+                mr.Property(x => x.AccuracyInPercet)
+                .HasColumnType("decimal(5,3)")
+                .HasPrecision(5, 3)
+            );
         }
     }
 }
