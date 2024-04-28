@@ -10,12 +10,15 @@ namespace Application.Models.Commands
     internal class CreateModelCommandHandler : ICommandHandler<CreateModelCommand, int>
     {
         private readonly IModelRepository _modelRepository;
+        private readonly IModelCooperationRepository _modelCooperationRepository;
         private readonly IMapper _mapper;
         private readonly ISender _sender;
 
-        public CreateModelCommandHandler(IModelRepository modelRepository, IMapper mapper, ISender sender)
+        public CreateModelCommandHandler(IModelRepository modelRepository, IModelCooperationRepository modelCooperationRepository,
+                                         IMapper mapper, ISender sender)
         {
             _modelRepository = modelRepository;
+            _modelCooperationRepository = modelCooperationRepository;
             _mapper = mapper;
             _sender = sender;
         }
@@ -37,11 +40,17 @@ namespace Application.Models.Commands
             await _modelRepository.AddModel(model);
 
             var documents = request.ModelDto.Documents;
-            if (documents.Any())
+            if (documents != null)
             {
                 var documentsNames = await _sender.Send(
                     new AddDocumentsCommand(documents, model.Id, null),
                     cancellationToken);
+            }
+
+            var cooperatedModelsIds = request.ModelDto.CooperatedModelsIds;
+            if (cooperatedModelsIds != null)
+            {
+                await _modelCooperationRepository.AddModelCooperation(model.Id, cooperatedModelsIds);
             }
 
             return model.Id;

@@ -23,6 +23,7 @@ builder.Services.AddDbContext<LemDbContext>(
 builder.Services.AddScoped<IModelRepository, ModelRepository>();
 builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
+builder.Services.AddScoped<IModelCooperationRepository, ModelCooperationRepository>();
 
 var app = builder.Build();
 
