@@ -1,4 +1,5 @@
 using Application;
+using Application.Abstractions;
 using Domain.Abstraction;
 using Infrastructure;
 using Infrastructure.Repositories;
@@ -24,6 +25,7 @@ builder.Services.AddScoped<IModelRepository, ModelRepository>();
 builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
 builder.Services.AddScoped<IModelCooperationRepository, ModelCooperationRepository>();
+builder.Services.AddScoped<IApplicationDbContext, LemDbContext>();
 
 var app = builder.Build();
 

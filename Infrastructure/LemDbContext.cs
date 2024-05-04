@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Domain.Entities;
+using Application.Abstractions;
 
 namespace Infrastructure
 {
-    public class LemDbContext : DbContext
+    public class LemDbContext : DbContext, IApplicationDbContext
     {
         public LemDbContext(DbContextOptions<LemDbContext> options) : base(options)
         {

@@ -1,4 +1,5 @@
-﻿using Domain.Abstraction;
+﻿using Application.Abstractions;
+using Domain.Abstraction;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,9 +7,9 @@ namespace Infrastructure.Repositories
 {
     public class DeviceRepository : IDeviceRepository
     {
-        private readonly LemDbContext _dbContext;
+        private readonly IApplicationDbContext _dbContext;
 
-        public DeviceRepository(LemDbContext dbContext)
+        public DeviceRepository(IApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
         }
