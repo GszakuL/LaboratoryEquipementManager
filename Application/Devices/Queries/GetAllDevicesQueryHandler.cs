@@ -1,33 +1,69 @@
 ﻿using Application.Abstractions;
 using Application.Models;
-using Domain.Abstraction;
 using Domain.Entities;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Devices.Queries
 {
     internal class GetAllDevicesQueryHandler :
         IRequestHandler<GetAllDevicesQuery, PagedList<GetDeviceDto>>
     {
-        private readonly IDeviceRepository _deviceRepository;
         private readonly IApplicationDbContext _dbContext;
 
-        public GetAllDevicesQueryHandler(IDeviceRepository deviceRepository, IApplicationDbContext dbContext)
+        public GetAllDevicesQueryHandler(IApplicationDbContext dbContext)
         {
-            _deviceRepository = deviceRepository;
             _dbContext = dbContext;
         }
 
-        public Task<PagedList<GetDeviceDto>> Handle(GetAllDevicesQuery request, CancellationToken cancellationToken)
+        public async Task<PagedList<GetDeviceDto>> Handle(GetAllDevicesQuery request, CancellationToken cancellationToken)
         {
             IQueryable<Device> devicesQuery = _dbContext.Devices;
+            IQueryable<Model> modelQuery = _dbContext.Models;
+            IQueryable<MeasuredValue> measuredValueQuery = _dbContext.MeasuredValues;
+            string searchTerm = request.SearchTerm.ToLower();
+            const string descWord = "desc";
 
-            if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+            if (!string.IsNullOrWhiteSpace(searchTerm))
             {
-                devicesQuery = devicesQuery.Where(p =>
-                    p.Name.Contains(request.SearchTerm) ||
-                    ((string)p.Sku).Contains(request.SearchTerm));
+                devicesQuery = devicesQuery
+                    .Include(x => x.Model)
+                        .ThenInclude(x => x.MeasuredValues)
+                            .ThenInclude(x => x.PhysicalMagnitude)
+                    .Where(x => x.Model.Name.ToLower().Contains(searchTerm)
+                             || x.Model.MeasuredValues.Where(x => x.PhysicalMagnitude.Name.ToLower().Contains(searchTerm)).Any());
+
             }
+
+            if (request.SortOrder?.ToLower() == descWord)
+            {
+                devicesQuery = devicesQuery.OrderByDescending(x => x.Model.Name);
+                measuredValueQuery = measuredValueQuery.OrderByDescending(x => x.Model.Name);
+            }
+            else
+            {
+                devicesQuery = devicesQuery.OrderBy(x => x.Model.Name);
+                measuredValueQuery = measuredValueQuery.OrderBy(x => x.Model.Name);
+            }
+
+            var deviceQueryResponse = devicesQuery
+                .Select(x => new GetDeviceDto
+                {
+                    DeviceIdentificationNumber = x.IdentifiactionNumber,
+                    ModelName = x.Model.Name,
+                    ModelSerialNumber = x.Model.SerialNumber,
+                    StorageLocation = x.StorageLocation,
+                    MeasuredValues = (ICollection<MeasuredValueDto>)x.Model.MeasuredValues.Select(y =>
+                        new MeasuredValueDto
+                        {
+                            PhysicalMagnitudeName = y.PhysicalMagnitude.Name,
+                            PhysicalMagnitudeUnit = y.PhysicalMagnitude.Unit
+                        })
+                });
+
+            var devices = await PagedList<GetDeviceDto>.CreateAsync(deviceQueryResponse, request.Page, request.PageSize);
+
+            return devices;
         }
     }
 }
