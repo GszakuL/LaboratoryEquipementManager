@@ -17,6 +17,7 @@ namespace Infrastructure
         public DbSet<MeasuredRange> MeasuredRanges { get; set; }
         public DbSet<PhysicalMagnitude> PhysicalMagnitudes { get; set; }
         public DbSet<Document> Documents { get; set; }
+        public DbSet<ModelCooperation> ModelCooperation {  get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

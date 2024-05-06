@@ -12,6 +12,7 @@ namespace Application.Abstractions
         DbSet<MeasuredRange> MeasuredRanges { get; set; }
         DbSet<PhysicalMagnitude> PhysicalMagnitudes { get; set; }
         DbSet<Document> Documents { get; set; }
+        DbSet<ModelCooperation> ModelCooperation { get; set; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
