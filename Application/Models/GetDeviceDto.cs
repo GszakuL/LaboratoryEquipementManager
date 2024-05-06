@@ -9,5 +9,7 @@
         public string? StorageLocation { get; set; }
         public DateTime? ProductionDate { get; set; }
         public DateTime? LastCalibrationDate { get; set; }
+        public int? CalibrationPeriodInYears { get; set; }
+        public bool? IsCloseToExpire { get; set; }
     }
 }

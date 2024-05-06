@@ -19,9 +19,8 @@ namespace Application.Devices.Queries
         public async Task<PagedList<GetDeviceDto>> Handle(GetAllDevicesQuery request, CancellationToken cancellationToken)
         {
             IQueryable<Device> devicesQuery = _dbContext.Devices;
-            IQueryable<Model> modelQuery = _dbContext.Models;
             IQueryable<MeasuredValue> measuredValueQuery = _dbContext.MeasuredValues;
-            string searchTerm = request.SearchTerm.ToLower();
+            var searchTerm = request.SearchTerm?.ToLower();
             const string descWord = "desc";
 
             if (!string.IsNullOrWhiteSpace(searchTerm))

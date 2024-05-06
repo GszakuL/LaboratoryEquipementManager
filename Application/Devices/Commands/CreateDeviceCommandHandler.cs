@@ -4,7 +4,7 @@ using Application.Models.Commands;
 using AutoMapper;
 using Domain.Abstraction;
 using Domain.Entities;
-using Domain.Exceptions;
+using Domain.Exceptions.Devices;
 using MediatR;
 
 namespace Application.Devices.Commands

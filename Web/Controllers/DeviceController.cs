@@ -38,5 +38,16 @@ namespace Web.Controllers
             var pagedAndSortedDevicesList = await _mediator.Send(query, cancellationToken);
             return Ok(pagedAndSortedDevicesList);
         }
+
+        [HttpGet("/{deviceId}")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetDeviceDetails([FromRoute]int deviceId, CancellationToken cancellationToken)
+        {
+            var query = new GetDeviceByIdQuery(deviceId);
+
+            var deviceDetails = await _mediator.Send(query, cancellationToken);
+            return Ok(deviceDetails);
+        }
     }
 }
