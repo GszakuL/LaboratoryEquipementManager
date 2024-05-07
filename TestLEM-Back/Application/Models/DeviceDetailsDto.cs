@@ -1,6 +1,6 @@
 ﻿namespace Application.Models
 {
-    public class GetDeviceDetailsDto : GetDeviceDto // nazwa dtosów myląca => do zmiany
+    public class DeviceDetailsDto : DeviceDto
     {
         public int Id { get; set; }
         public bool? IsCalibrated { get; set; }

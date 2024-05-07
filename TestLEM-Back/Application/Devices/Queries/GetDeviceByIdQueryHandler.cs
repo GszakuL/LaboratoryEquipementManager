@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Devices.Queries
 {
-    internal class GetDeviceByIdQueryHandler : IRequestHandler<GetDeviceByIdQuery, GetDeviceDetailsDto>
+    internal class GetDeviceByIdQueryHandler : IRequestHandler<GetDeviceByIdQuery, DeviceDetailsDto>
     {
         private readonly IApplicationDbContext _dbContext;
 
@@ -17,7 +17,7 @@ namespace Application.Devices.Queries
             _dbContext = dbContext;
         }
 
-        public async Task<GetDeviceDetailsDto> Handle(GetDeviceByIdQuery request, CancellationToken cancellationToken)
+        public async Task<DeviceDetailsDto> Handle(GetDeviceByIdQuery request, CancellationToken cancellationToken)
         {
             var device = await _dbContext.Devices
                 .Include(x => x.Model)
@@ -29,7 +29,7 @@ namespace Application.Devices.Queries
                 throw new DeviceNotFoundException(request.deviceId);
             }
 
-            var deviceDetailsDto = new GetDeviceDetailsDto
+            var deviceDetailsDto = new DeviceDetailsDto
             {
                 Id = device.Id,
                 ModelName = device.Model.Name,

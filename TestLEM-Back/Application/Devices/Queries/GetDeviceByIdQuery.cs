@@ -3,5 +3,5 @@ using MediatR;
 
 namespace Application.Devices.Queries
 {
-    public record GetDeviceByIdQuery(int deviceId) : IRequest<GetDeviceDetailsDto>;
+    public record GetDeviceByIdQuery(int deviceId) : IRequest<DeviceDetailsDto>;
 }

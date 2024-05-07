@@ -1,7 +1,8 @@
 ﻿namespace Application.Models
 {
-    public class GetDeviceDto
+    public class DeviceDto
     {
+        public int Id { get; set; }
         public string DeviceIdentificationNumber { get; set; }
         public string ModelName { get; set; }
         public string ModelSerialNumber { get; set; }

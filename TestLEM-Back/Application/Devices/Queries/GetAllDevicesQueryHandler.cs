@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Application.Devices.Queries
 {
     internal class GetAllDevicesQueryHandler :
-        IRequestHandler<GetAllDevicesQuery, PagedList<GetDeviceDto>>
+        IRequestHandler<GetAllDevicesQuery, PagedList<DeviceDto>>
     {
         private readonly IApplicationDbContext _dbContext;
 
@@ -16,7 +16,7 @@ namespace Application.Devices.Queries
             _dbContext = dbContext;
         }
 
-        public async Task<PagedList<GetDeviceDto>> Handle(GetAllDevicesQuery request, CancellationToken cancellationToken)
+        public async Task<PagedList<DeviceDto>> Handle(GetAllDevicesQuery request, CancellationToken cancellationToken)
         {
             IQueryable<Device> devicesQuery = _dbContext.Devices;
             IQueryable<MeasuredValue> measuredValueQuery = _dbContext.MeasuredValues;
@@ -46,7 +46,7 @@ namespace Application.Devices.Queries
             }
 
             var deviceQueryResponse = devicesQuery
-                .Select(x => new GetDeviceDto
+                .Select(x => new DeviceDto
                 {
                     DeviceIdentificationNumber = x.IdentifiactionNumber,
                     ModelName = x.Model.Name,
@@ -60,7 +60,7 @@ namespace Application.Devices.Queries
                         })
                 });
 
-            var devices = await PagedList<GetDeviceDto>.CreateAsync(deviceQueryResponse, request.Page, request.PageSize);
+            var devices = await PagedList<DeviceDto>.CreateAsync(deviceQueryResponse, request.Page, request.PageSize);
 
             return devices;
         }

@@ -7,5 +7,5 @@ namespace Application.Devices.Queries
     string? SortColumn,
     string? SortOrder,
     int Page,
-    int PageSize) : IRequest<PagedList<GetDeviceDto>>;
+    int PageSize) : IRequest<PagedList<DeviceDto>>;
 }
