@@ -5,7 +5,7 @@ import {  MAT_DIALOG_DATA, MatDialog,
   MatDialogContent,
   MatDialogTitle }
 from '@angular/material/dialog';
-import { DeviceDto, ModelDto, StorageLocationDto } from 'src/app/api-service.service';
+import { DeviceDto, ModelDto } from 'src/app/api-service.service';
 import { RemoveDeviceWarningModalComponent } from './remove-device-warning-modal/remove-device-warning-modal.component';
 import { DialogRef } from '@angular/cdk/dialog';
 

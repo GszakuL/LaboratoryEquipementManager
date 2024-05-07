@@ -15,6 +15,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgxTypeaheadModule } from 'ngx-typeahead';
+import { MatPaginatorIntl, MatPaginatorModule } from '@angular/material/paginator';
+import { PolishPaginatorIntl } from './polish-paginator-inlt';
 
 @NgModule({
   declarations: [
@@ -34,8 +36,11 @@ import { NgxTypeaheadModule } from 'ngx-typeahead';
     MatFormFieldModule,
     MatSelectModule,
     BrowserAnimationsModule,
+    MatPaginatorModule,
   ],
-  providers: [],
+  providers: [
+    { provide: MatPaginatorIntl, useClass: PolishPaginatorIntl }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
