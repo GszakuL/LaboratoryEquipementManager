@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Web.Controllers
 {
-    [Route("api/devices")]
+    [Route("api/device")]
     public class DeviceController : ControllerBase
     {
         private readonly IMediator _mediator;

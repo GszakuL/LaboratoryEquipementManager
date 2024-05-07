@@ -4,12 +4,15 @@ using Domain.Abstraction;
 using Infrastructure;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(x =>
+   x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
 builder.Services.RegisterApplicationServices();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -27,7 +30,20 @@ builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
 builder.Services.AddScoped<IModelCooperationRepository, ModelCooperationRepository>();
 builder.Services.AddScoped<IApplicationDbContext, LemDbContext>();
 
+builder.Services.AddCors(x =>
+{
+    x.AddPolicy("AllowAngularOrigins",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:4200")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+        });
+});
+
 var app = builder.Build();
+
+app.UseCors("AllowAngularOrigins");
 
 using var scope = app.Services.CreateScope();
 
