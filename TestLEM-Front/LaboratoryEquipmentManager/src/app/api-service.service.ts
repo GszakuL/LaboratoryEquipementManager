@@ -22,21 +22,26 @@ export class ApiServiceService {
 
 export class DeviceDto {
   Id: number;
-  SerialNumber: string;
+  DeviceIdentificationNumber: number;
+  ModelName: string;
+  ModelSerialNumber: string;
+  MeasuredValues: MeasuredValueDto[];
+  StorageLocation?: string;
   ProductionDate?: Date;
-  CalibrationPeriodInYears: number;
-  LastCalibrationDate: Date;
-  IsCalibrated?: boolean;
-  IsCalibrationCloseToExpire?: boolean;
-  StorageLocation: StorageLocationDto;
-  Model: ModelDto;
+  LastCalibrationDate?: Date;
+  CalibrationPeriodInYears?: number;
+  IsCloseToExpire?: boolean;
 }
 
-export class StorageLocationDto {
-  Building?: string;
-  Department?: string;
-  Room?: string;
-  PlacementDescription?: string;
+export class MeasuredValueDto {
+  PhysicalMagnitudeName: string;
+  PhysicalMagnitudeUnit?: string;
+  MeasuredRanges?: MeasuredRangesDto[];
+}
+
+export class MeasuredRangesDto {
+  Range: string;
+  AccuracyInPercent: number;
 }
 
 export class ModelDto {
