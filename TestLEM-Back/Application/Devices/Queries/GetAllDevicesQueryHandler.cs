@@ -20,7 +20,7 @@ namespace Application.Devices.Queries
         {
             IQueryable<Device> devicesQuery = _dbContext.Devices;
             IQueryable<MeasuredValue> measuredValueQuery = _dbContext.MeasuredValues;
-            var searchTerm = request.SearchTerm?.ToLower();
+            var searchTerm = request.pagedAndSortedDevicesQueryDto.SearchTerm?.ToLower();
             const string descWord = "desc";
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
@@ -34,7 +34,7 @@ namespace Application.Devices.Queries
 
             }
 
-            if (request.SortOrder?.ToLower() == descWord)
+            if (request.pagedAndSortedDevicesQueryDto.SortOrder?.ToLower() == descWord)
             {
                 devicesQuery = devicesQuery.OrderByDescending(x => x.Model.Name);
                 measuredValueQuery = measuredValueQuery.OrderByDescending(x => x.Model.Name);
@@ -60,7 +60,7 @@ namespace Application.Devices.Queries
                         })
                 });
 
-            var devices = await PagedList<DeviceDto>.CreateAsync(deviceQueryResponse, request.Page, request.PageSize);
+            var devices = await PagedList<DeviceDto>.CreateAsync(deviceQueryResponse, request.pagedAndSortedDevicesQueryDto.Page, request.pagedAndSortedDevicesQueryDto.PageSize);
 
             return devices;
         }

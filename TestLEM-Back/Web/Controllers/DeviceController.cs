@@ -27,13 +27,12 @@ namespace Web.Controllers
             return Ok(deviceIdentificationNumber);
         }
 
-        [HttpGet]
+        [HttpPost("sorted")]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetDevices(string? SearchTerm, string? SortColumn, string? SortOrder,
-        int Page, int PageSize, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetDevices([FromBody] PagedAndSortedDevicesListQueryDto pagedAndSortedDevicesQuery, CancellationToken cancellationToken)
         {
-            var query = new GetAllDevicesQuery(SearchTerm, SortColumn, SortOrder, Page, PageSize);
+            var query = new GetAllDevicesQuery(pagedAndSortedDevicesQuery);
 
             var pagedAndSortedDevicesList = await _mediator.Send(query, cancellationToken);
             return Ok(pagedAndSortedDevicesList);

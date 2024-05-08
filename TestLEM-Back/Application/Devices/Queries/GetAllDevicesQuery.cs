@@ -3,9 +3,5 @@ using MediatR;
 
 namespace Application.Devices.Queries
 {
-    public record GetAllDevicesQuery(string? SearchTerm,
-    string? SortColumn,
-    string? SortOrder,
-    int Page,
-    int PageSize) : IRequest<PagedList<DeviceDto>>;
+    public record GetAllDevicesQuery(PagedAndSortedDevicesListQueryDto pagedAndSortedDevicesQueryDto) : IRequest<PagedList<DeviceDto>>;
 }
