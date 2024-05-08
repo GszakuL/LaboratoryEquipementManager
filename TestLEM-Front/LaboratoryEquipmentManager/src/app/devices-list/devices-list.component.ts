@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { ApiServiceService, DeviceDto, SearchPhraseDto } from '../api-service.service';
+import { ApiServiceService, DeviceDto, PagedAndSortedQueryOfDevicesList, SearchPhraseDto } from '../api-service.service';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { DeviceDetailsComponent } from './device-details/device-details.component';
 import { FormControl } from '@angular/forms';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-devices-list',
@@ -22,21 +23,44 @@ export class DevicesListComponent implements OnInit {
   measuredValues: any = []; //==> devices.model.meassuredValues.measuringRanges
   //measuredValuesAsString: string;
   measuredValuesAsStringTab: string[] = [];
-  measuredValuesAsStringTab2: string[] = [];
   modelNameSearchFC = new FormControl();
   measuredValueSearchFC = new FormControl();
   searchPhrase = new SearchPhraseDto;
 
-  deviceMeasuredValuesPhysicalMagnitudeNames: string[] = [];
+  deviceQuery = new PagedAndSortedQueryOfDevicesList();
+  totalDevicesCount: number = 0;
+
+  devicePhysicalMagnitudeNames: string[] = [];
+
+  pagination: MatPaginatorModule;
 
   ngOnInit(): void {
+
     this.refreshDevicesList();
   }
 
+  setInitPageSize($event: any): void {
+    console.log($event.length);
+  }
+
   refreshDevicesList(): void {
-    this.service.getDevicesList().subscribe(devices => {
-      console.log(devices);
-      this.prepareDevicesToDisplay(devices);
+    this.deviceQuery.Page = 1;
+    this.deviceQuery.PageSize = 20;
+    this.service.getDevices(this.deviceQuery).subscribe((x: any) => {
+      this.DevicesList = x;
+      this.prepareDevicesMeasuredValuesToDisplay(this.DevicesList.items)
+      this.totalDevicesCount = x.totalCount;
+    });
+    console.log(this.DevicesList);
+  }
+
+  onPageChanged($event: any): void {
+    this.deviceQuery.Page = $event.pageIndex + 1;
+    this.deviceQuery.PageSize = $event.pageSize;
+
+    this.service.getDevices(this.deviceQuery).subscribe(x => {
+      this.DevicesList = x;
+      this.prepareDevicesMeasuredValuesToDisplay(this.DevicesList.items)
     });
   }
 
@@ -77,15 +101,16 @@ export class DevicesListComponent implements OnInit {
 
   private prepareDevicesMeasuredValuesToDisplay(devices: any[]): void {
     devices.forEach(x => {
-      x.model.measuredValues.forEach((y: any) => {
-        this.deviceMeasuredValuesPhysicalMagnitudeNames.push(y.physicalMagnitudeName);
+      x.measuredValues.forEach((element: any) => {
+        this.devicePhysicalMagnitudeNames.push(element.physicalMagnitudeName);
       });
-      this.measuredValuesAsStringTab2.push(this.createStringFromMeasuredValues(this.deviceMeasuredValuesPhysicalMagnitudeNames));
-      this.deviceMeasuredValuesPhysicalMagnitudeNames = [];
+      let value = this.devicePhysicalMagnitudeNames.length === 0 ? "--" : this.createStringFromDevicePhysicalMagnitudeNamesList(this.devicePhysicalMagnitudeNames)
+      this.measuredValuesAsStringTab.push(value);
+      this.devicePhysicalMagnitudeNames = [];
     });
   }
 
-  private createStringFromMeasuredValues(measuredValues: any []): string {
-    return measuredValues.join(', ');
+  private createStringFromDevicePhysicalMagnitudeNamesList(devicePhysicalMagnitudeNames: any []): string {
+    return devicePhysicalMagnitudeNames.join(', ');
   }
 }

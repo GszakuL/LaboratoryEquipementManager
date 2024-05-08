@@ -59,14 +59,14 @@ export class AddDeviceComponent implements OnInit {
       mesRanges: this.fb.array([])
     });
 
-    this.apiService.getDevicesList().subscribe(devices => {
-      this.devices = devices;
-      devices.forEach(x => {
-        console.log(x.model.name);
-        this.deviceNames.push(x.model.name);
-      });
-      console.log(devices);
-    });
+    // this.apiService.getDevicesList().subscribe(devices => {
+    //   this.devices = devices;
+    //   devices.forEach(x => {
+    //     console.log(x.model.name);
+    //     this.deviceNames.push(x.model.name);
+    //   });
+    //   console.log(devices);
+    // });
   }
 
   onChange: any = () => {};

@@ -7,12 +7,12 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class ApiServiceService {
-  readonly apiUrl = 'http://localhost:5181/api/'
+  readonly apiUrl = 'http://localhost:5192/api/'
 
   constructor(private http: HttpClient) { }
 
-  getDevicesList(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl + 'device');
+  getDevices(query : PagedAndSortedQueryOfDevicesList): Observable<any[]> {
+    return this.http.post(this.apiUrl + 'device/sorted', query).pipe((response: any) => response);
   }
 
   getDevicesByModelName(searchPhrase: SearchPhraseDto): Observable<Object> {
@@ -55,4 +55,12 @@ export class ModelDto {
 export class SearchPhraseDto {
   DeviceModelName?: string;
   MeasuredValueName?: string;
+}
+
+export class PagedAndSortedQueryOfDevicesList {
+  SearchTerm: string;
+  SortColumn: string;
+  SortOrder: string;
+  Page: number;
+  PageSize: number;
 }
