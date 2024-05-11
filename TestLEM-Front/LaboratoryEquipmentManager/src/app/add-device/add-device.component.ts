@@ -31,6 +31,7 @@ export class AddDeviceComponent implements OnInit {
   devicesFC = new FormControl('');
   devicesDocumentsFC = new FormControl('');
   deviceDocuments: any[] = [];
+  showMeasuredValuesRanges = false;
 
   showMeasuredValueTable = false;
   tableHasValue = false;
@@ -52,6 +53,42 @@ export class AddDeviceComponent implements OnInit {
   mesRng: MesRange;
   mesVal: MesValue;
   mesVals: MesValue [] = [];
+
+
+  //nowe zmiany 10.05
+  deviceForm = this.fb.group({
+    identificationNumber: [''],
+    productionDate: [''],
+    lastCalibrationDate: [''],
+    calibrationPeriodInYears: [''],
+    isCalibrated: [''],
+    isCalibrationCloseToExpire: [''],
+    storageLocation: [''],
+    deviceDocuments: [''],
+
+    model: this.fb.group({
+      name: [''],
+      serialNumber: [''],
+      companyName: [''],
+      modelDocuments: [''],
+      cooperatedModelsIds: [''],
+
+      measuredValues: this.fb.array([
+        this.fb.group({
+          physicalMagnitudeName: [''],
+          measuredRanges: this.fb.array([
+            this.fb.group({
+              range: [''],
+              accuracyInPercent: ['']
+            })
+          ])
+
+        })
+      ])
+    })
+  })
+
+
   constructor(private router: Router, private fb: FormBuilder, private apiService: ApiServiceService){}
   ngOnInit(): void {
     this.measuredValueFormGroup = this.fb.group({
@@ -79,48 +116,94 @@ export class AddDeviceComponent implements OnInit {
     return this.measuredValueFormGroup.get('mesRanges') as FormArray;
   }
 
-
+  displayFGvalues() {
+    console.log(    this.deviceForm.value    )
+  }
   navigateToDevicesList(): void {
     this.router.navigate(['']);
   }
 
+  get measuredValues() {
+    return this.deviceForm.get('model.measuredValues') as FormArray;
+  }
+
+  shouldDisplay(): boolean {
+      return true;
+
+  }
+
+
+  getMeasuredValuesRanges(index: number) {
+    return this.measuredValues.controls[index].get('measuredRanges') as FormArray;
+  }
+
+  //   get measuredValuesRanges() {
+  //   return this.measuredValues.get('measuredRanges') as FormArray;
+  // }
+
   addMeasuredValue(): void {
-    if(this.measuredValue.value === null || this.measuredValue.value === ''){
-      return;
-    }
-    // if(this.mesVals.length > 0){
-    //   this.tableHasValue = true;
+    // if(this.measuredValue.value === null || this.measuredValue.value === ''){
+    //   return;
     // }
-    this.showMeasuredValueTable = true;
-    let name = this.measuredValue.value;
-    this.meassuredValues.push(this.measuredValue.value);
-    let mes = new MesValue(name, []);
-    this.mesVals.push(mes);
-    console.log('mesVals: '+this.mesVals)
+
+    // this.showMeasuredValueTable = true;
+    // let name = this.measuredValue.value;
+    // this.meassuredValues.push(this.measuredValue.value);
+    // let mes = new MesValue(name, []);
+    // this.mesVals.push(mes);
+    // console.log('mesVals: '+this.mesVals)
+
+    console.log(this.measuredValues);
+
+    this.measuredValues.push(
+      this.fb.group({
+        physicalMagnitudeName: [''],
+        measuredRanges: this.fb.array([
+          this.fb.group({
+            range: [''],
+            accuracyInPercent: ['']
+          })
+        ])
+
+      })
+    )
+
   }
 
   addMeasuredValueRange(measuredValueId: number): void {
-    this.measuredRanges.push(this.measuredRange.value);
+    // this.measuredRanges.push(this.measuredRange.value);
 
-    const mesVal = this.fb.group({
-      value: [],
-      accuracy: []
-    });
+    // const mesVal = this.fb.group({
+    //   value: [],
+    //   accuracy: []
+    // });
 
-    this.mesRangesForms.push(mesVal);
+    // this.mesRangesForms.push(mesVal);
 
-    //this.measuredRangeFormGroup.addControl('mesRange', new FormControl('', Validators.required));
+    // //this.measuredRangeFormGroup.addControl('mesRange', new FormControl('', Validators.required));
 
-    let mesRngValue = this.measuredRange.value;
-    let mesRngAccuracy = this.measuredRangeAccuracy.value;
+    // let mesRngValue = this.measuredRange.value;
+    // let mesRngAccuracy = this.measuredRangeAccuracy.value;
 
-    let mesRng = new MesRange(mesRngValue, mesRngAccuracy);
-    console.log('mesvals od id '+this.mesVals[measuredValueId]);
-    console.log('mesvals ranges '+this.mesVals[measuredValueId].mesRanges);
-    this.mesVals[measuredValueId].mesRanges?.push(mesRng);
-    //this.measuredRangeFormGroup.addControl('mesRange', new FormControl('', Validators.required));
+    // let mesRng = new MesRange(mesRngValue, mesRngAccuracy);
+    // console.log('mesvals od id '+this.mesVals[measuredValueId]);
+    // console.log('mesvals ranges '+this.mesVals[measuredValueId].mesRanges);
+    // this.mesVals[measuredValueId].mesRanges?.push(mesRng);
+    // //this.measuredRangeFormGroup.addControl('mesRange', new FormControl('', Validators.required));
 
-    this.measuredRange.reset();
+    // this.measuredRange.reset();
+    console.log(measuredValueId);
+    console.log(this.measuredValues);
+    console.log(this.measuredValues.controls[measuredValueId])
+
+    this.getMeasuredValuesRanges(measuredValueId).push(
+      this.fb.group({
+        range: [''],
+        accuracyInPercent: ['']
+      })
+    );
+
+    //console.log('measuredValueRane: '+this.getMeasuredValuesRanges(measuredValueId));
   }
 
   removeMeasuredValueRange(measuredValueId: number, measuredValueRangeId: number): void {
