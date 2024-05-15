@@ -22,7 +22,7 @@
             <input
               type="text"
               class="form-control"
-              id="serialNumber"
+              id="identificationNumber"
               formControlName="identificationNumber"
             />
           </div>
@@ -114,7 +114,6 @@
             type="file"
             id="devicesDocuments"
             multiple
-            [formControl]="devicesDocumentsFC"
           />
           <div id="devicesDocumentsHelpBlock" class="form-text">
             Dokuemnty dotyczące urządzenia w formacie .pdf, .csv, .jpg (np.
@@ -161,6 +160,96 @@
             />
           </div>
         </div>
+        <h5>Wartości mierzone</h5>
+        <div formArrayName="measuredValues">
+          <div
+            *ngFor="let measuredValue of measuredValues.controls; let i = index"
+          >
+            <div [formGroupName]="i" class="mb-3">
+              <div class="row mb-3">
+                <label [for]="'name-' + i" class="col-sm-3 col-form-label"
+                  >Nazwa</label
+                >
+                <div class="col-sm-6">
+                  <input
+                    [attr.id]="'name-' + i"
+                    type="text"
+                    class="form-control"
+                    formControlName="name"
+                  />
+                </div>
+
+                <button
+                  (click)="removeMeasuredValue(i)"
+                  class="col-sm-3 btn btn-danger"
+                >
+                  Usuń wartość mierzoną
+                </button>
+              </div>
+
+              <div formArrayName="ranges">
+                <div
+                  *ngFor="
+                    let range of measuredValueRanges(i).controls;
+                    let j = index
+                  "
+                >
+                  <div [formGroupName]="j" class="mb-3">
+                    <div class="row">
+                      <label
+                        [for]="'range-' + j"
+                        class="col-sm-2 col-form-label"
+                        >Zakres</label
+                      >
+                      <div class="col-sm-3">
+                        <input
+                          [attr.id]="'range-' + j"
+                          type="text"
+                          class="form-control col-sm-5"
+                          formControlName="range"
+                        />
+                      </div>
+
+                      <label
+                        [for]="'accuracy-' + j"
+                        class="col-sm-3 col-form-label"
+                        >Dokładność w procentach</label
+                      >
+                      <div class="col-sm-3">
+                        <input
+                          [attr.id]="'accuracy-' + j"
+                          type="text"
+                          class="form-control col-sm-5"
+                          formControlName="accuracy"
+                        />
+                      </div>
+                      <button
+                        (click)="removeRangeForMeasuredValue(i, j)"
+                        class="col-sm-1 btn btn-danger sml"
+                      >
+                        -
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                (click)="addRangeForMeasuredValue(i)"
+                class="btn btn-success btn-add-mv med mb-4"
+              >
+                Dodaj zakres
+              </button>
+            </div>
+          </div>
+          <button
+            type="button"
+            (click)="addMeasuredValue()"
+            class="btn btn-success btn-add-mv med"
+          >
+            Dodaj wartość mierzoną
+          </button>
+        </div>
         <div class="mb-3">
           <label for="devicesDocuments" class="form-label"
             >Dokumenty modelu</label
@@ -171,223 +260,21 @@
             type="file"
             id="devicesDocuments"
             multiple
-            [formControl]="devicesDocumentsFC"
           />
           <div id="devicesDocumentsHelpBlock" class="form-text">
             Dokuemnty dotyczące modelu w formacie .pdf, .csv, .jpg (np.
             instrukcja obsługi)
           </div>
         </div>
-        <div class="col-sm-4">
-          <button
-            type="button"
-            class="btn btn-primary p-1"
-            (click)="addMeasuredValue()"
-          >
-            Dodaj wartość mierzoną
-          </button>
-        </div>
-        <div formArrayName="measuredValues">
-          <div
-            *ngFor="let measuredValue of measuredValues.controls; let i = index"
-          >
-            <ng-container>
-              <div [formGroupName]="i">
-                <div class="row g-3">
-                  <div class="col-sm-2">
-                    <label for="physicalMagnitudeName">Wartość mierzona</label>
-                  </div>
-                  <div class="col-sm-6">
-                    <input
-                      type="text"
-                      class="form-control"
-                      [attr.id]="'physicalMagnitudeName' + i"
-                      formControlName="physicalMagnitudeName"
-                    />
-                  </div>
-                  <button
-                    class="btn btn-success btn-add-mv med"
-                    (click)="addMeasuredValueRange(i)"
-                  >
-                    Dodaj zakres
-                  </button>
-                </div>
-              </div>
-              <div *ngIf="shouldDisplay()">
-                <ng-container
-                  *ngFor="
-                    let measuredValueRange of getMeasuredValuesRanges(i)
-                      .controls;
-                    let j = index
-                  "
-                >
-                  <div [formGroupName]="j">
-                    <div class="row">
-                      <div class="col-sm-2">
-                        <label for="range">Zakres</label>
-                      </div>
-                      <div class="col-sm-4">
-                        <input
-                          type="text"
-                          class="form-control"
-                          [attr.id]="'range' + j"
-                          formControlName="range"
-                        />
-                      </div>
-                      <div class="col-sm-2">
-                        <label for="accuracyInPercent"
-                          >Dokładność zakresu w procentach</label
-                        >
-                      </div>
-                      <div class="col-sm-4">
-                        <input
-                          type="text"
-                          class="form-control"
-                          [attr.id]="'accuracyInPercent' + j"
-                          formControlName="accuracyInPercent"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </ng-container>
-              </div>
-            </ng-container>
-          </div>
-
-          <div class="measuredValuesTable mt-5" *ngIf="showMeasuredValueTable">
-            <!-- && tableHasValue -->
-            <table class="table table-striped table-bordered">
-              <thead>
-                <tr>
-                  <th scope="col" class="align-middle">Wartość mierzona</th>
-                  <th scope="col" class="align-middle">Zakres</th>
-                  <th scope="col" class="align-middle">Dokładność zakresu</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  *ngFor="let mv of mesVals; let i = index"
-                  [attr.id]="'meassuredValue-' + i"
-                >
-                  <td scope="col">
-                    <div class="d-flex flex-column justify-content-between">
-                      <div class="row tbl">
-                        <div class="col-sm-8 text-break fw-medium mb-2">
-                          {{ mesVals[i].name }}
-                        </div>
-                        <div class="col-sm-4 d-flex flex-row-reverse">
-                          <button
-                            class="btn btn-danger sml"
-                            (click)="removeMeasuredValue(i)"
-                          >
-                            -
-                          </button>
-                        </div>
-                      </div>
-                      <button
-                        class="btn btn-success btn-add-mv med"
-                        (click)="addMeasuredValueRange(i)"
-                      >
-                        Dodaj zakres
-                      </button>
-                    </div>
-                  </td>
-                  <td>
-                    <ul class="list-group list-group-flush">
-                      <li
-                        *ngFor="
-                          let range of mesVals[i].mesRanges;
-                          let j = index
-                        "
-                        class="list-group-item"
-                      >
-                        <div
-                          class="container-fluid d-flex justify-content-between p-0"
-                        >
-                          <input
-                            type="text"
-                            class="form-control me-2"
-                            [attr.id]="'addRange' + j"
-                            [formControl]="measuredRange"
-                          />
-                          <button
-                            class="btn btn-danger"
-                            (click)="removeMeasuredValueRange(i, j)"
-                          >
-                            -
-                          </button>
-                        </div>
-                      </li>
-                    </ul>
-                  </td>
-                  <td>
-                    <div class="container">
-                      <ul class="list-group list-group-flush">
-                        <li
-                          *ngFor="
-                            let range of mesVals[i].mesRanges;
-                            let j = index
-                          "
-                          class="list-group-item"
-                        >
-                          <input
-                            type="text"
-                            class="form-control"
-                            [attr.id]="'addRangeAccuracy' + j"
-                            [formControl]="measuredRangeAccuracy"
-                          />
-                        </li>
-                      </ul>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+        <div class="related-devices">
+          <h3>Urządzenia powiązane</h3>
+          <p>
+            Wybierz z listy nazwy urządzeń, które chcesz powiązać z dodawanym
+            urządzeniem
+          </p>
         </div>
       </div>
+      <button type="submit" (click)="displayFGvalues()">klik</button>
     </form>
-
-    <!-- <form [formGroup]="measuredValueFormGroup">
-          <div formArrayName="mesRangesForms">
-            <div
-              *ngFor="let val of mesRangesForms.controls; let i = index"
-              [formControlName]="i"
-            >
-              <input type="text" formControlName="aaa" />
-              <input type="text" formControlName="bbb" />
-            </div>
-          </div>
-        </form> -->
   </div>
 </div>
-<div class="documents">
-  <h3>Dokumenty</h3>
-  <div *ngIf="deviceDocumentsSelected" class="mb-3">
-    <ul *ngFor="let deviceDocument of deviceDocuments"></ul>
-  </div>
-  <div class="mb-3">
-    <label for="modelDocuments" class="form-label">Dokumenty modelu</label>
-    <input class="form-control" type="file" id="modelDocuments" multiple />
-    <div id="devicesDocumentsHelpBlock" class="form-text">
-      Dokuemnty dotyczące modelu w formacie .pdf lub .csv (np. instrukcja
-      obsługi)
-    </div>
-  </div>
-</div>
-<div class="related-devices">
-  <h3>Urządzenia powiązane</h3>
-  <p>
-    Wybierz z listy nazwy urządzeń, które chcesz powiązać z dodawanym
-    urządzeniem
-  </p>
-  <mat-form-field>
-    <mat-label>Nazwa modelu</mat-label>
-    <mat-select id="realtedDevices" [formControl]="devicesFC" multiple>
-      <mat-option *ngFor="let deviceName of deviceNames" [value]="deviceName">{{
-        deviceName
-      }}</mat-option>
-    </mat-select>
-  </mat-form-field>
-</div>
-<button type="submit" (click)="displayFGvalues()">klik</button>
