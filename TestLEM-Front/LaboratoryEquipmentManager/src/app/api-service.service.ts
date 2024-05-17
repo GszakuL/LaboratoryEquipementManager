@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 
@@ -12,12 +12,30 @@ export class ApiServiceService {
   constructor(private http: HttpClient) { }
 
   getDevices(query : PagedAndSortedQueryOfDevicesList): Observable<any[]> {
+    debugger;
     return this.http.post(this.apiUrl + 'device/sorted', query).pipe((response: any) => response);
   }
 
   getDevicesByModelName(searchPhrase: SearchPhraseDto): Observable<Object> {
     return this.http.post(this.apiUrl + 'device/search', searchPhrase);
   }
+
+  createDevice(addDeviceDto: AddDeviceDto): Observable<string> {
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    return this.http.post<AddDeviceDto>(this.apiUrl + 'device', addDeviceDto, {headers}).pipe((response: any) => response);
+  }
+}
+
+export class AddDeviceDto {
+   IdentifiactionNumber: string;
+   ProductionDate?: Date;
+   CalibrationPeriodInYears?: number;
+   LastCalibrationDate?: Date;
+   IsCalibrated: boolean;
+   IsCalibrationCloseToExpire?: boolean;
+   StorageLocation?: string;
+   Documents?: string[];
+   Model: ModelDto;
 }
 
 export class DeviceDto {
@@ -36,10 +54,10 @@ export class DeviceDto {
 export class MeasuredValueDto {
   PhysicalMagnitudeName: string;
   PhysicalMagnitudeUnit?: string;
-  MeasuredRanges?: MeasuredRangesDto[];
+  MeasuredRanges?: MeasuredRangeDto[];
 }
 
-export class MeasuredRangesDto {
+export class MeasuredRangeDto {
   Range: string;
   AccuracyInPercent: number;
 }
@@ -47,9 +65,10 @@ export class MeasuredRangesDto {
 export class ModelDto {
   Name: string;
   SerialNumber: string;
-  Company: string;
-  //MeassuredValues
-  //ModelCharacteristics
+  CompanyName: string;
+  Documents?: string[];
+  CooperatedModelsIds?: number[];
+  MeasuredValues?: MeasuredValueDto[];
 }
 
 export class SearchPhraseDto {

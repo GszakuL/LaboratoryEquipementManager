@@ -109,11 +109,12 @@
             >Dokumenty urządzenia</label
           >
           <input
-            formControlName="deviceDocuments"
+            formControlName="documents"
             class="form-control"
             type="file"
             id="devicesDocuments"
             multiple
+            (change)="onDeviceFileChange($event)"
           />
           <div id="devicesDocumentsHelpBlock" class="form-text">
             Dokuemnty dotyczące urządzenia w formacie .pdf, .csv, .jpg (np.
@@ -148,14 +149,12 @@
           </div>
         </div>
         <div class="mb-3 row">
-          <label for="companyName" class="col-sm-3 col-form-label"
-            >Producent</label
-          >
+          <label for="company" class="col-sm-3 col-form-label">Producent</label>
           <div class="col-sm-9">
             <input
               type="text"
               class="form-control"
-              id="companyName"
+              id="company"
               formControlName="companyName"
             />
           </div>
@@ -165,12 +164,12 @@
           <div
             *ngFor="let measuredValue of measuredValues.controls; let i = index"
           >
-            <div [formGroupName]="i" class="mb-3">
+            <div [formGroupName]="i" class="mb-3 measured-value">
               <div class="row mb-3">
-                <label [for]="'name-' + i" class="col-sm-3 col-form-label"
+                <label [for]="'name-' + i" class="col-sm-1 col-form-label"
                   >Nazwa</label
                 >
-                <div class="col-sm-6">
+                <div class="col-sm-4">
                   <input
                     [attr.id]="'name-' + i"
                     type="text"
@@ -178,10 +177,21 @@
                     formControlName="name"
                   />
                 </div>
+                <label [for]="'unit-' + i" class="col-sm-2 col-form-label"
+                  >Jednostka</label
+                >
+                <div class="col-sm-3">
+                  <input
+                    [attr.id]="'unit-' + i"
+                    type="text"
+                    class="form-control"
+                    formControlName="unit"
+                  />
+                </div>
 
                 <button
                   (click)="removeMeasuredValue(i)"
-                  class="col-sm-3 btn btn-danger"
+                  class="col-sm-2 btn btn-danger"
                 >
                   Usuń wartość mierzoną
                 </button>
@@ -197,13 +207,13 @@
                   <div [formGroupName]="j" class="mb-3">
                     <div class="row">
                       <label
-                        [for]="'range-' + j"
-                        class="col-sm-2 col-form-label"
+                        [for]="'range-' + i + '-' + j"
+                        class="col-sm-1 col-form-label"
                         >Zakres</label
                       >
-                      <div class="col-sm-3">
+                      <div class="col-sm-4">
                         <input
-                          [attr.id]="'range-' + j"
+                          [attr.id]="'range-' + i + '-' + j"
                           type="text"
                           class="form-control col-sm-5"
                           formControlName="range"
@@ -211,13 +221,13 @@
                       </div>
 
                       <label
-                        [for]="'accuracy-' + j"
-                        class="col-sm-3 col-form-label"
+                        [for]="'accuracy-' + i + '-' + j"
+                        class="col-sm-2 col-form-label"
                         >Dokładność w procentach</label
                       >
                       <div class="col-sm-3">
                         <input
-                          [attr.id]="'accuracy-' + j"
+                          [attr.id]="'accuracy-' + i + '-' + j"
                           type="text"
                           class="form-control col-sm-5"
                           formControlName="accuracy"
@@ -255,7 +265,7 @@
             >Dokumenty modelu</label
           >
           <input
-            formControlName="modelDocuments"
+            formControlName="documents"
             class="form-control"
             type="file"
             id="devicesDocuments"

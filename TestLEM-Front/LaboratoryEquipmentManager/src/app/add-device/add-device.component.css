@@ -32,3 +32,8 @@ thead {
 .med{
   padding: 6px;
 }
+
+
+.measured-value{
+  border-bottom: 1px solid gray;
+}
