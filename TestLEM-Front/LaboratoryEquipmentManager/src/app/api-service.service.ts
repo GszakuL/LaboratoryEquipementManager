@@ -12,7 +12,6 @@ export class ApiServiceService {
   constructor(private http: HttpClient) { }
 
   getDevices(query : PagedAndSortedQueryOfDevicesList): Observable<any[]> {
-    debugger;
     return this.http.post(this.apiUrl + 'device/sorted', query).pipe((response: any) => response);
   }
 
@@ -20,9 +19,8 @@ export class ApiServiceService {
     return this.http.post(this.apiUrl + 'device/search', searchPhrase);
   }
 
-  createDevice(addDeviceDto: AddDeviceDto): Observable<string> {
-    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.http.post<AddDeviceDto>(this.apiUrl + 'device', addDeviceDto, {headers}).pipe((response: any) => response);
+  createDevice(addDeviceDto: any): Observable<string> {
+    return this.http.post(this.apiUrl + 'device', addDeviceDto, {responseType: 'text'}).pipe((response: any) => response);
   }
 }
 
@@ -54,10 +52,10 @@ export class DeviceDto {
 export class MeasuredValueDto {
   PhysicalMagnitudeName: string;
   PhysicalMagnitudeUnit?: string;
-  MeasuredRanges?: MeasuredRangeDto[];
+  MeasuredRanges?: MeasuredRangesDto[];
 }
 
-export class MeasuredRangeDto {
+export class MeasuredRangesDto {
   Range: string;
   AccuracyInPercent: number;
 }
@@ -65,7 +63,7 @@ export class MeasuredRangeDto {
 export class ModelDto {
   Name: string;
   SerialNumber: string;
-  CompanyName: string;
+  CompanyName?: string;
   Documents?: string[];
   CooperatedModelsIds?: number[];
   MeasuredValues?: MeasuredValueDto[];

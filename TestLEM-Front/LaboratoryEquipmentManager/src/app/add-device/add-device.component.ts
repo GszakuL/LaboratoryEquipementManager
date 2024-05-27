@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators, FormArray, FormBuilder, Form, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AddDeviceDto, ApiServiceService, DeviceDto, MeasuredRangeDto, MeasuredValueDto, ModelDto } from '../api-service.service';
+import { AddDeviceDto, ApiServiceService, DeviceDto, MeasuredRangesDto, MeasuredValueDto, ModelDto } from '../api-service.service';
 @Component({
   selector: 'app-add-device',
   templateUrl: './add-device.component.html',
@@ -25,7 +25,7 @@ export class AddDeviceComponent implements OnInit {
       model: this.fb.group({
         name: [''],
         serialNumber: [''],
-        company: [''],
+        companyName: [''],
         documents: [''],
         cooperatedModelsIds: [''],
 
@@ -64,23 +64,9 @@ export class AddDeviceComponent implements OnInit {
     this.selectedFile = file;
   }
 
-  // displayFGvalues() {
-  //   let addDeviceDto = this.mapDeviceFormValuesToAddDeviceDto();
-
-  //   console.log('deviceForm:')
-  //   console.log(    this.deviceForm.value    )
-  //   let measuredValues = this.deviceForm.get('model.measuredValues')?.value;
-  //   console.log(measuredValues);
-  //   console.log(typeof(measuredValues));
-
-  //   console.log('addDeviceDto:')
-  //   console.log(addDeviceDto);
-  // }
-
   displayFGvalues() {
     let addDeviceDto = this.mapDeviceFormValuesToAddDeviceDto();
-    console.log(addDeviceDto);
-    this.apiService.createDevice(addDeviceDto).subscribe(x => alert('Urządzenie z id: '+x+' zostało dodane'));
+    this.apiService.createDevice(addDeviceDto).subscribe((x: string) => alert(`Urządzenie o id: ${x} zostało dodane`));
   }
 
   navigateToDevicesList(): void {
@@ -96,8 +82,8 @@ export class AddDeviceComponent implements OnInit {
 
   private addNewMeasuredValueFG(): FormGroup {
     return this.fb.group({
-      name: '',
-      unit: '',
+      physicalMagnitudeName: '',
+      physicalMagnitudeUnit: '',
       ranges: this.fb.array([])
     })
   }
@@ -118,33 +104,33 @@ export class AddDeviceComponent implements OnInit {
   }
 
   private getValueFromDeviceForm(name: string): any {
-    return this.deviceForm.get(name)?.value;
+    return this.deviceForm.get(name)?.value ? this.deviceForm.get(name)?.value : null;
   }
 
   private getModelFromDeviceForm(): ModelDto {
     let modelDto = new ModelDto();
     modelDto.Name = this.getValueFromDeviceForm('model.name');
     modelDto.SerialNumber = this.getValueFromDeviceForm('model.serialNumber')
-    modelDto.CompanyName = this.getValueFromDeviceForm('model.company');
-    modelDto.Documents = this.getValueFromDeviceForm('model.modelDocuments');
+    modelDto.CompanyName = this.getValueFromDeviceForm('model.companyName');
+    modelDto.Documents = this.getValueFromDeviceForm('model.documents');
     modelDto.CooperatedModelsIds = this.getValueFromDeviceForm('model.cooperatedModelsIds');
     modelDto.MeasuredValues = this.getMeasuredValuesFromDeviceForm();
 
     return modelDto;
   }
 
-  private getMeasuredValuesFromDeviceForm(): MeasuredValueDto[] {
+  private getMeasuredValuesFromDeviceForm(): any {
     let measuredValues = this.deviceForm.get('model.measuredValues') as FormArray;
     let measuredValueDto = new MeasuredValueDto();
     let measuredValuesDto: MeasuredValueDto[] = [];
 
-    if(!measuredValues) {
-      return [];
+    if(measuredValues.length === 0) {
+      return null;
     }
 
     measuredValues.controls.forEach(x => {
-      measuredValueDto.PhysicalMagnitudeName = x.get('name')?.value;
-      measuredValueDto.PhysicalMagnitudeUnit = x.get('unit')?.value;
+      measuredValueDto.PhysicalMagnitudeName = x.get('physicalMagnitudeName')?.value;
+      measuredValueDto.PhysicalMagnitudeUnit = x.get('physicalMagnitudeUnit')?.value;
       measuredValueDto.MeasuredRanges = this.getMeasuredRangesFromDeviceForm(x);
     },
       measuredValuesDto.push(measuredValueDto));
@@ -152,11 +138,15 @@ export class AddDeviceComponent implements OnInit {
     return measuredValuesDto;
   }
 
-  private getMeasuredRangesFromDeviceForm(measuredValue: AbstractControl): MeasuredRangeDto[] {
-    let measuredRangeDto = new MeasuredRangeDto();
-    let measuredRangesDto: MeasuredRangeDto[] = [];
+  private getMeasuredRangesFromDeviceForm(measuredValue: AbstractControl): any {
+    let measuredRangeDto = new MeasuredRangesDto();
+    let measuredRangesDto: MeasuredRangesDto[] = [];
 
     let measuredRanges = measuredValue.get('ranges') as FormArray;
+
+    if(!measuredRanges.value) {
+      return null;
+    }
 
     measuredRanges.controls.forEach(x => {
       measuredRangeDto.AccuracyInPercent = x.get('accuracy')?.value;

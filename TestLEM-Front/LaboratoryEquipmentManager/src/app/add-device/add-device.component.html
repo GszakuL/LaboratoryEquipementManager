@@ -166,26 +166,30 @@
           >
             <div [formGroupName]="i" class="mb-3 measured-value">
               <div class="row mb-3">
-                <label [for]="'name-' + i" class="col-sm-1 col-form-label"
+                <label
+                  [for]="'physicalMagnitudeName-' + i"
+                  class="col-sm-1 col-form-label"
                   >Nazwa</label
                 >
                 <div class="col-sm-4">
                   <input
-                    [attr.id]="'name-' + i"
+                    [attr.id]="'physicalMagnitudeName-' + i"
                     type="text"
                     class="form-control"
-                    formControlName="name"
+                    formControlName="physicalMagnitudeName"
                   />
                 </div>
-                <label [for]="'unit-' + i" class="col-sm-2 col-form-label"
+                <label
+                  [for]="'physicalMagnitudeUnit-' + i"
+                  class="col-sm-2 col-form-label"
                   >Jednostka</label
                 >
                 <div class="col-sm-3">
                   <input
-                    [attr.id]="'unit-' + i"
+                    [attr.id]="'physicalMagnitudeUnit-' + i"
                     type="text"
                     class="form-control"
-                    formControlName="unit"
+                    formControlName="physicalMagnitudeUnit"
                   />
                 </div>
 
@@ -261,17 +265,17 @@
           </button>
         </div>
         <div class="mb-3">
-          <label for="devicesDocuments" class="form-label"
+          <label for="modelDocuments" class="form-label"
             >Dokumenty modelu</label
           >
           <input
             formControlName="documents"
             class="form-control"
             type="file"
-            id="devicesDocuments"
+            id="modelDocuments"
             multiple
           />
-          <div id="devicesDocumentsHelpBlock" class="form-text">
+          <div id="modelDocumentsHelpBlock" class="form-text">
             Dokuemnty dotyczące modelu w formacie .pdf, .csv, .jpg (np.
             instrukcja obsługi)
           </div>
@@ -287,4 +291,5 @@
       <button type="submit" (click)="displayFGvalues()">klik</button>
     </form>
   </div>
+  {{ this.deviceForm.value | json }}
 </div>

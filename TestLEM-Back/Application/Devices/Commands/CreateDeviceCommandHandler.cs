@@ -44,7 +44,7 @@ namespace Application.Devices.Commands
             await _deviceRepository.AddDevice(device);
 
             var documents = request.AddDeviceDto.Documents;
-            if (documents.Any())
+            if (documents?.Count > 0)
             {
                 var documentsNames = await _sender.Send(
                     new AddDocumentsCommand(documents, null, device.Id),
