@@ -31,11 +31,15 @@ namespace Application.Models.Commands
                 return _modelRepository.GetModelId(request.ModelDto.Name, request.ModelDto.SerialNumber);
             }
 
+            //ogarnięcie firmy
+
             var model = _mapper.Map<Model>(request.ModelDto);
 
-            var measuredValues = GetMeasuredValuesForModel(request.ModelDto.MeasuredValues);
-
-            model.MeasuredValues = measuredValues;
+            if (request.ModelDto.MeasuredValues != null)
+            {
+                var measuredValues = GetMeasuredValuesForModel(request.ModelDto.MeasuredValues);
+                model.MeasuredValues = measuredValues;
+            }
 
             await _modelRepository.AddModel(model);
 
@@ -68,9 +72,13 @@ namespace Application.Models.Commands
                     {
                         Name = measuredValueDto.PhysicalMagnitudeName,
                         Unit = measuredValueDto.PhysicalMagnitudeUnit
-                    },
-                    MeasuredRanges = GetMeasuredRanges(measuredValueDto.MeasuredRanges)
+                    }
                 };
+
+                if (measuredValueDto.MeasuredRanges != null)
+                {
+                    measuredValue.MeasuredRanges = GetMeasuredRanges(measuredValueDto.MeasuredRanges);
+                }
                 measuredValues.Add(measuredValue);
             }
             return measuredValues;

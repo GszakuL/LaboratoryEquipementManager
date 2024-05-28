@@ -2,7 +2,7 @@
 {
     public class MeasuredRangesDto
     {
-        public string Range { get; set; }
-        public decimal AccuracyInPercent { get; set; }
+        public string? Range { get; set; }
+        public decimal? AccuracyInPercent { get; set; }
     }
 }

@@ -33,6 +33,14 @@ export class AddDeviceComponent implements OnInit {
       })
     })
   }
+
+  //dodać walidację
+  //dać measured ranges na nullable w BE +
+  //ogarnać duplikaty firm
+  //dodać urządzenia powiązane
+  //ogarnać dokumenty
+
+
   get measuredValues() {
     return this.deviceForm.get('model.measuredValues') as FormArray;
   }
