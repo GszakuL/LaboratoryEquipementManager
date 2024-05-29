@@ -10,10 +10,11 @@ import { AddDeviceDto, ApiServiceService, DeviceDto, MeasuredRangesDto, Measured
 export class AddDeviceComponent implements OnInit {
   deviceForm: FormGroup;
   selectedFile: File;
+  submitted = false;
 
   constructor(private router: Router, private fb: FormBuilder, private apiService: ApiServiceService) {
     this.deviceForm = this.fb.group({
-      identificationNumber: [''],
+      identificationNumber: ['', Validators.required],
       productionDate: [''],
       lastCalibrationDate: [''],
       calibrationPeriodInYears: [''],
@@ -23,8 +24,8 @@ export class AddDeviceComponent implements OnInit {
       documents: [''],
 
       model: this.fb.group({
-        name: [''],
-        serialNumber: [''],
+        name: ['', Validators.required],
+        serialNumber: ['', Validators.required],
         companyName: [''],
         documents: [''],
         cooperatedModelsIds: [''],
@@ -74,11 +75,40 @@ export class AddDeviceComponent implements OnInit {
 
   displayFGvalues() {
     let addDeviceDto = this.mapDeviceFormValuesToAddDeviceDto();
-    this.apiService.createDevice(addDeviceDto).subscribe((x: string) => alert(`Urządzenie o id: ${x} zostało dodane`));
+    console.log(addDeviceDto);
+    this.markFormGroupTouched(this.deviceForm);
+    if (this.deviceForm.valid){
+      this.apiService.createDevice(addDeviceDto).subscribe((x: string) => {
+        alert(`Urządzenie o id: ${x} zostało dodane`);
+        this.deviceForm.reset();
+        window.scroll({
+          top: 0,
+          behavior: 'smooth'
+        })
+      });
+    }
+  }
+
+  markFormGroupTouched(control: AbstractControl) {
+    if (control instanceof FormGroup) {
+      Object.keys(control.controls).forEach(key => {
+        const subControl = control.controls[key];
+        this.markFormGroupTouched(subControl);
+      });
+    } else if (control instanceof FormArray) {
+      control.controls.forEach(subControl => this.markFormGroupTouched(subControl));
+    } else if (control instanceof FormControl) {
+      control.markAsTouched();
+    }
   }
 
   navigateToDevicesList(): void {
     this.router.navigate(['']);
+  }
+
+  shouldShowError(controlName: string): boolean {
+    const control = this.deviceForm.get(controlName);
+    return control!.invalid && (control!.touched || this.submitted);
   }
 
   private addNewRangeFG(): FormGroup {
@@ -90,7 +120,7 @@ export class AddDeviceComponent implements OnInit {
 
   private addNewMeasuredValueFG(): FormGroup {
     return this.fb.group({
-      physicalMagnitudeName: '',
+      physicalMagnitudeName: ['', Validators.required],
       physicalMagnitudeUnit: '',
       ranges: this.fb.array([])
     })
@@ -115,6 +145,10 @@ export class AddDeviceComponent implements OnInit {
     return this.deviceForm.get(name)?.value ? this.deviceForm.get(name)?.value : null;
   }
 
+  private getModelForm() : FormGroup {
+    return this.deviceForm.get('model') as FormGroup;
+  }
+
   private getModelFromDeviceForm(): ModelDto {
     let modelDto = new ModelDto();
     modelDto.Name = this.getValueFromDeviceForm('model.name');
@@ -128,8 +162,8 @@ export class AddDeviceComponent implements OnInit {
   }
 
   private getMeasuredValuesFromDeviceForm(): any {
+    debugger;
     let measuredValues = this.deviceForm.get('model.measuredValues') as FormArray;
-    let measuredValueDto = new MeasuredValueDto();
     let measuredValuesDto: MeasuredValueDto[] = [];
 
     if(measuredValues.length === 0) {
@@ -137,17 +171,17 @@ export class AddDeviceComponent implements OnInit {
     }
 
     measuredValues.controls.forEach(x => {
+      let measuredValueDto = new MeasuredValueDto();
       measuredValueDto.PhysicalMagnitudeName = x.get('physicalMagnitudeName')?.value;
       measuredValueDto.PhysicalMagnitudeUnit = x.get('physicalMagnitudeUnit')?.value;
       measuredValueDto.MeasuredRanges = this.getMeasuredRangesFromDeviceForm(x);
-    },
-      measuredValuesDto.push(measuredValueDto));
+      measuredValuesDto.push(measuredValueDto);
+    });
 
     return measuredValuesDto;
   }
 
   private getMeasuredRangesFromDeviceForm(measuredValue: AbstractControl): any {
-    let measuredRangeDto = new MeasuredRangesDto();
     let measuredRangesDto: MeasuredRangesDto[] = [];
 
     let measuredRanges = measuredValue.get('ranges') as FormArray;
@@ -157,10 +191,11 @@ export class AddDeviceComponent implements OnInit {
     }
 
     measuredRanges.controls.forEach(x => {
+      let measuredRangeDto = new MeasuredRangesDto();
       measuredRangeDto.AccuracyInPercent = x.get('accuracy')?.value;
       measuredRangeDto.Range = x.get('range')?.value;
-    },
-      measuredRangesDto.push(measuredRangeDto));
+      measuredRangesDto.push(measuredRangeDto);
+    });
 
     return measuredRangesDto;
   }

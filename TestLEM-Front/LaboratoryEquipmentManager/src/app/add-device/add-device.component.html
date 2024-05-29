@@ -25,6 +25,9 @@
               id="identificationNumber"
               formControlName="identificationNumber"
             />
+            <div *ngIf="shouldShowError('identificationNumber')" class="error">
+              Numer identyfikacyjny urządzenia jest wymagany
+            </div>
           </div>
         </div>
         <div class="mb-3 row">
@@ -63,6 +66,7 @@
               class="form-control"
               id="calibrationPeriod"
               formControlName="calibrationPeriodInYears"
+              min="1"
             />
           </div>
         </div>
@@ -132,7 +136,11 @@
               class="form-control"
               id="name"
               formControlName="name"
+              placeholder="Wpisz nazwę lub wybierz z listy proponowanych"
             />
+            <div *ngIf="shouldShowError('model.name')" class="error">
+              Nazwa modelu jest wymagana
+            </div>
           </div>
         </div>
         <div class="mb-3 row">
@@ -146,6 +154,9 @@
               id="serialNumber"
               formControlName="serialNumber"
             />
+            <div *ngIf="shouldShowError('model.serialNumber')" class="error">
+              Numer seryjny modelu jest wymagany
+            </div>
           </div>
         </div>
         <div class="mb-3 row">

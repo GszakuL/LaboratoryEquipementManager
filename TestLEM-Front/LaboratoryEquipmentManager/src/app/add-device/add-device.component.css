@@ -33,7 +33,14 @@ thead {
   padding: 6px;
 }
 
-
 .measured-value{
   border-bottom: 1px solid gray;
+}
+
+input.ng-invalid.ng-touched {
+  border: 2px solid red;
+}
+
+.error {
+  color: red;
 }
