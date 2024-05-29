@@ -21,9 +21,9 @@ namespace Infrastructure.Repositories
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<bool> CheckIfDeviceExists(string identificationNumber, CancellationToken cancellationToken = default)
+        public async Task<bool> CheckIfDeviceExists(string identificationNumber, CancellationToken cancellationToken)
         {
-            var result = await _dbContext.Devices.AnyAsync(x => x.IdentifiactionNumber == identificationNumber);
+            var result = await _dbContext.Devices.AnyAsync(x => x.IdentifiactionNumber == identificationNumber, cancellationToken);
             return result;
         }
     }

@@ -4,6 +4,7 @@ using AutoMapper;
 using Domain.Abstraction;
 using Domain.Entities;
 using MediatR;
+using System.Threading;
 
 namespace Application.Models.Commands
 {
@@ -11,12 +12,14 @@ namespace Application.Models.Commands
     {
         private readonly IModelRepository _modelRepository;
         private readonly IModelCooperationRepository _modelCooperationRepository;
+        private readonly ICompanyRepository _companyRepository;
         private readonly IMapper _mapper;
         private readonly ISender _sender;
 
         public CreateModelCommandHandler(IModelRepository modelRepository, IModelCooperationRepository modelCooperationRepository,
-                                         IMapper mapper, ISender sender)
+                                         ICompanyRepository companyRepository, IMapper mapper, ISender sender)
         {
+            _companyRepository = companyRepository;
             _modelRepository = modelRepository;
             _modelCooperationRepository = modelCooperationRepository;
             _mapper = mapper;
@@ -31,9 +34,12 @@ namespace Application.Models.Commands
                 return _modelRepository.GetModelId(request.ModelDto.Name, request.ModelDto.SerialNumber);
             }
 
-            //ogarnięcie firmy
-
             var model = _mapper.Map<Model>(request.ModelDto);
+
+            if (request.ModelDto.CompanyName != null)
+            {
+                model.CompanyId = await GetDeviceComapnyIdAsync(request.ModelDto.CompanyName, cancellationToken);
+            }
 
             if (request.ModelDto.MeasuredValues != null)
             {
@@ -98,6 +104,27 @@ namespace Application.Models.Commands
                 measuredRanges.Add(measuredRange);
             }
             return measuredRanges;
+        }
+
+        private async Task<int> GetDeviceComapnyIdAsync(string companyName, CancellationToken cancellationToken)
+        {
+            int id;
+            var companyExists = await _companyRepository.CheckIfCompanyExists(companyName);
+            if (!companyExists)
+            {
+                var company = new Company
+                {
+                    Name = companyName
+                };
+                await _companyRepository.AddCompany(company, cancellationToken);
+
+                id = company.Id;
+            } 
+            else
+            {
+                id = await _companyRepository.GetCompanyIdByItsName(companyName, cancellationToken);
+            }
+            return id;
         }
     }
 }

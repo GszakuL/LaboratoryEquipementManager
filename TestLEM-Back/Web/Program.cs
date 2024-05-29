@@ -28,6 +28,8 @@ builder.Services.AddScoped<IModelRepository, ModelRepository>();
 builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
 builder.Services.AddScoped<IModelCooperationRepository, ModelCooperationRepository>();
+builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitWork>();
 builder.Services.AddScoped<IApplicationDbContext, LemDbContext>();
 
 builder.Services.AddCors(x =>

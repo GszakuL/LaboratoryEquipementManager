@@ -9,10 +9,7 @@ namespace TestLEM.Mappers
         public TestLEMMappingProfile()
         {
             CreateMap<ModelDto, Model>()
-                .ForMember(x => x.Company, y => y.MapFrom(x => new Company
-                {
-                    Name = x.CompanyName
-                }))
+                .ForMember(x => x.Company, y => y.Ignore())
                 .ForMember(x => x.MeasuredValues, y => y.Ignore());
 
             CreateMap<AddDeviceDto, Device>()

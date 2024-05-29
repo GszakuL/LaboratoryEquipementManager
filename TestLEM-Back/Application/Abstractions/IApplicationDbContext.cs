@@ -1,5 +1,6 @@
 ﻿using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Application.Abstractions
 {
@@ -13,6 +14,8 @@ namespace Application.Abstractions
         DbSet<PhysicalMagnitude> PhysicalMagnitudes { get; set; }
         DbSet<Document> Documents { get; set; }
         DbSet<ModelCooperation> ModelCooperation { get; set; }
+
+        DatabaseFacade Database { get; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
