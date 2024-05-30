@@ -48,10 +48,13 @@ namespace Application.Devices.Queries
             var deviceQueryResponse = devicesQuery
                 .Select(x => new DeviceDto
                 {
+                    Id = x.Id,
                     DeviceIdentificationNumber = x.IdentifiactionNumber,
                     ModelName = x.Model.Name,
                     ModelSerialNumber = x.Model.SerialNumber,
                     StorageLocation = x.StorageLocation,
+                    LastCalibrationDate = x.LastCalibrationDate,
+                    ProductionDate = x.ProductionDate,
                     MeasuredValues = (ICollection<MeasuredValueDto>)x.Model.MeasuredValues.Select(y =>
                         new MeasuredValueDto
                         {

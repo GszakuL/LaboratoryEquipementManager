@@ -49,15 +49,27 @@
         class="clickable-row"
         *ngFor="let device of DevicesList.items; let i = index"
         [attr.id]="'row-id-' + i"
-        (click)="openDeviceDetails(device)"
+        (click)="openDeviceDetails(device.id)"
       >
         <td>{{ device.deviceIdentificationNumber ?? "--" }}</td>
         <td>{{ device.modelName ?? "--" }}</td>
         <td>{{ device.modelSerialNumber ?? "--" }}</td>
         <td>{{ measuredValuesAsStringTab[i] }}</td>
         <td>{{ device.storageLocation ?? "--" }}</td>
-        <td>{{ device.productionDate ?? "--" }}</td>
-        <td>{{ device.lastCalibrationDate ?? "--" }}</td>
+        <td>
+          {{
+            device.productionDate
+              ? (device.productionDate | date : "dd.MM.yyyy")
+              : "--"
+          }}
+        </td>
+        <td>
+          {{
+            device.lastCalibrationDate
+              ? (device.lastCalibrationDate | date : "dd.MM.yyyy")
+              : "--"
+          }}
+        </td>
       </tr>
     </tbody>
   </table>

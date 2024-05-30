@@ -17,6 +17,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgxTypeaheadModule } from 'ngx-typeahead';
 import { MatPaginatorIntl, MatPaginatorModule } from '@angular/material/paginator';
 import { PolishPaginatorIntl } from './polish-paginator-inlt';
+import { PercentageDirective } from './commons/directives/percentage.directive';
 
 @NgModule({
   declarations: [
@@ -25,7 +26,8 @@ import { PolishPaginatorIntl } from './polish-paginator-inlt';
     DeviceDetailsComponent,
     AddDeviceComponent,
     RemoveDeviceWarningModalComponent,
-    UserComponent
+    UserComponent,
+    PercentageDirective
   ],
   imports: [
     BrowserModule,

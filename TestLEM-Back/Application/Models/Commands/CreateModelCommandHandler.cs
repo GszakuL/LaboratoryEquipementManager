@@ -38,7 +38,7 @@ namespace Application.Models.Commands
 
             if (request.ModelDto.CompanyName != null)
             {
-                model.CompanyId = await GetDeviceComapnyIdAsync(request.ModelDto.CompanyName, cancellationToken);
+                model = await PrepareModelsCompany(model, request.ModelDto.CompanyName, cancellationToken);
             }
 
             if (request.ModelDto.MeasuredValues != null)
@@ -106,25 +106,24 @@ namespace Application.Models.Commands
             return measuredRanges;
         }
 
-        private async Task<int> GetDeviceComapnyIdAsync(string companyName, CancellationToken cancellationToken)
+        private async Task<Model> PrepareModelsCompany(Model model, string companyName, CancellationToken cancellationToken)
         {
-            int id;
             var companyExists = await _companyRepository.CheckIfCompanyExists(companyName);
+            
             if (!companyExists)
             {
                 var company = new Company
                 {
                     Name = companyName
                 };
-                await _companyRepository.AddCompany(company, cancellationToken);
-
-                id = company.Id;
-            } 
+                model.Company = company;
+            }
             else
             {
-                id = await _companyRepository.GetCompanyIdByItsName(companyName, cancellationToken);
+                model.CompanyId = await _companyRepository.GetCompanyIdByItsName(companyName, cancellationToken);
             }
-            return id;
+
+            return model;
         }
     }
 }

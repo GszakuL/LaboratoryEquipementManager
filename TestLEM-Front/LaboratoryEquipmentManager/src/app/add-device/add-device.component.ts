@@ -11,6 +11,8 @@ export class AddDeviceComponent implements OnInit {
   deviceForm: FormGroup;
   selectedFile: File;
   submitted = false;
+  fieldRequired = 'Pole jest wymagane';
+  selectedDeviceFiles: File[] = [];
 
   constructor(private router: Router, private fb: FormBuilder, private apiService: ApiServiceService) {
     this.deviceForm = this.fb.group({
@@ -21,7 +23,7 @@ export class AddDeviceComponent implements OnInit {
       isCalibrated: [''],
       isCalibrationCloseToExpire: [''],
       storageLocation: [''],
-      documents: [''],
+      documents: [null],
 
       model: this.fb.group({
         name: ['', Validators.required],
@@ -68,14 +70,19 @@ export class AddDeviceComponent implements OnInit {
     this.measuredValues.push(this.addNewMeasuredValueFG());
   }
 
-  onDeviceFileChange(event: any): void {
-    const file = event.target.files[0];
-    this.selectedFile = file;
+  onDeviceFileChange(event: any) {
+    const files = (event.target as HTMLInputElement).files;
+    if (files && files.length) {
+      this.selectedDeviceFiles = Array.from(files);
+    }
   }
 
   displayFGvalues() {
     let addDeviceDto = this.mapDeviceFormValuesToAddDeviceDto();
     console.log(addDeviceDto);
+    this.deviceForm.patchValue({
+      documents: this.selectedDeviceFiles
+    })
     this.markFormGroupTouched(this.deviceForm);
     if (this.deviceForm.valid){
       this.apiService.createDevice(addDeviceDto).subscribe((x: string) => {
@@ -111,6 +118,11 @@ export class AddDeviceComponent implements OnInit {
     return control!.invalid && (control!.touched || this.submitted);
   }
 
+  shouldShowErrorById(id: string): boolean {
+    const control = document.getElementById(id) as any;
+    return !control.validity.valid;
+  }
+
   private addNewRangeFG(): FormGroup {
     return this.fb.group({
       range:'',
@@ -129,13 +141,13 @@ export class AddDeviceComponent implements OnInit {
   private mapDeviceFormValuesToAddDeviceDto(): AddDeviceDto {
     let addDeviceDto = new AddDeviceDto();
     addDeviceDto.IdentifiactionNumber = this.getValueFromDeviceForm('identificationNumber');
-    addDeviceDto.ProductionDate = this.getValueFromDeviceForm('productionDate');
+    addDeviceDto.ProductionDate = new Date(this.getValueFromDeviceForm('productionDate'));
     addDeviceDto.CalibrationPeriodInYears = this.getValueFromDeviceForm('calibrationPeriodInYears');
-    addDeviceDto.LastCalibrationDate = this.getValueFromDeviceForm('lastCalibrationDate');
+    addDeviceDto.LastCalibrationDate = new Date(this.getValueFromDeviceForm('lastCalibrationDate'));
     addDeviceDto.IsCalibrated = this.getValueFromDeviceForm('isCalibrated');
     addDeviceDto.IsCalibrationCloseToExpire = this.getValueFromDeviceForm('isCalibrationCloseToExpire');
     addDeviceDto.StorageLocation = this.getValueFromDeviceForm('storageLocation');
-    addDeviceDto.Documents = this.getValueFromDeviceForm('documents');//this.selectedFile;
+    //addDeviceDto.Documents = this.getValueFromDeviceForm('documents');//this.selectedFile;
     addDeviceDto.Model = this.getModelFromDeviceForm();
 
     return addDeviceDto;
@@ -147,6 +159,15 @@ export class AddDeviceComponent implements OnInit {
 
   private getModelForm() : FormGroup {
     return this.deviceForm.get('model') as FormGroup;
+  }
+
+  private getDeviceDocuments(){
+    const formData = new FormData();
+
+    this.selectedDeviceFiles.forEach(file => {
+      formData.append('documents', file, file.name);
+    });
+    return formData;
   }
 
   private getModelFromDeviceForm(): ModelDto {
@@ -192,7 +213,7 @@ export class AddDeviceComponent implements OnInit {
 
     measuredRanges.controls.forEach(x => {
       let measuredRangeDto = new MeasuredRangesDto();
-      measuredRangeDto.AccuracyInPercent = x.get('accuracy')?.value;
+      measuredRangeDto.AccuracyInPercent = +x.get('accuracy')?.value;
       measuredRangeDto.Range = x.get('range')?.value;
       measuredRangesDto.push(measuredRangeDto);
     });

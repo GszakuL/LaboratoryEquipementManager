@@ -26,7 +26,7 @@
               formControlName="identificationNumber"
             />
             <div *ngIf="shouldShowError('identificationNumber')" class="error">
-              Numer identyfikacyjny urządzenia jest wymagany
+              {{ fieldRequired }}
             </div>
           </div>
         </div>
@@ -139,7 +139,7 @@
               placeholder="Wpisz nazwę lub wybierz z listy proponowanych"
             />
             <div *ngIf="shouldShowError('model.name')" class="error">
-              Nazwa modelu jest wymagana
+              {{ fieldRequired }}
             </div>
           </div>
         </div>
@@ -155,7 +155,7 @@
               formControlName="serialNumber"
             />
             <div *ngIf="shouldShowError('model.serialNumber')" class="error">
-              Numer seryjny modelu jest wymagany
+              {{ fieldRequired }}
             </div>
           </div>
         </div>
@@ -188,7 +188,14 @@
                     type="text"
                     class="form-control"
                     formControlName="physicalMagnitudeName"
+                    required
                   />
+                  <div
+                    *ngIf="shouldShowErrorById('physicalMagnitudeName-' + i)"
+                    class="error"
+                  >
+                    {{ fieldRequired }}
+                  </div>
                 </div>
                 <label
                   [for]="'physicalMagnitudeUnit-' + i"
@@ -246,7 +253,15 @@
                           type="text"
                           class="form-control col-sm-5"
                           formControlName="accuracy"
+                          min="0"
+                          appPercentageDirective
                         />
+                        <div
+                          *ngIf="shouldShowErrorById('accuracy-' + i + '-' + j)"
+                          class="error"
+                        >
+                          Wartość pola musi być z zakresu 0-100
+                        </div>
                       </div>
                       <button
                         (click)="removeRangeForMeasuredValue(i, j)"

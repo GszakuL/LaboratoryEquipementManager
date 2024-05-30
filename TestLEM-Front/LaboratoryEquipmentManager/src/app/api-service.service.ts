@@ -15,6 +15,10 @@ export class ApiServiceService {
     return this.http.post(this.apiUrl + 'device/sorted', query).pipe((response: any) => response);
   }
 
+  getDeviceDetailsById(deviceId: number): Observable<Object> {
+    return this.http.get(this.apiUrl + 'device/', deviceId);
+  }
+
   getDevicesByModelName(searchPhrase: SearchPhraseDto): Observable<Object> {
     return this.http.post(this.apiUrl + 'device/search', searchPhrase);
   }
@@ -32,7 +36,7 @@ export class AddDeviceDto {
    IsCalibrated: boolean;
    IsCalibrationCloseToExpire?: boolean;
    StorageLocation?: string;
-   Documents?: string[];
+   Documents?: File[];
    Model: ModelDto;
 }
 

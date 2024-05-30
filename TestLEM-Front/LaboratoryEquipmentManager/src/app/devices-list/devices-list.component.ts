@@ -45,8 +45,9 @@ export class DevicesListComponent implements OnInit {
 
   refreshDevicesList(): void {
     this.deviceQuery.Page = 1;
-    this.deviceQuery.PageSize = 20;
+    this.deviceQuery.PageSize = 10;
     this.service.getDevices(this.deviceQuery).subscribe((x: any) => {
+      console.log(x.items)
       this.DevicesList = x;
       this.prepareDevicesMeasuredValuesToDisplay(this.DevicesList.items)
       this.totalDevicesCount = x.totalCount;
@@ -58,8 +59,9 @@ export class DevicesListComponent implements OnInit {
     this.deviceQuery.Page = $event.pageIndex + 1;
     this.deviceQuery.PageSize = $event.pageSize;
 
-    this.service.getDevices(this.deviceQuery).subscribe(x => {
+    this.service.getDevices(this.deviceQuery).subscribe((x: any) => {
       this.DevicesList = x;
+      console.log(x.items)
       this.prepareDevicesMeasuredValuesToDisplay(this.DevicesList.items)
     });
   }
@@ -68,8 +70,12 @@ export class DevicesListComponent implements OnInit {
     this.router.navigate(['/add-device'])
   }
 
-  openDeviceDetails(device: any) {
-    this.dialog.open(DeviceDetailsComponent, {data: {deviceDto: device}, autoFocus: false });
+  openDeviceDetails(deviceId: any) {
+    debugger;
+    this.service.getDeviceDetailsById(deviceId).subscribe(deviceDetails => {
+      this.dialog.open(DeviceDetailsComponent, {data: {deviceDto: deviceDetails}, autoFocus: false});
+    })
+    //this.dialog.open(DeviceDetailsComponent, {data: {deviceDto: device}, autoFocus: false });
   }
 
   clearList(){
@@ -100,6 +106,8 @@ export class DevicesListComponent implements OnInit {
   }
 
   private prepareDevicesMeasuredValuesToDisplay(devices: any[]): void {
+    this.measuredValuesAsStringTab = [];
+    debugger;
     devices.forEach(x => {
       x.measuredValues.forEach((element: any) => {
         this.devicePhysicalMagnitudeNames.push(element.physicalMagnitudeName);
