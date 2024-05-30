@@ -21,20 +21,13 @@ export class DeviceDetailsComponent implements OnInit {
     private selfDialog: DialogRef<DeviceDetailsComponent>
   ){}
 
-   deviceDto = this.data.deviceDto;
-   deviceModel = this.data.deviceDto.model;
-   measuredValues = this.deviceModel.measuredValues;
-   meassuredValueRanges = this.measuredValues.measurmentRanges;
-   rowspan = 1;
+  shouldDisplayMeasuredValuesTable = false;
+  deviceDto = this.data.deviceDto;
+  rowspan = 1;
 
   ngOnInit(): void {
-    console.log(this.measuredValues);
-    console.log(this.measuredValues[0].measurmentRanges);
-    let lng = this.measuredValues[0].measurmentRanges.length;
-    console.log('length: '+lng);
-    // this.deviceDto = this.data.deviceDto;
-    // this.deviceModel = this.data.deviceDto.Model;
-    // this.deviceStorageLocation = this.data.deviceDto.StorageLocation;
+    console.log(this.data)
+    this.setDisplayMeasuredValuesTable();
   }
 
   onDeleteDevice(): void {
@@ -48,6 +41,10 @@ export class DeviceDetailsComponent implements OnInit {
   setRowspan(measuredValue: any): number {
     console.log(measuredValue.measuringRanges.length);
     return measuredValue.measuringRanges.length;
+  }
+
+  setDisplayMeasuredValuesTable() {
+    this.shouldDisplayMeasuredValuesTable = this.deviceDto.measuredValues.length > 0;
   }
 }
 

@@ -38,7 +38,7 @@ namespace Web.Controllers
             return Ok(pagedAndSortedDevicesList);
         }
 
-        [HttpGet("/{deviceId}")]
+        [HttpGet("{deviceId}")]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetDeviceDetails([FromRoute]int deviceId, CancellationToken cancellationToken)

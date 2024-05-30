@@ -16,7 +16,7 @@ export class ApiServiceService {
   }
 
   getDeviceDetailsById(deviceId: number): Observable<Object> {
-    return this.http.get(this.apiUrl + 'device/', deviceId);
+    return this.http.get(this.apiUrl + 'device/' + deviceId);
   }
 
   getDevicesByModelName(searchPhrase: SearchPhraseDto): Observable<Object> {
