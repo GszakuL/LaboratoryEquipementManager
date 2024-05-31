@@ -30,7 +30,8 @@ namespace Application.Devices.Queries
                         .ThenInclude(x => x.MeasuredValues)
                             .ThenInclude(x => x.PhysicalMagnitude)
                     .Where(x => x.Model.Name.ToLower().Contains(searchTerm)
-                             || x.Model.MeasuredValues.Where(x => x.PhysicalMagnitude.Name.ToLower().Contains(searchTerm)).Any());
+                             || x.Model.MeasuredValues.Where(x => x.PhysicalMagnitude.Name.ToLower().Contains(searchTerm)).Any()
+                             || x.IdentifiactionNumber == searchTerm);
 
             }
 
@@ -55,6 +56,7 @@ namespace Application.Devices.Queries
                     StorageLocation = x.StorageLocation,
                     LastCalibrationDate = x.LastCalibrationDate,
                     ProductionDate = x.ProductionDate,
+                    CalibrationPeriodInYears = x.CalibrationPeriodInYears,
                     MeasuredValues = (ICollection<MeasuredValueDto>)x.Model.MeasuredValues.Select(y =>
                         new MeasuredValueDto
                         {

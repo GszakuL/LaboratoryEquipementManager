@@ -39,7 +39,7 @@ namespace Application.Devices.Queries
                 StorageLocation = device.StorageLocation,
                 ProductionDate = device.ProductionDate,
                 LastCalibrationDate = device.LastCalibrationDate,
-                Producer = device.Model.Company.Name,
+                Producer = device.Model.Company?.Name,
                 CalibrationPeriodInYears = device.CalibrationPeriodInYears,
                 IsCalibrated = CheckIfDeviceIsCalibrated(device?.LastCalibrationDate, device?.CalibrationPeriodInYears),
                 DeviceDocuments = GetDocumentsForDevice(device.Id),
