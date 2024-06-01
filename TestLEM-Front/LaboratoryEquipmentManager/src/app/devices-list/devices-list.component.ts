@@ -26,6 +26,7 @@ export class DevicesListComponent implements OnInit {
   measuredValuesAsStringTab: string[] = [];
   serchPhraseFC = new FormControl();
   searchPhrase = new SearchPhraseDto;
+  order = "asc";
 
   deviceQuery = new PagedAndSortedQueryOfDevicesList();
   totalDevicesCount: number = 0;
@@ -38,9 +39,12 @@ export class DevicesListComponent implements OnInit {
   }
 
   refreshDevicesList(): void {
+    let searchPhrase = this.serchPhraseFC.value;
+
     this.deviceQuery.Page = 1;
-    this.deviceQuery.PageSize = 10;
-    this.deviceQuery.SearchTerm = "";
+    this.deviceQuery.PageSize = this.paginator?.pageSize ? this.paginator.pageSize : 10;
+    this.deviceQuery.SearchTerm = searchPhrase;
+    this.deviceQuery.SortOrder = this.order;
     this.service.getDevices(this.deviceQuery).subscribe((x: any) => {
       this.DevicesList = x;
       this.prepareDevicesMeasuredValuesToDisplay(this.DevicesList.items)
@@ -78,21 +82,7 @@ export class DevicesListComponent implements OnInit {
   }
 
   find() {
-    let searchPhrase = this.serchPhraseFC.value;
-    console.log(searchPhrase);
-
-    if (searchPhrase === null) {
-      return;
-    }
-    this.deviceQuery.Page = 1;
-    this.deviceQuery.PageSize = 10;
-    this.deviceQuery.SearchTerm = searchPhrase;
-
-    this.service.getDevices(this.deviceQuery).subscribe((x: any) => {
-      this.DevicesList = x;
-      this.prepareDevicesMeasuredValuesToDisplay(this.DevicesList.items)
-      this.totalDevicesCount = x.totalCount;
-    });
+    this.refreshDevicesList();
   }
 
   onSearchChanged($event: any){
@@ -139,6 +129,19 @@ export class DevicesListComponent implements OnInit {
   refreshCloseToExpireValue($event: any) {
     console.log('changed')
     console.log(this.selectedValue)
+    this.refreshDevicesList();
+  }
+
+  setOrderDirection() {
+    let orderBtn = document.getElementById("orderButton");
+    if (this.order === "asc") {
+      this.order = "desc";
+      orderBtn?.setAttribute("style", "transform: rotate(180deg)")
+    } else if (this.order === "desc") {
+      this.order = "asc";
+      orderBtn?.setAttribute("style", "transform: rotate(0deg)")
+    }
+
     this.refreshDevicesList();
   }
 
