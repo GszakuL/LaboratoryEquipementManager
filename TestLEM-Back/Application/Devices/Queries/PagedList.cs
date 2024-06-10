@@ -22,7 +22,15 @@ namespace Application.Devices.Queries
         public static async Task<PagedList<T>> CreateAsync(IQueryable<T> query, int page, int pageSize)
         {
             var totalCount = await query.CountAsync();
-            var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+            var items = new List<T>();
+            if (page == 0 && pageSize == 0)
+            {
+                items = await query.ToListAsync();
+            }
+            else
+            {
+                items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+            }
 
             return new(items, page, pageSize, totalCount);
         }

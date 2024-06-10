@@ -19,7 +19,7 @@ namespace Web.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> AddDevice([FromBody] AddDeviceDto addDeviceDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> AddDevice([FromBody] AddDeviceDto addDeviceDto, [FromForm] IFormFileCollection documents, CancellationToken cancellationToken)
         { 
             var command = new CreateDeviceCommand(addDeviceDto);
 

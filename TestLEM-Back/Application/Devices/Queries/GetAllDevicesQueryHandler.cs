@@ -19,7 +19,6 @@ namespace Application.Devices.Queries
         public async Task<PagedList<DeviceDto>> Handle(GetAllDevicesQuery request, CancellationToken cancellationToken)
         {
             IQueryable<Device> devicesQuery = _dbContext.Devices;
-            IQueryable<MeasuredValue> measuredValueQuery = _dbContext.MeasuredValues;
             var searchTerm = request.pagedAndSortedDevicesQueryDto.SearchTerm?.ToLower();
             const string descWord = "desc";
 
@@ -34,16 +33,30 @@ namespace Application.Devices.Queries
                              || x.IdentifiactionNumber == searchTerm);
 
             }
-
+            //do refaktoru
             if (request.pagedAndSortedDevicesQueryDto.SortOrder?.ToLower() == descWord)
             {
-                devicesQuery = devicesQuery.OrderByDescending(x => x.Model.Name);
-                measuredValueQuery = measuredValueQuery.OrderByDescending(x => x.Model.Name);
+                if (request.pagedAndSortedDevicesQueryDto.SortColumn == "modelName")
+                {
+                    devicesQuery = devicesQuery.OrderByDescending(x => x.Model.Name);
+                }
+                else
+                {
+                    devicesQuery = devicesQuery.OrderByDescending(x => x.NextCalibrationDate.HasValue)
+                                               .ThenByDescending(x => x.NextCalibrationDate);
+                }
             }
             else
             {
-                devicesQuery = devicesQuery.OrderBy(x => x.Model.Name);
-                measuredValueQuery = measuredValueQuery.OrderBy(x => x.Model.Name);
+                if (request.pagedAndSortedDevicesQueryDto.SortColumn == "modelName")
+                {
+                    devicesQuery = devicesQuery.OrderBy(x => x.Model.Name);
+                }
+                else
+                {
+                    devicesQuery = devicesQuery.OrderBy(x => x.NextCalibrationDate.HasValue)
+                                               .ThenBy(x => x.NextCalibrationDate);
+                }
             }
 
             var deviceQueryResponse = devicesQuery

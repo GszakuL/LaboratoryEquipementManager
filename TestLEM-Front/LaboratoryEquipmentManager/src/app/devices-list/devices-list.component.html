@@ -60,9 +60,9 @@
         >
           <span class="me-2">Model</span>
           <button
-            id="orderButton"
+            id="orderButtonName"
             class="btn btn-light"
-            (click)="setOrderDirection()"
+            (click)="setOrderDirection('modelName')"
           >
             &uarr;
           </button>
@@ -72,8 +72,22 @@
         <th scope="col" class="align-middle">Miejsce przechowywania</th>
         <th scope="col" class="align-middle">Data Produkcji</th>
         <th scope="col" class="align-middle">Data ostatniej kalibracji</th>
+        <th
+          scope="col"
+          class="d-flex justify-content-between align-items-center"
+        >
+          <span class="me-2">Data kolejnej kalibracji</span>
+          <button
+            id="orderButtonDate"
+            class="btn btn-light"
+            (click)="setOrderDirection('calibrationDate')"
+          >
+            &uarr;
+          </button>
+        </th>
       </tr>
     </thead>
+
     <tbody>
       <tr
         [class]="'clickable-row ' + markDeviceCloseToExpire(device)"
@@ -97,6 +111,14 @@
           {{
             device.lastCalibrationDate
               ? (device.lastCalibrationDate | date : "dd.MM.yyyy")
+              : "--"
+          }}
+        </td>
+        <td>
+          {{
+            getCalibrationExpireDateForDevice(device)
+              ? (getCalibrationExpireDateForDevice(device)
+                | date : "dd.MM.yyyy")
               : "--"
           }}
         </td>

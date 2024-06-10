@@ -1,5 +1,6 @@
 ﻿using Application.Abstractions.Messaging;
 using Application.Documents;
+using Application.Models;
 using Application.Models.Commands;
 using AutoMapper;
 using Domain.Abstraction;
@@ -35,6 +36,11 @@ namespace Application.Devices.Commands
             }
             var device = _mapper.Map<Device>(request.AddDeviceDto);
 
+            if (device.LastCalibrationDate == null && device.CalibrationPeriodInYears != null && device.LastCalibrationDate != null)
+            {
+                device.LastCalibrationDate = SetNextCalibrationDate(request.AddDeviceDto);
+            }
+
             var model = request.AddDeviceDto.Model;
 
             using var transaction = _unitOfWork.BeginTransaction();
@@ -67,5 +73,7 @@ namespace Application.Devices.Commands
 
             return identificationNumber;
         }
+
+        private DateTime SetNextCalibrationDate(AddDeviceDto addDeviceDto) => addDeviceDto.LastCalibrationDate.Value.AddYears(addDeviceDto.CalibrationPeriodInYears.Value);
     }
 }

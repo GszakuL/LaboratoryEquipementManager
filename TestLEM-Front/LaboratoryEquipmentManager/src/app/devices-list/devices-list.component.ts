@@ -27,6 +27,7 @@ export class DevicesListComponent implements OnInit {
   serchPhraseFC = new FormControl();
   searchPhrase = new SearchPhraseDto;
   order = "asc";
+  sortColumn = '';
 
   deviceQuery = new PagedAndSortedQueryOfDevicesList();
   totalDevicesCount: number = 0;
@@ -45,6 +46,7 @@ export class DevicesListComponent implements OnInit {
     this.deviceQuery.PageSize = this.paginator?.pageSize ? this.paginator.pageSize : 10;
     this.deviceQuery.SearchTerm = searchPhrase;
     this.deviceQuery.SortOrder = this.order;
+    this.deviceQuery.SortColumn = this.sortColumn;
     this.service.getDevices(this.deviceQuery).subscribe((x: any) => {
       this.DevicesList = x;
       this.prepareDevicesMeasuredValuesToDisplay(this.DevicesList.items)
@@ -101,17 +103,14 @@ export class DevicesListComponent implements OnInit {
     if(device.lastCalibrationDate === null || device.calibrationPeriodInYears === null) {
       return "";
     }
+    const expireDate = this.getCalibrationExpireDateForDevice(device);
     const calibrationPeriodInYears = device.calibrationPeriodInYears;
-    const lastCalibrationDate = new Date(device.lastCalibrationDate);
-    const expireDate = new Date(lastCalibrationDate.setFullYear(lastCalibrationDate.getFullYear() + calibrationPeriodInYears));
 
-    if(now > expireDate){
+    if (now > expireDate){
       return "table-danger";
     }
 
-
     const differenceInMilliseconds = expireDate.getTime() - now.getTime()
-    //const isExpired = lastCalibrationDate.get
     const diffrerenceInDays = Math.floor(differenceInMilliseconds / (1000 * 60 * 60 * 24));
     const diffrerenceInYears = diffrerenceInDays/(365.6);
 
@@ -132,8 +131,9 @@ export class DevicesListComponent implements OnInit {
     this.refreshDevicesList();
   }
 
-  setOrderDirection() {
-    let orderBtn = document.getElementById("orderButton");
+  setOrderDirection(columnName: string) {
+    let buttonId = columnName == "modelName" ? "orderButtonName" : "orderButtonDate";
+    let orderBtn = document.getElementById(buttonId);
     if (this.order === "asc") {
       this.order = "desc";
       orderBtn?.setAttribute("style", "transform: rotate(180deg)")
@@ -141,8 +141,21 @@ export class DevicesListComponent implements OnInit {
       this.order = "asc";
       orderBtn?.setAttribute("style", "transform: rotate(0deg)")
     }
-
+    this.sortColumn = columnName;
+    console.log(this.sortColumn);
     this.refreshDevicesList();
+    this.sortColumn = '';
+  }
+
+  getCalibrationExpireDateForDevice(device: any): any {
+    if (device.lastCalibrationDate === null) {
+      return null;
+    }
+
+    const calibrationPeriodInYears = device.calibrationPeriodInYears;
+    const lastCalibrationDate = new Date(device.lastCalibrationDate);
+    const expireDate = new Date(lastCalibrationDate.setFullYear(lastCalibrationDate.getFullYear() + calibrationPeriodInYears));
+    return expireDate;
   }
 
   private getDevicesBySearchedPhrase(searchPhrase: SearchPhraseDto): void {

@@ -13,7 +13,8 @@ namespace TestLEM.Mappers
                 .ForMember(x => x.MeasuredValues, y => y.Ignore());
 
             CreateMap<AddDeviceDto, Device>()
-                .ForMember(x => x.Model, y => y.Ignore());
+                .ForMember(x => x.Model, y => y.Ignore())
+                .ForMember(x => x.Documents, y => y.Ignore());
         }
     }
 }
