@@ -1,26 +1,41 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators, FormArray, FormBuilder, Form, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AddDeviceDto, ApiServiceService, DeviceDto, MeasuredRangesDto, MeasuredValueDto, ModelDto } from '../api-service.service';
+import { AddDeviceDto, ApiServiceService, DeviceDto, MeasuredRangesDto, MeasuredValueDto, ModelDto, PagedAndSortedQueryOfDevicesList } from '../api-service.service';
+import { Observable, OperatorFunction, debounceTime, distinctUntilChanged, map } from 'rxjs';
+import { NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 @Component({
   selector: 'app-add-device',
   templateUrl: './add-device.component.html',
   styleUrls: ['./add-device.component.css']
 })
-export class AddDeviceComponent implements OnInit {
+export class AddDeviceComponent implements OnInit, AfterViewInit {
   deviceForm: FormGroup;
   selectedFile: File;
   submitted = false;
   fieldRequired = 'Pole jest wymagane';
   selectedDeviceFiles: File[] = [];
+  deviceQuery = new PagedAndSortedQueryOfDevicesList();
+  devices: any[] = [];
+  devicesNames: string[] = [];
+  states: string[] = [
+  'Alabama',
+	'Alaska',
+	'American Samoa',
+	'Arizona',
+	'Arkansas',
+	'California',
+	'Colorado',
+	'Connecticut'
+  ];
 
-  constructor(private router: Router, private fb: FormBuilder, private apiService: ApiServiceService) {
+  constructor(private router: Router, private fb: FormBuilder, private apiService: ApiServiceService, private service: ApiServiceService) {
     this.deviceForm = this.fb.group({
       identificationNumber: ['', Validators.required],
       productionDate: [''],
       lastCalibrationDate: [''],
       calibrationPeriodInYears: [''],
-      isCalibrated: [''],
+      nextCalibrationDate: [''],
       isCalibrationCloseToExpire: [''],
       storageLocation: [''],
       documents: [null],
@@ -34,7 +49,50 @@ export class AddDeviceComponent implements OnInit {
 
         measuredValues: this.fb.array([])
       })
-    })
+    });
+  }
+  ngAfterViewInit(): void {
+    this.getDevices();
+    console.log(this.devices);
+   }
+
+  ngOnInit(): void {
+    // this.getDevices();
+    // console.log(this.devices);
+  }
+
+
+	search: OperatorFunction<string, readonly string[]> = (text$: Observable<string>) =>
+		text$.pipe(
+			debounceTime(200),
+			distinctUntilChanged(),
+			map((term) =>
+				term.length < 2 ? [] : this.devicesNames.filter((v) => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0, 10),
+			),
+	);
+
+  getDevices() {
+    this.service.getDevices(this.deviceQuery).subscribe((x: any) => {
+      console.log(x);
+      this.devices = x.items;
+      for(let device of this.devices){
+        this.devicesNames.push(device.modelName);
+      }
+      console.log(x.items);
+    });
+  }
+
+  onDeviceSelect($event: NgbTypeaheadSelectItemEvent){
+    const selectedDevice = $event.item;
+    console.log("selectedDeviceName: "+selectedDevice);
+    console.log("devices: "+this.devices);
+    let deviceSelected = this.devices.find(x => x.modelName === selectedDevice);
+    console.log("ideviceIdentificationNumber: "+deviceSelected.modelSerialNumber);
+    this.deviceForm.patchValue({
+      model: {
+        serialNumber: deviceSelected.modelSerialNumber
+      }
+    });
   }
 
   //dodać walidację
@@ -47,8 +105,6 @@ export class AddDeviceComponent implements OnInit {
   get measuredValues() {
     return this.deviceForm.get('model.measuredValues') as FormArray;
   }
-
-  ngOnInit(): void {}
 
   removeMeasuredValue(index: number): void {
     this.measuredValues.removeAt(index);
@@ -77,12 +133,29 @@ export class AddDeviceComponent implements OnInit {
     }
   }
 
-  displayFGvalues() {
+
+  onSubmit() {
+    this.submitted = true;
+    if (this.deviceForm.invalid) {
+      return;
+    }
+
+    //zrobić strzał do innego endpointa, do zapisywania doksów?
+
     let addDeviceDto = this.mapDeviceFormValuesToAddDeviceDto();
-    console.log(addDeviceDto);
-    this.deviceForm.patchValue({
-      documents: this.selectedDeviceFiles
-    })
+
+    // if(this.selectedDeviceFiles.length > 0){
+    //   this.deviceForm.controls['documents'].setValue(this.selectedDeviceFiles);
+    // }
+    let formData = new FormData();
+    for(const [key, value] of Object.entries(this.deviceForm.value)){
+      if(typeof value != "object"){
+        formData.append(key, String(value));
+      }
+    }
+
+    console.log(this.deviceForm);
+    console.log(formData);
     this.markFormGroupTouched(this.deviceForm);
     if (this.deviceForm.valid){
       this.apiService.createDevice(addDeviceDto).subscribe((x: string) => {
@@ -94,7 +167,39 @@ export class AddDeviceComponent implements OnInit {
         })
       });
     }
+
+    // debugger;
+    // const addDeviceDto = this.mapDeviceFormValuesToAddDeviceDto();
+    // const formData = new FormData();
+    // let formJson = JSON.stringify(addDeviceDto);
+
+    // formData.append('addDeviceDto', formJson);
+    // this.selectedDeviceFiles.forEach(file => formData.append('documents', file, file.name));
+
+    // console.log(formData);
+    // console.log(addDeviceDto);
+
+    // this.apiService.createDevice(formData).subscribe(response => {
+    //   alert(`Urządzenie o id: ${response} zostało dodane`);
+    //   this.deviceForm.reset();
+    //   window.scroll({ top: 0, behavior: 'smooth' });
+    // });
   }
+
+  // displayFGvalues() {
+  //   let addDeviceDto = this.mapDeviceFormValuesToAddDeviceDto();
+  //   this.markFormGroupTouched(this.deviceForm);
+  //   if (this.deviceForm.valid){
+  //     this.apiService.createDevice(addDeviceDto).subscribe((x: string) => {
+  //       alert(`Urządzenie o id: ${x} zostało dodane`);
+  //       this.deviceForm.reset();
+  //       window.scroll({
+  //         top: 0,
+  //         behavior: 'smooth'
+  //       })
+  //     });
+  //   }
+  // }
 
   markFormGroupTouched(control: AbstractControl) {
     if (control instanceof FormGroup) {
@@ -147,7 +252,7 @@ export class AddDeviceComponent implements OnInit {
     addDeviceDto.IsCalibrated = this.getValueFromDeviceForm('isCalibrated');
     addDeviceDto.IsCalibrationCloseToExpire = this.getValueFromDeviceForm('isCalibrationCloseToExpire');
     addDeviceDto.StorageLocation = this.getValueFromDeviceForm('storageLocation');
-    //addDeviceDto.Documents = this.getValueFromDeviceForm('documents');//this.selectedFile;
+    addDeviceDto.Documents = this.selectedDeviceFiles;
     addDeviceDto.Model = this.getModelFromDeviceForm();
 
     return addDeviceDto;
@@ -183,7 +288,6 @@ export class AddDeviceComponent implements OnInit {
   }
 
   private getMeasuredValuesFromDeviceForm(): any {
-    debugger;
     let measuredValues = this.deviceForm.get('model.measuredValues') as FormArray;
     let measuredValuesDto: MeasuredValueDto[] = [];
 

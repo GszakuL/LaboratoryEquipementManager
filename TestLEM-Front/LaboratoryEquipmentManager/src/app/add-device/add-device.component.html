@@ -71,28 +71,16 @@
           </div>
         </div>
         <div class="mb-3 row">
-          <label for="isCalibrated" class="col-sm-3 col-form-label"
-            >Czy skalibrowany</label
+          <label for="nextCalibrationDate" class="col-sm-3 col-form-label"
+            >Data najbliższej kalibracji</label
           >
-          <div class="form-check form-check-inline">
+          <div class="col-sm-9">
             <input
-              class="form-check-input"
-              type="radio"
-              name="inlineRadioOptions"
-              id="yes"
-              value="yes"
+              type="date"
+              class="form-control"
+              id="nextCalibrationDate"
+              formControlName="nextCalibrationDate"
             />
-            <label class="form-check-label" for="yes">Tak</label>
-          </div>
-          <div class="form-check form-check-inline">
-            <input
-              class="form-check-input"
-              type="radio"
-              name="inlineRadioOptions"
-              id="no"
-              value="no"
-            />
-            <label class="form-check-label" for="no">Nie</label>
           </div>
         </div>
         <div class="mb-3 row">
@@ -118,6 +106,7 @@
             type="file"
             id="devicesDocuments"
             multiple
+            accept=".pdf, .txt, .jpg, .png, .doc, .docx, .csv"
             (change)="onDeviceFileChange($event)"
           />
           <div id="devicesDocumentsHelpBlock" class="form-text">
@@ -132,6 +121,8 @@
           <label for="name" class="col-sm-3 col-form-label">Nazwa modelu</label>
           <div class="col-sm-9">
             <input
+              [ngbTypeahead]="search"
+              (selectItem)="onDeviceSelect($event)"
               type="text"
               class="form-control"
               id="name"
@@ -314,7 +305,7 @@
           </p>
         </div>
       </div>
-      <button type="submit" (click)="displayFGvalues()">klik</button>
+      <button type="submit" (click)="onSubmit()">klik</button>
     </form>
   </div>
   {{ this.deviceForm.value | json }}
