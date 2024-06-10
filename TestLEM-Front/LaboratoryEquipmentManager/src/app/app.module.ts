@@ -18,6 +18,7 @@ import { NgxTypeaheadModule } from 'ngx-typeahead';
 import { MatPaginatorIntl, MatPaginatorModule } from '@angular/material/paginator';
 import { PolishPaginatorIntl } from './polish-paginator-inlt';
 import { PercentageDirective } from './commons/directives/percentage.directive';
+import { NgbModule, NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [
@@ -39,7 +40,9 @@ import { PercentageDirective } from './commons/directives/percentage.directive';
     MatSelectModule,
     BrowserAnimationsModule,
     MatPaginatorModule,
-    FormsModule
+    FormsModule,
+    NgbModule,
+    NgbTypeaheadModule
   ],
   providers: [
     { provide: MatPaginatorIntl, useClass: PolishPaginatorIntl }
