@@ -30,6 +30,15 @@ export class ApiServiceService {
   addDocuments(formData: FormData): Observable<any> {
     return this.http.post(this.apiUrl + 'files', formData);
   }
+
+  downloadFile(documentName: string, modelId?: string, deviceId?: string){
+    const params = { documentName, modelId: modelId?.toString(), deviceId: deviceId?.toString() };
+
+    return this.http.get(this.apiUrl + 'files', {
+      responseType: 'blob',
+      params,
+    });
+  }
 }
 
 export class AddDeviceDto {

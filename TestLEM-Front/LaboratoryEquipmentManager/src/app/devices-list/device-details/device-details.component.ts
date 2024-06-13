@@ -24,6 +24,7 @@ export class DeviceDetailsComponent implements OnInit {
   shouldDisplayMeasuredValuesTable = false;
   deviceDto = this.data.deviceDto;
   rowspan = 1;
+  deviceDocuments = this.deviceDto.deviceDocuments;
 
   ngOnInit(): void {
     console.log(this.data)
@@ -46,6 +47,29 @@ export class DeviceDetailsComponent implements OnInit {
   setDisplayMeasuredValuesTable() {
     this.shouldDisplayMeasuredValuesTable = this.deviceDto.measuredValues.length > 0;
   }
+
+  getDeviceDocuemnts() {
+    this.deviceDocuments = this.deviceDto.deviceDocuments;
+    let deviceDocumentsNames: string[] = [];
+    this.deviceDocuments.forEach((x: any) => {
+      deviceDocumentsNames.push(x.name)
+    });
+    return deviceDocumentsNames.join(',');
+  }
+
+  getModelDocuemnts() {
+    let modelDocuments = this.deviceDto.modelDocuments;
+    let modelDocumentsNames: string[] = [];
+    modelDocuments.forEach((x: any) => {
+      modelDocumentsNames.push(x.name)
+    });
+    return modelDocumentsNames.join(',');
+  }
+
+  downloadFile(deviceDocuemnt : any) {
+
+  }
+
 }
 
 

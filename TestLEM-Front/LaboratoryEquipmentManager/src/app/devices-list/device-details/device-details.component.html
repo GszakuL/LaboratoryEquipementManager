@@ -61,11 +61,15 @@
         </tr>
         <tr>
           <th>Dokumenty urządzenia:</th>
-          <td>--</td>
+          <td *ngFor="let deviceDocuemnt of deviceDocuments">
+            <a href="" (click)="downloadFile(deviceDocuemnt)">{{
+              deviceDocuemnt.name
+            }}</a>
+          </td>
         </tr>
         <tr>
           <th>Dokumenty modelu:</th>
-          <td>--</td>
+          <td>{{ getModelDocuemnts() }}</td>
         </tr>
         <tr>
           <th>Miejsce przechowywania:</th>

@@ -24,5 +24,17 @@ namespace Web.Controllers
             var documentNames = await _mediator.Send(addDocumentsCommand);
             return Ok(documentNames);
         }
+
+        [HttpGet]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> DownloadFile(string documentName, int? modelId, int? deviceId)
+        {
+            var downloadDocumentsQuery = new DownloadDocumentQuery(documentName, deviceId, modelId);
+
+            var result = await _mediator.Send(downloadDocumentsQuery);
+
+            return Ok(File(result.Data, result.ContentType, result.FileName));
+        }
     }
 }

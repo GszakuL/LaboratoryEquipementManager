@@ -1,5 +1,6 @@
 ﻿using Domain.Abstraction;
 using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
@@ -35,6 +36,16 @@ namespace Infrastructure.Repositories
             await _dbContext.SaveChangesAsync();
 
             return documentNames;
+        }
+
+        public Task<Document> GetFileByModelId(int modelId)
+        {
+            return _dbContext.Documents.FirstAsync(x => x.ModelId == modelId);
+        }
+
+        public Task<List<Document>> GetDocumentsByName(string documentName)
+        {
+            return _dbContext.Documents.Where(x => x.Name  == documentName).ToListAsync();
         }
     }
 }

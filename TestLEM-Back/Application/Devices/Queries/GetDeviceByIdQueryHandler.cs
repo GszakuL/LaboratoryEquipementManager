@@ -22,6 +22,7 @@ namespace Application.Devices.Queries
             var device = await _dbContext.Devices
                 .Include(x => x.Model)
                     .ThenInclude(x => x.Company)
+                .Include(x => x.Documents)
                 .FirstAsync(x => x.Id == request.deviceId);
 
             if (device == null)
