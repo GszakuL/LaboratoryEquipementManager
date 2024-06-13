@@ -291,6 +291,7 @@
             type="file"
             id="modelDocuments"
             multiple
+            (change)="onModelFileChange($event)"
           />
           <div id="modelDocumentsHelpBlock" class="form-text">
             Dokuemnty dotyczące modelu w formacie .pdf, .csv, .jpg (np.

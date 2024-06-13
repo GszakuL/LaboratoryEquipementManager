@@ -2,7 +2,7 @@ import { AfterViewChecked, AfterViewInit, Component, OnInit } from '@angular/cor
 import { FormControl, FormGroup, Validators, FormArray, FormBuilder, Form, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AddDeviceDto, ApiServiceService, DeviceDto, MeasuredRangesDto, MeasuredValueDto, ModelDto, PagedAndSortedQueryOfDevicesList } from '../api-service.service';
-import { Observable, OperatorFunction, debounceTime, distinctUntilChanged, map } from 'rxjs';
+import { Observable, OperatorFunction, catchError, debounceTime, distinctUntilChanged, forkJoin, map, of, pipe, switchMap } from 'rxjs';
 import { NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 @Component({
   selector: 'app-add-device',
@@ -15,19 +15,12 @@ export class AddDeviceComponent implements OnInit, AfterViewInit {
   submitted = false;
   fieldRequired = 'Pole jest wymagane';
   selectedDeviceFiles: File[] = [];
+  selectedModelFiles: File[] = [];
+
   deviceQuery = new PagedAndSortedQueryOfDevicesList();
   devices: any[] = [];
   devicesNames: string[] = [];
-  states: string[] = [
-  'Alabama',
-	'Alaska',
-	'American Samoa',
-	'Arizona',
-	'Arkansas',
-	'California',
-	'Colorado',
-	'Connecticut'
-  ];
+
 
   constructor(private router: Router, private fb: FormBuilder, private apiService: ApiServiceService, private service: ApiServiceService) {
     this.deviceForm = this.fb.group({
@@ -126,80 +119,55 @@ export class AddDeviceComponent implements OnInit, AfterViewInit {
     this.measuredValues.push(this.addNewMeasuredValueFG());
   }
 
-  onDeviceFileChange(event: any) {
-    const files = (event.target as HTMLInputElement).files;
-    if (files && files.length) {
-      this.selectedDeviceFiles = Array.from(files);
-    }
-  }
-
-
   onSubmit() {
     this.submitted = true;
     if (this.deviceForm.invalid) {
       return;
     }
 
-    //zrobić strzał do innego endpointa, do zapisywania doksów?
-
     let addDeviceDto = this.mapDeviceFormValuesToAddDeviceDto();
 
-    // if(this.selectedDeviceFiles.length > 0){
-    //   this.deviceForm.controls['documents'].setValue(this.selectedDeviceFiles);
-    // }
-    let formData = new FormData();
-    for(const [key, value] of Object.entries(this.deviceForm.value)){
-      if(typeof value != "object"){
-        formData.append(key, String(value));
-      }
-    }
+    const deviceFilesFormData = new FormData();
+    const modelFilesFormData = new FormData();
 
-    console.log(this.deviceForm);
-    console.log(formData);
+    this.selectedDeviceFiles.forEach(file => {
+      deviceFilesFormData.append('files', file);
+    });
+
+    this.selectedModelFiles.forEach(file => {
+      modelFilesFormData.append('files', file);
+    });
+
     this.markFormGroupTouched(this.deviceForm);
-    if (this.deviceForm.valid){
-      this.apiService.createDevice(addDeviceDto).subscribe((x: string) => {
-        alert(`Urządzenie o id: ${x} zostało dodane`);
+
+    if (this.deviceForm.valid) {
+      this.apiService.createDevice(addDeviceDto).pipe(
+        switchMap((x: any) => {
+          const observables = [];
+          if (this.selectedDeviceFiles.length > 0) {
+            deviceFilesFormData.append('deviceId', x.deviceId.toString());
+            deviceFilesFormData.append('modelId', '');
+            observables.push(this.apiService.addDocuments(deviceFilesFormData).pipe(catchError(error => of(error))));
+          }
+          if (this.selectedModelFiles.length > 0) {
+            modelFilesFormData.append('deviceId', '');
+            modelFilesFormData.append('modelId', x.modelId.toString());
+            observables.push(this.apiService.addDocuments(modelFilesFormData).pipe(catchError(error => of(error))));
+          }
+          return forkJoin(observables).pipe(
+            map(() => x)
+          );
+        })
+      ).subscribe((x) => {
+        alert(`Urządzenie o id: ${x.identificationNumber} zostało dodane`);
         this.deviceForm.reset();
         window.scroll({
           top: 0,
           behavior: 'smooth'
-        })
+        });
       });
     }
-
-    // debugger;
-    // const addDeviceDto = this.mapDeviceFormValuesToAddDeviceDto();
-    // const formData = new FormData();
-    // let formJson = JSON.stringify(addDeviceDto);
-
-    // formData.append('addDeviceDto', formJson);
-    // this.selectedDeviceFiles.forEach(file => formData.append('documents', file, file.name));
-
-    // console.log(formData);
-    // console.log(addDeviceDto);
-
-    // this.apiService.createDevice(formData).subscribe(response => {
-    //   alert(`Urządzenie o id: ${response} zostało dodane`);
-    //   this.deviceForm.reset();
-    //   window.scroll({ top: 0, behavior: 'smooth' });
-    // });
   }
-
-  // displayFGvalues() {
-  //   let addDeviceDto = this.mapDeviceFormValuesToAddDeviceDto();
-  //   this.markFormGroupTouched(this.deviceForm);
-  //   if (this.deviceForm.valid){
-  //     this.apiService.createDevice(addDeviceDto).subscribe((x: string) => {
-  //       alert(`Urządzenie o id: ${x} zostało dodane`);
-  //       this.deviceForm.reset();
-  //       window.scroll({
-  //         top: 0,
-  //         behavior: 'smooth'
-  //       })
-  //     });
-  //   }
-  // }
 
   markFormGroupTouched(control: AbstractControl) {
     if (control instanceof FormGroup) {
@@ -228,6 +196,20 @@ export class AddDeviceComponent implements OnInit, AfterViewInit {
     return !control.validity.valid;
   }
 
+  onDeviceFileChange(event: any) {
+    debugger;
+    if (event.target.files.length > 0) {
+      this.selectedDeviceFiles = Array.from(event.target.files);
+    }
+  }
+
+  onModelFileChange(event: any) {
+    debugger;
+    if (event.target.files.length > 0) {
+      this.selectedModelFiles = Array.from(event.target.files);
+    }
+  }
+
   private addNewRangeFG(): FormGroup {
     return this.fb.group({
       range:'',
@@ -245,14 +227,13 @@ export class AddDeviceComponent implements OnInit, AfterViewInit {
 
   private mapDeviceFormValuesToAddDeviceDto(): AddDeviceDto {
     let addDeviceDto = new AddDeviceDto();
-    addDeviceDto.IdentifiactionNumber = this.getValueFromDeviceForm('identificationNumber');
+    addDeviceDto.IdentificationNumber = this.getValueFromDeviceForm('identificationNumber');
     addDeviceDto.ProductionDate = new Date(this.getValueFromDeviceForm('productionDate'));
     addDeviceDto.CalibrationPeriodInYears = this.getValueFromDeviceForm('calibrationPeriodInYears');
     addDeviceDto.LastCalibrationDate = new Date(this.getValueFromDeviceForm('lastCalibrationDate'));
     addDeviceDto.IsCalibrated = this.getValueFromDeviceForm('isCalibrated');
     addDeviceDto.IsCalibrationCloseToExpire = this.getValueFromDeviceForm('isCalibrationCloseToExpire');
     addDeviceDto.StorageLocation = this.getValueFromDeviceForm('storageLocation');
-    addDeviceDto.Documents = this.selectedDeviceFiles;
     addDeviceDto.Model = this.getModelFromDeviceForm();
 
     return addDeviceDto;
@@ -266,21 +247,11 @@ export class AddDeviceComponent implements OnInit, AfterViewInit {
     return this.deviceForm.get('model') as FormGroup;
   }
 
-  private getDeviceDocuments(){
-    const formData = new FormData();
-
-    this.selectedDeviceFiles.forEach(file => {
-      formData.append('documents', file, file.name);
-    });
-    return formData;
-  }
-
   private getModelFromDeviceForm(): ModelDto {
     let modelDto = new ModelDto();
     modelDto.Name = this.getValueFromDeviceForm('model.name');
     modelDto.SerialNumber = this.getValueFromDeviceForm('model.serialNumber')
     modelDto.CompanyName = this.getValueFromDeviceForm('model.companyName');
-    modelDto.Documents = this.getValueFromDeviceForm('model.documents');
     modelDto.CooperatedModelsIds = this.getValueFromDeviceForm('model.cooperatedModelsIds');
     modelDto.MeasuredValues = this.getMeasuredValuesFromDeviceForm();
 

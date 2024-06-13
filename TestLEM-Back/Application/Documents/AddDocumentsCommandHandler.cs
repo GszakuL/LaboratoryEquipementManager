@@ -28,7 +28,7 @@ namespace Application.Documents
                     {
                         await file.CopyToAsync(memoryStream);
                         var data = memoryStream.ToArray();
-                        var fileName = file.Name;
+                        var fileName = file.FileName;
                         var fileFormat = Path.GetExtension(fileName);
 
                         var document = new Document

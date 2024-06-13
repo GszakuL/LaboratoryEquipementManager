@@ -14,16 +14,17 @@ namespace Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task AddDevice(Device device, CancellationToken cancellationToken)
+        public async Task<int> AddDevice(Device device, CancellationToken cancellationToken)
         {
             _dbContext.Devices.Add(device);
 
             await _dbContext.SaveChangesAsync(cancellationToken);
+            return device.Id;
         }
 
         public async Task<bool> CheckIfDeviceExists(string identificationNumber, CancellationToken cancellationToken)
         {
-            var result = await _dbContext.Devices.AnyAsync(x => x.IdentifiactionNumber == identificationNumber, cancellationToken);
+            var result = await _dbContext.Devices.AnyAsync(x => x.IdentificationNumber == identificationNumber, cancellationToken);
             return result;
         }
     }

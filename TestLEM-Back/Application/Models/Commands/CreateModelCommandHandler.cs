@@ -1,10 +1,8 @@
 ﻿using Application.Abstractions.Messaging;
-using Application.Documents;
 using AutoMapper;
 using Domain.Abstraction;
 using Domain.Entities;
 using MediatR;
-using System.Threading;
 
 namespace Application.Models.Commands
 {
@@ -48,14 +46,6 @@ namespace Application.Models.Commands
             }
 
             await _modelRepository.AddModel(model);
-
-            var documents = request.ModelDto.Documents;
-            if (documents != null)
-            {
-                var documentsNames = await _sender.Send(
-                    new AddDocumentsCommand(documents, model.Id, null),
-                    cancellationToken);
-            }
 
             var cooperatedModelsIds = request.ModelDto.CooperatedModelsIds;
             if (cooperatedModelsIds != null)

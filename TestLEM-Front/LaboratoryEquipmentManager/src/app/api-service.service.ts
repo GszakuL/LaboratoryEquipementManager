@@ -23,20 +23,23 @@ export class ApiServiceService {
     return this.http.post(this.apiUrl + 'device/search', searchPhrase);
   }
 
-  createDevice(addDeviceDto: any): Observable<string> {
-    return this.http.post(this.apiUrl + 'device', addDeviceDto, {responseType: 'text'}).pipe((response: any) => response);
+  createDevice(addDeviceDto: any): Observable<any> {
+    return this.http.post(this.apiUrl + 'device', addDeviceDto).pipe((response: any) => response);
+  }
+
+  addDocuments(formData: FormData): Observable<any> {
+    return this.http.post(this.apiUrl + 'files', formData);
   }
 }
 
 export class AddDeviceDto {
-   IdentifiactionNumber: string;
+   IdentificationNumber: string;
    ProductionDate?: Date;
    CalibrationPeriodInYears?: number;
    LastCalibrationDate?: Date;
    IsCalibrated: boolean;
    IsCalibrationCloseToExpire?: boolean;
    StorageLocation?: string;
-   Documents?: File[];
    Model: ModelDto;
 }
 
@@ -68,7 +71,6 @@ export class ModelDto {
   Name: string;
   SerialNumber: string;
   CompanyName?: string;
-  Documents?: string[];
   CooperatedModelsIds?: number[];
   MeasuredValues?: MeasuredValueDto[];
 }

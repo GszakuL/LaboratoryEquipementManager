@@ -10,7 +10,7 @@ using MediatR;
 
 namespace Application.Devices.Commands
 {
-    internal class CreateDeviceCommandHandler : ICommandHandler<CreateDeviceCommand, string>
+    internal class CreateDeviceCommandHandler : ICommandHandler<CreateDeviceCommand, CreatedDeviceResponseDto>
     {
         private readonly IDeviceRepository _deviceRepository;
         private readonly IMapper _mapper;
@@ -25,9 +25,9 @@ namespace Application.Devices.Commands
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<string> Handle(CreateDeviceCommand request, CancellationToken cancellationToken)
+        public async Task<CreatedDeviceResponseDto> Handle(CreateDeviceCommand request, CancellationToken cancellationToken)
         {
-            var identificationNumber = request.AddDeviceDto.IdentifiactionNumber;
+            var identificationNumber = request.AddDeviceDto.IdentificationNumber;
             var deviceExists = await _deviceRepository.CheckIfDeviceExists(identificationNumber, cancellationToken);
 
             if (deviceExists)
@@ -42,6 +42,7 @@ namespace Application.Devices.Commands
             }
 
             var model = request.AddDeviceDto.Model;
+            var createdDeviceResponse = new CreatedDeviceResponseDto(identificationNumber, null, null);
 
             using var transaction = _unitOfWork.BeginTransaction();
 
@@ -53,16 +54,10 @@ namespace Application.Devices.Commands
 
                 device.ModelId = modelId;
 
-                await _deviceRepository.AddDevice(device);
+                var deviceId = await _deviceRepository.AddDevice(device);
 
-                var documents = request.AddDeviceDto.Documents;
-                if (documents?.Count > 0)
-                {
-                    var documentsNames = await _sender.Send(
-                        new AddDocumentsCommand(documents, null, device.Id),
-                        cancellationToken);
-                }
-
+                createdDeviceResponse.ModelId = modelId;
+                createdDeviceResponse.DeviceId = deviceId;
                 transaction.Commit();
             }
             catch (Exception ex)
@@ -71,7 +66,7 @@ namespace Application.Devices.Commands
                 throw new Exception(ex.Message);
             }
 
-            return identificationNumber;
+            return createdDeviceResponse;
         }
 
         private DateTime SetNextCalibrationDate(AddDeviceDto addDeviceDto) => addDeviceDto.LastCalibrationDate.Value.AddYears(addDeviceDto.CalibrationPeriodInYears.Value);

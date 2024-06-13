@@ -1,0 +1,28 @@
+﻿using Application.Documents;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Web.Controllers
+{
+    [Route("api/files")]
+    public class FilesController : ControllerBase
+    {
+        private readonly IMediator _mediator;
+
+        public FilesController(IMediator mediator)
+        {
+            _mediator = mediator;
+        }
+
+        [HttpPost]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> AddFiles([FromForm]List<IFormFile>files, int? modelId, int? deviceId)
+        {
+            var addDocumentsCommand = new AddDocumentsCommand(files, modelId, deviceId);
+
+            var documentNames = await _mediator.Send(addDocumentsCommand);
+            return Ok(documentNames);
+        }
+    }
+}
