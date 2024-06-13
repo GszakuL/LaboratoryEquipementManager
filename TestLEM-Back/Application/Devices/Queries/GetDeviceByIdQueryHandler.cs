@@ -33,7 +33,7 @@ namespace Application.Devices.Queries
             {
                 Id = device.Id,
                 ModelName = device.Model.Name,
-                DeviceIdentificationNumber = device.IdentifiactionNumber,
+                DeviceIdentificationNumber = device.IdentificationNumber,
                 MeasuredValues = GetMeasuredValues(device.ModelId),
                 ModelSerialNumber = device.Model.SerialNumber,
                 StorageLocation = device.StorageLocation,

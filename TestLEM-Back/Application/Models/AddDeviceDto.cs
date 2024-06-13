@@ -4,7 +4,7 @@ namespace Application.Models
 {
     public class AddDeviceDto
     {
-        public string IdentifiactionNumber { get; set; }
+        public string IdentificationNumber { get; set; }
         public DateTime? ProductionDate { get; set; }
         public int? CalibrationPeriodInYears { get; set; }
         public DateTime? LastCalibrationDate { get; set; }
@@ -12,7 +12,6 @@ namespace Application.Models
         public bool? IsCalibrated { get; set; }
         public bool? IsCalibrationCloseToExpire { get; set; }
         public string? StorageLocation { get; set; }
-        public ICollection<IFormFile>? Documents { get; set; }
         public ModelDto Model { get; set; }
     }
 }

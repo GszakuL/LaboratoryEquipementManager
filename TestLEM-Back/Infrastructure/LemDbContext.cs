@@ -27,7 +27,7 @@ namespace Infrastructure
                 .WithMany(m => m.Devices)
                 .HasForeignKey(x => x.ModelId);
 
-                d.HasIndex(x => x.IdentifiactionNumber)
+                d.HasIndex(x => x.IdentificationNumber)
                 .IsUnique();
 
                 d.HasMany(x => x.Documents)

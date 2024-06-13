@@ -3,7 +3,7 @@
     public class Device
     {
         public int Id { get; set; }
-        public string IdentifiactionNumber { get; set; }
+        public string IdentificationNumber { get; set; }
         public DateTime? ProductionDate { get; set; }
         public int? CalibrationPeriodInYears { get; set; }
         public DateTime? LastCalibrationDate { get; set; }

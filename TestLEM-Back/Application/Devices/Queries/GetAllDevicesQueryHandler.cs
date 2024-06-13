@@ -30,7 +30,7 @@ namespace Application.Devices.Queries
                             .ThenInclude(x => x.PhysicalMagnitude)
                     .Where(x => x.Model.Name.ToLower().Contains(searchTerm)
                              || x.Model.MeasuredValues.Where(x => x.PhysicalMagnitude.Name.ToLower().Contains(searchTerm)).Any()
-                             || x.IdentifiactionNumber == searchTerm);
+                             || x.IdentificationNumber == searchTerm);
 
             }
             //do refaktoru
@@ -63,7 +63,7 @@ namespace Application.Devices.Queries
                 .Select(x => new DeviceDto
                 {
                     Id = x.Id,
-                    DeviceIdentificationNumber = x.IdentifiactionNumber,
+                    DeviceIdentificationNumber = x.IdentificationNumber,
                     ModelName = x.Model.Name,
                     ModelSerialNumber = x.Model.SerialNumber,
                     StorageLocation = x.StorageLocation,
