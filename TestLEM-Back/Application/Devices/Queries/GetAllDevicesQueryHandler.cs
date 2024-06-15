@@ -62,10 +62,11 @@ namespace Application.Devices.Queries
             var deviceQueryResponse = devicesQuery
                 .Select(x => new DeviceDto
                 {
-                    Id = x.Id,
+                    DeviceId = x.Id,
                     DeviceIdentificationNumber = x.IdentificationNumber,
                     ModelName = x.Model.Name,
                     ModelSerialNumber = x.Model.SerialNumber,
+                    ModelId = x.ModelId,
                     StorageLocation = x.StorageLocation,
                     LastCalibrationDate = x.LastCalibrationDate,
                     ProductionDate = x.ProductionDate,

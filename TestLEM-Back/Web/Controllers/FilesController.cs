@@ -34,7 +34,7 @@ namespace Web.Controllers
 
             var result = await _mediator.Send(downloadDocumentsQuery);
 
-            return Ok(File(result.Data, result.ContentType, result.FileName));
+            return File(result.Data, result.ContentType, result.FileName);
         }
     }
 }

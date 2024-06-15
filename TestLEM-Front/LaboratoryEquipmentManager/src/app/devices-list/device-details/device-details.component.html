@@ -13,7 +13,7 @@
       <tbody>
         <tr>
           <th>Id:</th>
-          <td>{{ deviceDto.id ?? "--" }}</td>
+          <td>{{ deviceDto.deviceId ?? "--" }}</td>
         </tr>
         <tr>
           <th>Numer identyfikacyjny urządzenia:</th>
@@ -61,15 +61,27 @@
         </tr>
         <tr>
           <th>Dokumenty urządzenia:</th>
-          <td *ngFor="let deviceDocuemnt of deviceDocuments">
-            <a href="" (click)="downloadFile(deviceDocuemnt)">{{
-              deviceDocuemnt.name
-            }}</a>
+          <td>
+            <div *ngFor="let deviceDocuemnt of deviceDocuments">
+              <a
+                href=""
+                (click)="downloadFile(deviceDocuemnt, $event, 'device')"
+                >{{ deviceDocuemnt.name }}</a
+              >
+            </div>
           </td>
         </tr>
         <tr>
           <th>Dokumenty modelu:</th>
-          <td>{{ getModelDocuemnts() }}</td>
+          <td>
+            <div *ngFor="let modelDocument of modelDocuments">
+              <a
+                href=""
+                (click)="downloadFile(modelDocument, $event, 'model')"
+                >{{ modelDocument.name }}</a
+              >
+            </div>
+          </td>
         </tr>
         <tr>
           <th>Miejsce przechowywania:</th>

@@ -93,7 +93,7 @@
         [class]="'clickable-row ' + markDeviceCloseToExpire(device)"
         *ngFor="let device of DevicesList.items; let i = index"
         [attr.id]="'row-id-' + i"
-        (click)="openDeviceDetails(device.id)"
+        (click)="openDeviceDetails(device.deviceId)"
       >
         <td>{{ device.deviceIdentificationNumber ?? "--" }}</td>
         <td>{{ device.modelName ?? "--" }}</td>

@@ -48,6 +48,7 @@ namespace Application.Documents
                 case ".jpg": return "image/jpeg";
                 case ".jpeg": return "image/jpeg";
                 case ".gif": return "image/gif";
+                case ".txt": return "text/plain";
                 // Add more cases as needed
                 default: return "application/octet-stream";
             }

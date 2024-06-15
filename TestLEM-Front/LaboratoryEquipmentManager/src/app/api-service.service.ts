@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 
@@ -31,8 +31,16 @@ export class ApiServiceService {
     return this.http.post(this.apiUrl + 'files', formData);
   }
 
-  downloadFile(documentName: string, modelId?: string, deviceId?: string){
-    const params = { documentName, modelId: modelId?.toString(), deviceId: deviceId?.toString() };
+  downloadFile(documentName: string, modelId?: string, deviceId?: string): Observable<any>{
+    let params = new HttpParams().set('documentName', documentName);
+
+    if (modelId !== undefined) {
+      params = params.set('modelId', modelId);
+    }
+
+    if (deviceId !== undefined) {
+      params = params.set('deviceId', deviceId);
+    }
 
     return this.http.get(this.apiUrl + 'files', {
       responseType: 'blob',

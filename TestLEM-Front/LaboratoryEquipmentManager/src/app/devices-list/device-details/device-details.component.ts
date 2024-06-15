@@ -5,7 +5,7 @@ import {  MAT_DIALOG_DATA, MatDialog,
   MatDialogContent,
   MatDialogTitle }
 from '@angular/material/dialog';
-import { DeviceDto, ModelDto } from 'src/app/api-service.service';
+import { ApiServiceService, DeviceDto, ModelDto } from 'src/app/api-service.service';
 import { RemoveDeviceWarningModalComponent } from './remove-device-warning-modal/remove-device-warning-modal.component';
 import { DialogRef } from '@angular/cdk/dialog';
 
@@ -18,13 +18,15 @@ export class DeviceDetailsComponent implements OnInit {
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: { deviceDto: any },
     private dialog: MatDialog,
-    private selfDialog: DialogRef<DeviceDetailsComponent>
+    private selfDialog: DialogRef<DeviceDetailsComponent>,
+    private apiService: ApiServiceService
   ){}
 
   shouldDisplayMeasuredValuesTable = false;
   deviceDto = this.data.deviceDto;
   rowspan = 1;
   deviceDocuments = this.deviceDto.deviceDocuments;
+  modelDocuments = this.deviceDto.modelDocuments;
 
   ngOnInit(): void {
     console.log(this.data)
@@ -49,6 +51,7 @@ export class DeviceDetailsComponent implements OnInit {
   }
 
   getDeviceDocuemnts() {
+    console.log(this.deviceDto);
     this.deviceDocuments = this.deviceDto.deviceDocuments;
     let deviceDocumentsNames: string[] = [];
     this.deviceDocuments.forEach((x: any) => {
@@ -58,16 +61,47 @@ export class DeviceDetailsComponent implements OnInit {
   }
 
   getModelDocuemnts() {
-    let modelDocuments = this.deviceDto.modelDocuments;
+    this.modelDocuments = this.deviceDto.modelDocuments;
     let modelDocumentsNames: string[] = [];
-    modelDocuments.forEach((x: any) => {
+    this.modelDocuments.forEach((x: any) => {
       modelDocumentsNames.push(x.name)
     });
     return modelDocumentsNames.join(',');
   }
 
-  downloadFile(deviceDocuemnt : any) {
+  downloadFile(file: any, event: Event, downloadFor: string) {
+    const deviceWord = "document";
+    const modelWord = "model";
 
+    event.preventDefault();
+
+    let documentName: string = file.name;
+    let modelId: string = this.deviceDto.modelId;
+    let deviceId: string = this.deviceDto.deviceId;
+
+    if (downloadFor === deviceWord) {
+      modelId = "";
+    } else if( downloadFor === modelWord) {
+      deviceId = "";
+    }
+
+    this.apiService.downloadFile(documentName, modelId, deviceId).subscribe(
+      (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = documentName;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      },
+      error => {
+        console.error('Error downloading file:', error);
+        // Handle error as needed
+      }
+    );
   }
 
 }

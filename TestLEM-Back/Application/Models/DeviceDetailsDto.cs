@@ -2,7 +2,6 @@
 {
     public class DeviceDetailsDto : DeviceDto
     {
-        public int Id { get; set; }
         public bool? IsCalibrated { get; set; }
         public string? Producer { get; set; }
 

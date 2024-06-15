@@ -32,11 +32,12 @@ namespace Application.Devices.Queries
 
             var deviceDetailsDto = new DeviceDetailsDto
             {
-                Id = device.Id,
+                DeviceId = device.Id,
                 ModelName = device.Model.Name,
                 DeviceIdentificationNumber = device.IdentificationNumber,
                 MeasuredValues = GetMeasuredValues(device.ModelId),
                 ModelSerialNumber = device.Model.SerialNumber,
+                ModelId = device.ModelId,
                 StorageLocation = device.StorageLocation,
                 ProductionDate = device.ProductionDate,
                 LastCalibrationDate = device.LastCalibrationDate,
