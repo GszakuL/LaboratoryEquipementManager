@@ -18,6 +18,7 @@ import { MatPaginatorIntl, MatPaginatorModule } from '@angular/material/paginato
 import { PolishPaginatorIntl } from './polish-paginator-inlt';
 import { PercentageDirective } from './commons/directives/percentage.directive';
 import { NgbModule, NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
+import { MultiSelectModule } from 'primeng/multiselect';
 
 @NgModule({
   declarations: [
@@ -42,6 +43,7 @@ import { NgbModule, NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
     FormsModule,
     NgbModule,
     NgbTypeaheadModule,
+    MultiSelectModule
   ],
   providers: [
     { provide: MatPaginatorIntl, useClass: PolishPaginatorIntl }
