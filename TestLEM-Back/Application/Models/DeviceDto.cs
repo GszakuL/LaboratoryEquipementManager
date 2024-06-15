@@ -13,5 +13,6 @@
         public DateTime? LastCalibrationDate { get; set; }
         public int? CalibrationPeriodInYears { get; set; }
         public bool? IsCloseToExpire { get; set; }
+        public string? Producer { get; set; }
     }
 }

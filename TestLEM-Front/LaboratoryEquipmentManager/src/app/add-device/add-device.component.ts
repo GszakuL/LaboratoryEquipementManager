@@ -16,10 +16,14 @@ export class AddDeviceComponent implements OnInit, AfterViewInit {
   fieldRequired = 'Pole jest wymagane';
   selectedDeviceFiles: File[] = [];
   selectedModelFiles: File[] = [];
-
   deviceQuery = new PagedAndSortedQueryOfDevicesList();
   devices: any[] = [];
-  devicesNames: string[] = [];
+  modelsNames: string[] = [];
+  modelsSerialNumbers: string[] = [];
+  modelInputsDisabled: boolean = false;
+  modelSerialNumberInputDisabled: boolean = false;
+  modelNameInputDisabled: boolean = false;
+  selectedRelatedModelsNames: string[] = [];
 
 
   constructor(private router: Router, private fb: FormBuilder, private apiService: ApiServiceService, private service: ApiServiceService) {
@@ -55,38 +59,80 @@ export class AddDeviceComponent implements OnInit, AfterViewInit {
   }
 
 
-	search: OperatorFunction<string, readonly string[]> = (text$: Observable<string>) =>
+	searchModelName: OperatorFunction<string, readonly string[]> = (text$: Observable<string>) =>
 		text$.pipe(
 			debounceTime(200),
 			distinctUntilChanged(),
 			map((term) =>
-				term.length < 2 ? [] : this.devicesNames.filter((v) => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0, 10),
+				term.length < 2 ? [] : this.modelsNames.filter((v) => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0, 10),
 			),
 	);
+
+  onModelNameSelect($event: NgbTypeaheadSelectItemEvent){
+    const selectedDevice = $event.item;
+    let deviceSelected = this.devices.find(x => x.modelName === selectedDevice);
+    this.deviceForm.patchValue({
+      model: {
+        serialNumber: deviceSelected.modelSerialNumber,
+        companyName: deviceSelected.producer
+      }
+    });
+    this.modelInputsDisabled = true;
+    this.modelSerialNumberInputDisabled = true;
+  }
+
+  serchModelSerialNumber: OperatorFunction<string, readonly string[]> = (text$: Observable<string>) =>
+		text$.pipe(
+			debounceTime(200),
+			distinctUntilChanged(),
+			map((term) =>
+				term.length < 2 ? [] : this.modelsSerialNumbers.filter((v) => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0, 10),
+			),
+	);
+
+  onModelSerialNumberSelect($event: NgbTypeaheadSelectItemEvent){
+    const selectedSerialNumber = $event.item;
+    let deviceSelected = this.devices.find(x => x.modelSerialNumber === selectedSerialNumber);
+    console.log('deviceSelected:')
+    console.log(deviceSelected);
+    this.deviceForm.patchValue({
+      model: {
+        name: deviceSelected.modelName,
+        companyName: deviceSelected.producer
+      }
+    });
+    this.modelInputsDisabled = true;
+    this.modelNameInputDisabled = true;
+  }
+
+  // onDeviceSerialNumber($event: NgbTypeaheadSelectItemEvent){
+  //   const selectedDevice = $event.item;
+  //   console.log("selectedDeviceName: "+selectedDevice);
+  //   console.log("devices: "+this.devices);
+  //   let deviceSelected = this.devices.find(x => x.modelName === selectedDevice);
+  //   console.log("ideviceIdentificationNumber: "+deviceSelected.modelSerialNumber);
+  //   this.deviceForm.patchValue({
+  //     model: {
+  //       serialNumber: deviceSelected.modelSerialNumber
+  //     }
+  //   });
+  // }
 
   getDevices() {
     this.service.getDevices(this.deviceQuery).subscribe((x: any) => {
       console.log(x);
       this.devices = x.items;
       for(let device of this.devices){
-        this.devicesNames.push(device.modelName);
+        this.modelsNames.push(device.modelName);
+        this.modelsSerialNumbers.push(device.modelSerialNumber);
       }
       console.log(x.items);
     });
+    console.log('serialNumbers: ');
+    console.log(this.modelsSerialNumbers);
   }
 
-  onDeviceSelect($event: NgbTypeaheadSelectItemEvent){
-    const selectedDevice = $event.item;
-    console.log("selectedDeviceName: "+selectedDevice);
-    console.log("devices: "+this.devices);
-    let deviceSelected = this.devices.find(x => x.modelName === selectedDevice);
-    console.log("ideviceIdentificationNumber: "+deviceSelected.modelSerialNumber);
-    this.deviceForm.patchValue({
-      model: {
-        serialNumber: deviceSelected.modelSerialNumber
-      }
-    });
-  }
+
 
   //dodać walidację
   //dać measured ranges na nullable w BE +

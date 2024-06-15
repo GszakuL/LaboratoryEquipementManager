@@ -121,13 +121,14 @@
           <label for="name" class="col-sm-3 col-form-label">Nazwa modelu</label>
           <div class="col-sm-9">
             <input
-              [ngbTypeahead]="search"
-              (selectItem)="onDeviceSelect($event)"
+              [ngbTypeahead]="searchModelName"
+              (selectItem)="onModelNameSelect($event)"
               type="text"
               class="form-control"
               id="name"
               formControlName="name"
-              placeholder="Wpisz nazwę lub wybierz z listy proponowanych"
+              placeholder="Wpisz nazwę lub wybierz z listy proponowanych po rozpoczęciu wpisywania"
+              [attr.disabled]="modelNameInputDisabled"
             />
             <div *ngIf="shouldShowError('model.name')" class="error">
               {{ fieldRequired }}
@@ -140,10 +141,14 @@
           >
           <div class="col-sm-9">
             <input
+              [ngbTypeahead]="serchModelSerialNumber"
+              placeholder="Wpisz numer lub wybierz z listy proponowanych po rozpoczęciu wpisywania"
+              (selectItem)="onModelSerialNumberSelect($event)"
               type="text"
               class="form-control"
               id="serialNumber"
               formControlName="serialNumber"
+              [attr.disabled]="modelSerialNumberInputDisabled"
             />
             <div *ngIf="shouldShowError('model.serialNumber')" class="error">
               {{ fieldRequired }}
@@ -158,6 +163,7 @@
               class="form-control"
               id="company"
               formControlName="companyName"
+              [attr.disabled]="modelInputsDisabled"
             />
           </div>
         </div>
@@ -277,6 +283,7 @@
             type="button"
             (click)="addMeasuredValue()"
             class="btn btn-success btn-add-mv med"
+            [disabled]="modelInputsDisabled"
           >
             Dodaj wartość mierzoną
           </button>
@@ -292,6 +299,7 @@
             id="modelDocuments"
             multiple
             (change)="onModelFileChange($event)"
+            [attr.disabled]="modelInputsDisabled"
           />
           <div id="modelDocumentsHelpBlock" class="form-text">
             Dokuemnty dotyczące modelu w formacie .pdf, .csv, .jpg (np.
@@ -304,6 +312,12 @@
             Wybierz z listy nazwy urządzeń, które chcesz powiązać z dodawanym
             urządzeniem
           </p>
+          <p-multiSelect
+            [options]="modelsNames"
+            [(ngModel)]="selectedRelatedModelsNames"
+            optionLabel="name"
+            placeholder="Wybierz nazwy modeli które chcesz powiązać"
+          />
         </div>
       </div>
       <button type="submit" (click)="onSubmit()">klik</button>

@@ -71,6 +71,7 @@ namespace Application.Devices.Queries
                     LastCalibrationDate = x.LastCalibrationDate,
                     ProductionDate = x.ProductionDate,
                     CalibrationPeriodInYears = x.CalibrationPeriodInYears,
+                    Producer = x.Model.Company.Name,
                     MeasuredValues = (ICollection<MeasuredValueDto>)x.Model.MeasuredValues.Select(y =>
                         new MeasuredValueDto
                         {
