@@ -14,7 +14,6 @@ import { UserComponent } from './user/user.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgxTypeaheadModule } from 'ngx-typeahead';
 import { MatPaginatorIntl, MatPaginatorModule } from '@angular/material/paginator';
 import { PolishPaginatorIntl } from './polish-paginator-inlt';
 import { PercentageDirective } from './commons/directives/percentage.directive';
