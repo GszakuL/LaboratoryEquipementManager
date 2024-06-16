@@ -27,6 +27,7 @@ export class DeviceDetailsComponent implements OnInit {
   rowspan = 1;
   deviceDocuments = this.deviceDto.deviceDocuments;
   modelDocuments = this.deviceDto.modelDocuments;
+  relatedModels = this.deviceDto.relatedModels;
 
   ngOnInit(): void {
     console.log(this.data)
@@ -68,6 +69,18 @@ export class DeviceDetailsComponent implements OnInit {
     });
     return modelDocumentsNames.join(',');
   }
+
+  getRelatedDeviceName(relatedModel: any): string {
+    let relatedModelName = relatedModel.name;
+    return relatedModelName;
+  }
+
+  // openDeviceDetails(deviceId: any) {
+  //   this.service.getDeviceDetailsById(deviceId).subscribe(deviceDetails => {
+  //     this.dialog.open(DeviceDetailsComponent, {data: {deviceDto: deviceDetails}, autoFocus: false});
+  //   })
+  //   //this.dialog.open(DeviceDetailsComponent, {data: {deviceDto: device}, autoFocus: false });
+  // }
 
   downloadFile(file: any, event: Event, downloadFor: string) {
     const deviceWord = "document";

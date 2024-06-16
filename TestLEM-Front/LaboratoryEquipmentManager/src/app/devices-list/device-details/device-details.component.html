@@ -87,6 +87,18 @@
           <th>Miejsce przechowywania:</th>
           <td>{{ deviceDto.storageLocation ?? "--" }}</td>
         </tr>
+        <tr>
+          <th>Modele powiązane</th>
+          <td>
+            <div *ngFor="let relatedModel of relatedModels">
+              <a
+                href=""
+                (click)="downloadFile(relatedModel, $event, 'device')"
+                >{{ getRelatedDeviceName(relatedModel) }}</a
+              >
+            </div>
+          </td>
+        </tr>
       </tbody>
     </table>
     <table
