@@ -4,6 +4,12 @@ import { Router } from '@angular/router';
 import { AddDeviceDto, ApiServiceService, DeviceDto, MeasuredRangesDto, MeasuredValueDto, ModelDto, PagedAndSortedQueryOfDevicesList } from '../api-service.service';
 import { Observable, OperatorFunction, catchError, debounceTime, distinctUntilChanged, forkJoin, map, of, pipe, switchMap } from 'rxjs';
 import { NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+
+interface ModelNameId {
+  id: any,
+  name: any
+}
+
 @Component({
   selector: 'app-add-device',
   templateUrl: './add-device.component.html',
@@ -23,8 +29,9 @@ export class AddDeviceComponent implements OnInit, AfterViewInit {
   modelInputsDisabled: boolean = false;
   modelSerialNumberInputDisabled: boolean = false;
   modelNameInputDisabled: boolean = false;
-  selectedRelatedModelsNames: string[] = [];
-
+  selectedRelatedModelsNames: any[] = [];
+  modelNameIds: any[] = [];
+  cooperatedModelsIds: number[] = [];
 
   constructor(private router: Router, private fb: FormBuilder, private apiService: ApiServiceService, private service: ApiServiceService) {
     this.deviceForm = this.fb.group({
@@ -54,8 +61,6 @@ export class AddDeviceComponent implements OnInit, AfterViewInit {
    }
 
   ngOnInit(): void {
-    // this.getDevices();
-    // console.log(this.devices);
   }
 
 
@@ -67,6 +72,10 @@ export class AddDeviceComponent implements OnInit, AfterViewInit {
 				term.length < 2 ? [] : this.modelsNames.filter((v) => v.toLowerCase().indexOf(term.toLowerCase()) > -1).slice(0, 10),
 			),
 	);
+
+  onSelectionChange() {
+    console.log(this.selectedRelatedModelsNames);
+  }
 
   onModelNameSelect($event: NgbTypeaheadSelectItemEvent){
     const selectedDevice = $event.item;
@@ -105,35 +114,22 @@ export class AddDeviceComponent implements OnInit, AfterViewInit {
     this.modelNameInputDisabled = true;
   }
 
-  // onDeviceSerialNumber($event: NgbTypeaheadSelectItemEvent){
-  //   const selectedDevice = $event.item;
-  //   console.log("selectedDeviceName: "+selectedDevice);
-  //   console.log("devices: "+this.devices);
-  //   let deviceSelected = this.devices.find(x => x.modelName === selectedDevice);
-  //   console.log("ideviceIdentificationNumber: "+deviceSelected.modelSerialNumber);
-  //   this.deviceForm.patchValue({
-  //     model: {
-  //       serialNumber: deviceSelected.modelSerialNumber
-  //     }
-  //   });
-  // }
-
   getDevices() {
     this.service.getDevices(this.deviceQuery).subscribe((x: any) => {
-      console.log(x);
       this.devices = x.items;
-      for(let device of this.devices){
+      this.devices.forEach( device => {
+        let modelIdName = {
+          id: device.modelId,
+          name: device.modelName
+        };
+        this.modelNameIds.push(modelIdName);
         this.modelsNames.push(device.modelName);
         this.modelsSerialNumbers.push(device.modelSerialNumber);
-      }
-      console.log(x.items);
+      })
+
+
     });
-    console.log('serialNumbers: ');
-    console.log(this.modelsSerialNumbers);
   }
-
-
-
   //dodać walidację
   //dać measured ranges na nullable w BE +
   //ogarnać duplikaty firm
@@ -166,6 +162,7 @@ export class AddDeviceComponent implements OnInit, AfterViewInit {
   }
 
   onSubmit() {
+    console.log(this.selectedRelatedModelsNames);
     this.submitted = true;
     if (this.deviceForm.invalid) {
       return;
@@ -183,6 +180,13 @@ export class AddDeviceComponent implements OnInit, AfterViewInit {
     this.selectedModelFiles.forEach(file => {
       modelFilesFormData.append('files', file);
     });
+
+    if (this.selectedRelatedModelsNames.length > 0) {
+      this.selectedRelatedModelsNames.forEach(x => {
+        this.cooperatedModelsIds.push(x.id);
+      });
+      addDeviceDto.Model.CooperatedModelsIds = this.cooperatedModelsIds;
+    }
 
     this.markFormGroupTouched(this.deviceForm);
 
@@ -298,7 +302,7 @@ export class AddDeviceComponent implements OnInit, AfterViewInit {
     modelDto.Name = this.getValueFromDeviceForm('model.name');
     modelDto.SerialNumber = this.getValueFromDeviceForm('model.serialNumber')
     modelDto.CompanyName = this.getValueFromDeviceForm('model.companyName');
-    modelDto.CooperatedModelsIds = this.getValueFromDeviceForm('model.cooperatedModelsIds');
+    modelDto.CooperatedModelsIds = [];
     modelDto.MeasuredValues = this.getMeasuredValuesFromDeviceForm();
 
     return modelDto;

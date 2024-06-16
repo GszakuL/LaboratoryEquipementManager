@@ -306,22 +306,23 @@
             instrukcja obsługi)
           </div>
         </div>
-        <div class="related-devices">
-          <h3>Urządzenia powiązane</h3>
-          <p>
-            Wybierz z listy nazwy urządzeń, które chcesz powiązać z dodawanym
-            urządzeniem
-          </p>
-          <p-multiSelect
-            [options]="modelsNames"
-            [(ngModel)]="selectedRelatedModelsNames"
-            optionLabel="name"
-            placeholder="Wybierz nazwy modeli które chcesz powiązać"
-          />
-        </div>
       </div>
-      <button type="submit" (click)="onSubmit()">klik</button>
     </form>
+    <div class="related-devices">
+      <h3>Urządzenia powiązane</h3>
+      <p>
+        Wybierz z listy nazwy urządzeń, które chcesz powiązać z dodawanym
+        urządzeniem
+      </p>
+      <p-multiSelect
+        [options]="modelNameIds"
+        [(ngModel)]="selectedRelatedModelsNames"
+        optionLabel="name"
+        placeholder="Wybierz nazwy modeli które chcesz powiązać"
+        (onChange)="onSelectionChange()"
+      />
+    </div>
+    <button type="submit" (click)="onSubmit()">klik</button>
   </div>
   {{ this.deviceForm.value | json }}
 </div>
