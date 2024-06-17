@@ -1,7 +1,7 @@
 <div class="container">
   <mat-dialog-content class="mat-typography">
     <div class="container-fluid d-flex justify-content-between p-0 mb-2">
-      <h3>Szczegóły urządzenia</h3>
+      <h3>Szczegóły modelu</h3>
       <button
         type="button"
         class="btn-close mt-2 pe-0"
@@ -12,77 +12,19 @@
     <table class="table border-secondary-subtle">
       <tbody>
         <tr>
-          <th>Urządzenie</th>
-        </tr>
-        <tr>
-          <th>Id:</th>
-          <td>{{ deviceDto.deviceId ?? "--" }}</td>
-        </tr>
-        <tr>
-          <th>Numer identyfikacyjny urządzenia:</th>
-          <td>{{ deviceDto.deviceIdentificationNumber ?? "--" }}</td>
-        </tr>
-        <tr>
-          <th>Data produkcji:</th>
-          <td>
-            {{
-              deviceDto.productionDate
-                ? (deviceDto.productionDate | date : "dd.MM.yyyy")
-                : "--"
-            }}
-          </td>
-        </tr>
-        <tr>
-          <th>Skalibrowany:</th>
-          <td>{{ deviceDto.isCalibrated ? "TAK" : "NIE" }}</td>
-        </tr>
-        <tr>
-          <th>Ostatnia data kalibracji:</th>
-          <td>
-            {{
-              deviceDto.lastCalibrationDate
-                ? (deviceDto.lastCalibrationDate | date : "dd.MM.yyyy")
-                : "--"
-            }}
-          </td>
-        </tr>
-        <tr>
-          <th>Okres kalibracji (lata):</th>
-          <td>{{ deviceDto.calibrationPeriodInYears ?? "--" }}</td>
-        </tr>
-        <tr>
-          <th>Miejsce przechowywania:</th>
-          <td>{{ deviceDto.storageLocation ?? "--" }}</td>
-        </tr>
-        <tr>
-          <th>Dokumenty urządzenia:</th>
-          <td>
-            <div *ngFor="let deviceDocuemnt of deviceDocuments">
-              <a
-                href=""
-                (click)="downloadFile(deviceDocuemnt, $event, 'device')"
-                >{{ deviceDocuemnt.name }}</a
-              >
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td></td>
-        </tr>
-        <tr>
           <th>Model</th>
         </tr>
         <tr>
           <th>Nazwa modelu:</th>
-          <td>{{ deviceDto.modelName ?? "--" }}</td>
+          <td>{{ modelDetials.name ?? "--" }}</td>
         </tr>
         <tr>
           <th>Numer seryjny modelu:</th>
-          <td>{{ deviceDto.modelSerialNumber ?? "--" }}</td>
+          <td>{{ modelDetials.serialNumber ?? "--" }}</td>
         </tr>
         <tr>
           <th>Producent:</th>
-          <td>{{ deviceDto.producer ?? "--" }}</td>
+          <td>{{ modelDetials.companyName ?? "--" }}</td>
         </tr>
         <tr>
           <th>Dokumenty modelu:</th>
@@ -100,13 +42,7 @@
           <th>Modele powiązane</th>
           <td>
             <div *ngFor="let relatedModel of relatedModels">
-              <a
-                href=""
-                (click)="
-                  openModelDetails(relatedModel.id, relatedModel.name, $event)
-                "
-                >{{ getRelatedDeviceName(relatedModel) }}</a
-              >
+              <td>{{ getRelatedDeviceName(relatedModel) }}</td>
             </div>
           </td>
         </tr>
@@ -125,7 +61,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let measuredValue of deviceDto.measuredValues">
+        <tr *ngFor="let measuredValue of modelDetials.measuredValues">
           <td>
             {{ measuredValue.physicalMagnitudeName }}
           </td>
@@ -155,11 +91,5 @@
         </tr>
       </tbody>
     </table>
-    <div class="container-fluid d-flex mb-2">
-      <button type="button" class="btn btn-warning me-2">Edytuj</button>
-      <button type="button" class="btn btn-danger" (click)="onDeleteDevice()">
-        Usuń
-      </button>
-    </div>
   </mat-dialog-content>
 </div>

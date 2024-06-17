@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Inject, OnInit, model } from '@angular/core';
 import {  MAT_DIALOG_DATA, MatDialog,
   MatDialogActions,
   MatDialogClose,
@@ -8,6 +8,7 @@ from '@angular/material/dialog';
 import { ApiServiceService, DeviceDto, ModelDto } from 'src/app/api-service.service';
 import { RemoveDeviceWarningModalComponent } from './remove-device-warning-modal/remove-device-warning-modal.component';
 import { DialogRef } from '@angular/cdk/dialog';
+import { ModelDetailsComponent } from './model-details/model-details/model-details.component';
 
 @Component({
   selector: 'app-device-details',
@@ -83,7 +84,7 @@ export class DeviceDetailsComponent implements OnInit {
   // }
 
   downloadFile(file: any, event: Event, downloadFor: string) {
-    const deviceWord = "document";
+    const deviceWord = "device";
     const modelWord = "model";
 
     event.preventDefault();
@@ -116,6 +117,15 @@ export class DeviceDetailsComponent implements OnInit {
       }
     );
   }
+
+  openModelDetails(modelId: number, modelName: string, event: Event) {
+    event.preventDefault();
+
+    this.apiService.getModelDetails(modelId, modelName).subscribe((modelDetails: any) => {
+      this.dialog.open(ModelDetailsComponent, {data: {modelDetails: modelDetails}, autoFocus: false});
+    })
+  }
+
 
 }
 

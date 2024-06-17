@@ -19,6 +19,7 @@ import { PolishPaginatorIntl } from './polish-paginator-inlt';
 import { PercentageDirective } from './commons/directives/percentage.directive';
 import { NgbModule, NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { ModelDetailsComponent } from './devices-list/device-details/model-details/model-details/model-details.component';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { MultiSelectModule } from 'primeng/multiselect';
     AddDeviceComponent,
     RemoveDeviceWarningModalComponent,
     UserComponent,
-    PercentageDirective
+    PercentageDirective,
+    ModelDetailsComponent
   ],
   imports: [
     BrowserModule,

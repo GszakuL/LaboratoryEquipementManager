@@ -1,6 +1,7 @@
 ﻿using Application.Abstractions;
 using Application.Helpers;
 using Application.Models;
+using Domain.Abstraction;
 using Domain.Entities;
 using Domain.Exceptions.Devices;
 using MediatR;
@@ -11,10 +12,12 @@ namespace Application.Devices.Queries
     internal class GetDeviceByIdQueryHandler : IRequestHandler<GetDeviceByIdQuery, DeviceDetailsDto>
     {
         private readonly IApplicationDbContext _dbContext;
+        private readonly IModelCooperationRepository _modelCooperationRepository;
 
-        public GetDeviceByIdQueryHandler(IApplicationDbContext dbContext)
+        public GetDeviceByIdQueryHandler(IApplicationDbContext dbContext, IModelCooperationRepository modelCooperationRepository)
         {
             _dbContext = dbContext;
+            _modelCooperationRepository = modelCooperationRepository;
         }
 
         public async Task<DeviceDetailsDto> Handle(GetDeviceByIdQuery request, CancellationToken cancellationToken)
@@ -46,7 +49,7 @@ namespace Application.Devices.Queries
                 IsCalibrated = CheckIfDeviceIsCalibrated(device?.LastCalibrationDate, device?.CalibrationPeriodInYears),
                 DeviceDocuments = GetDocumentsForDevice(device.Id),
                 ModelDocuments = GetDocumentsForModel(device.ModelId),
-                RelatedModels = GetRelatedModels(device.ModelId),
+                RelatedModels = await GetRelatedModelsAsync(device.ModelId, cancellationToken),
             };
 
             return deviceDetailsDto;
@@ -100,16 +103,39 @@ namespace Application.Devices.Queries
             return result;
         }
 
-        private List<ModelDto> GetRelatedModels(int modelId)
+        private async Task<List<ModelDto>> GetRelatedModelsAsync(int modelId, CancellationToken cancellationToken)
         {
-            var relatedModels = _dbContext.ModelCooperation.Where(x => x.ModelFromId == modelId)
+            var cooperatedModels = await _modelCooperationRepository.GetCooperationsForModelByModelId(modelId, cancellationToken);
+
+            var relatedModelsFrom = cooperatedModels.Where(x => x.ModelFromId == modelId)
                 .Select(y => new ModelDto
                 {
+                    Id = y.ModelToId,
                     Name = y.ModelTo.Name,
                     SerialNumber = y.ModelTo.SerialNumber,
                 }).ToList();
 
-            return relatedModels;                                  
+            var relatedModelsTo = cooperatedModels.Where(x => x.ModelToId == modelId)
+                .Select(y => new ModelDto
+                {
+                    Id = y.ModelFromId,
+                    Name = y.ModelFrom.Name,
+                    SerialNumber = y.ModelFrom.SerialNumber,
+                }).ToList();
+
+            var relatedModels = new List<ModelDto>();
+
+            if (relatedModelsFrom != null)
+            {
+                relatedModels.AddRange(relatedModelsFrom);
+            }
+
+            if (relatedModelsTo != null)
+            {
+                relatedModels.AddRange(relatedModelsTo);
+            }
+
+            return relatedModels;
         }
 
         private List<MeasuredValueDto> GetMeasuredValues(int modelId)

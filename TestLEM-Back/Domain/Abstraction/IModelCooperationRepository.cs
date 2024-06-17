@@ -1,7 +1,10 @@
-﻿namespace Domain.Abstraction
+﻿using Domain.Entities;
+
+namespace Domain.Abstraction
 {
     public interface IModelCooperationRepository
     {
         Task AddModelCooperation(int deviceId, ICollection<int> cooperatedDevicesIds);
+        Task<ICollection<ModelCooperation>> GetCooperationsForModelByModelId(int modelId, CancellationToken cancellationToken);
     }
 }

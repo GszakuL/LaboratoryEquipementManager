@@ -1,5 +1,6 @@
 ﻿using Domain.Abstraction;
 using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
@@ -26,6 +27,12 @@ namespace Infrastructure.Repositories
             };
             await _dbContext.AddRangeAsync(cooperations);
             await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<ICollection<ModelCooperation>> GetCooperationsForModelByModelId(int modelId, CancellationToken cancellationToken)
+        {
+            var cooperations = await _dbContext.ModelCooperation.Where(x => x.ModelFromId == modelId || x.ModelToId == modelId).Include(x => x.ModelFrom).Include(x => x.ModelTo).ToListAsync(cancellationToken);
+            return cooperations;
         }
     }
 }

@@ -23,6 +23,14 @@ export class ApiServiceService {
     return this.http.post(this.apiUrl + 'device/search', searchPhrase);
   }
 
+  getModelDetails(modelId: number, modelName: string): Observable<Object> {
+    let params = new HttpParams()
+      .set('modelId', modelId)
+      .set('modelName', modelName);
+
+    return this.http.get(this.apiUrl + 'models', {params});
+  }
+
   createDevice(addDeviceDto: any): Observable<any> {
     return this.http.post(this.apiUrl + 'device', addDeviceDto).pipe((response: any) => response);
   }
