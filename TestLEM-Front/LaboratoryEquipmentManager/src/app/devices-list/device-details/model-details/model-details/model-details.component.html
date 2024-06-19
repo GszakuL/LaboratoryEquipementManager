@@ -39,12 +39,16 @@
           </td>
         </tr>
         <tr>
-          <th>Modele powiązane</th>
+          <th>Modele powiązane:</th>
           <td>
             <div *ngFor="let relatedModel of relatedModels">
               <td>{{ getRelatedDeviceName(relatedModel) }}</td>
             </div>
           </td>
+        </tr>
+        <tr>
+          <th>Ilość modeli w bazie:</th>
+          <td>{{ modelDetials.totalModelCount }}</td>
         </tr>
       </tbody>
     </table>

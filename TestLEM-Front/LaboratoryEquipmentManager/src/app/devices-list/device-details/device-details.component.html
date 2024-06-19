@@ -156,7 +156,13 @@
       </tbody>
     </table>
     <div class="container-fluid d-flex mb-2">
-      <button type="button" class="btn btn-warning me-2">Edytuj</button>
+      <button
+        type="button"
+        class="btn btn-warning me-2"
+        (click)="navigateToEdit()"
+      >
+        Edytuj
+      </button>
       <button type="button" class="btn btn-danger" (click)="onDeleteDevice()">
         Usuń
       </button>

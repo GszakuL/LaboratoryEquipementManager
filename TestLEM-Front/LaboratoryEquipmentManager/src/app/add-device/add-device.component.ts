@@ -33,7 +33,7 @@ export class AddDeviceComponent implements OnInit, AfterViewInit {
   modelNameIds: any[] = [];
   cooperatedModelsIds: number[] = [];
 
-  constructor(private router: Router, private fb: FormBuilder, private apiService: ApiServiceService, private service: ApiServiceService) {
+  constructor(private router: Router, private fb: FormBuilder, private apiService: ApiServiceService) {
     this.deviceForm = this.fb.group({
       identificationNumber: ['', Validators.required],
       productionDate: [''],
@@ -115,7 +115,7 @@ export class AddDeviceComponent implements OnInit, AfterViewInit {
   }
 
   getDevices() {
-    this.service.getDevices(this.deviceQuery).subscribe((x: any) => {
+    this.apiService.getDevices(this.deviceQuery).subscribe((x: any) => {
       this.devices = x.items;
       this.devices.forEach( device => {
         let modelIdName = {
@@ -126,8 +126,6 @@ export class AddDeviceComponent implements OnInit, AfterViewInit {
         this.modelsNames.push(device.modelName);
         this.modelsSerialNumbers.push(device.modelSerialNumber);
       })
-
-
     });
   }
   //dodać walidację

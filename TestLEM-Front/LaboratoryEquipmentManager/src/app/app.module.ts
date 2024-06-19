@@ -20,6 +20,7 @@ import { PercentageDirective } from './commons/directives/percentage.directive';
 import { NgbModule, NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { ModelDetailsComponent } from './devices-list/device-details/model-details/model-details/model-details.component';
+import { EditDeviceComponent } from './edit-device/edit-device/edit-device.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import { ModelDetailsComponent } from './devices-list/device-details/model-detai
     RemoveDeviceWarningModalComponent,
     UserComponent,
     PercentageDirective,
-    ModelDetailsComponent
+    ModelDetailsComponent,
+    EditDeviceComponent
   ],
   imports: [
     BrowserModule,
@@ -46,7 +48,7 @@ import { ModelDetailsComponent } from './devices-list/device-details/model-detai
     NgbModule,
     NgbTypeaheadModule,
     MultiSelectModule
-  ],
+    ],
   providers: [
     { provide: MatPaginatorIntl, useClass: PolishPaginatorIntl }
   ],

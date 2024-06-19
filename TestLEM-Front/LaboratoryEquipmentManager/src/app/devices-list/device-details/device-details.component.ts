@@ -9,6 +9,7 @@ import { ApiServiceService, DeviceDto, ModelDto } from 'src/app/api-service.serv
 import { RemoveDeviceWarningModalComponent } from './remove-device-warning-modal/remove-device-warning-modal.component';
 import { DialogRef } from '@angular/cdk/dialog';
 import { ModelDetailsComponent } from './model-details/model-details/model-details.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-device-details',
@@ -20,7 +21,8 @@ export class DeviceDetailsComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: { deviceDto: any },
     private dialog: MatDialog,
     private selfDialog: DialogRef<DeviceDetailsComponent>,
-    private apiService: ApiServiceService
+    private apiService: ApiServiceService,
+    private router: Router
   ){}
 
   shouldDisplayMeasuredValuesTable = false;
@@ -126,6 +128,9 @@ export class DeviceDetailsComponent implements OnInit {
     })
   }
 
+  navigateToEdit(): any {
+    this.router.navigate(['edit-device'], { state: { data: this.deviceDto } })
+  }
 
 }
 
