@@ -21,6 +21,7 @@ import { NgbModule, NgbTypeaheadModule } from '@ng-bootstrap/ng-bootstrap';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { ModelDetailsComponent } from './devices-list/device-details/model-details/model-details/model-details.component';
 import { EditDeviceComponent } from './edit-device/edit-device/edit-device.component';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @NgModule({
   declarations: [
@@ -47,7 +48,8 @@ import { EditDeviceComponent } from './edit-device/edit-device/edit-device.compo
     FormsModule,
     NgbModule,
     NgbTypeaheadModule,
-    MultiSelectModule
+    MultiSelectModule,
+    MatCheckboxModule
     ],
   providers: [
     { provide: MatPaginatorIntl, useClass: PolishPaginatorIntl }

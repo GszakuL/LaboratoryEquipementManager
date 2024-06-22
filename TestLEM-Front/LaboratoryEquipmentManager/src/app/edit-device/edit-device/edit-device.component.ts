@@ -1,10 +1,16 @@
 import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl, FormArray } from '@angular/forms';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 import { Router } from '@angular/router';
 import { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { Observable, OperatorFunction, debounceTime, distinctUntilChanged, map } from 'rxjs';
 import { ApiServiceService, PagedAndSortedQueryOfDevicesList } from 'src/app/api-service.service';
 
+export enum TableName {
+  editedDeviceDocuments = 'editedDeviceDocuments',
+  editedModelDocuments = 'editedModelDocuments',
+  relatedModels = 'relatedModels'
+}
 @Component({
   selector: 'app-edit-device',
   templateUrl: './edit-device.component.html',
@@ -26,6 +32,21 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
   modelSerialNumberInputDisabled: boolean = false;
   measuredValuesControlss: FormControl[] = [];
   mesValFormArray:  FormArray = new FormArray([new FormControl]);
+  selectedRelatedModelsNames: any[] = [];
+  relateModelsNamesToEdit: any[] = [];
+  relateModelsNamesToEditSelected: string[] = [];
+  editedDeviceDocumentsNames: any[] = [];
+  editedDeviceDocumentsNamesSelected: any[] = [];
+  editedModelDocumentsNames: any[] = [];
+  editedModelDocumentsNamesSelected: any[] = [];
+  checkedMap: {[key: string]: boolean} = {};
+  selectedDeviceFiles: File[] = [];
+  anyRelatedDevices: boolean = false;
+  anyDeviceDocuments: boolean = false;
+  anyModelDocuments: boolean = false;
+  selectedModelFiles: File[] = [];
+
+
 
 
   constructor(private router: Router, private fb: FormBuilder, private apiService: ApiServiceService) {
@@ -53,33 +74,126 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
 
   ngOnInit(): void {
     this.deviceToEdit = history.state.data;
+    this.setOptionalAreasVisibility();
+    this.setRelateModelsNamesToEdit(this.deviceToEdit.relatedModels);
+
     console.log(this.deviceToEdit);
-    debugger;
     let measuredValues = this.deviceToEdit.measuredValues;
-    const measuredValuesArray = this.deviceToEdit.measuredValues.map((value: any) => this.fb.control(value));
-    this.deviceForm.setControl('measuredValues', this.fb.array(measuredValuesArray));
     this.initializeMeasuredValues(measuredValues);
+    this.bindOldValues();
+    this.initializeEditedDeviceDocuments(this.deviceToEdit.deviceDocuments);
+    this.initializeEditedModelDocuments(this.deviceToEdit.modelDocuments);
+  }
+
+  private setOptionalAreasVisibility() {
+    debugger;
+    if (this.deviceToEdit.modelDocuments?.length > 0) {
+      this.anyModelDocuments = true;
+    }
+    if (this.deviceToEdit.deviceDocuments?.length > 0) {
+      this.anyDeviceDocuments = true;
+    }
+    if (this.deviceToEdit.relatedModels?.length > 0) {
+      this.anyRelatedDevices = true;
+    }
+  }
+
+  setRelateModelsNamesToEdit(relatedModelsToEdit: any[]) {
+    relatedModelsToEdit.forEach(x => {
+      this.relateModelsNamesToEdit.push(x);
+    })
+  }
+
+  initializeEditedDeviceDocuments(documents: any) {
+    if (documents === null) {
+      return;
+    }
+    documents.forEach((x: any) => {
+      this.editedDeviceDocumentsNames.push(x.name)
+    })
+  }
+
+  initializeEditedModelDocuments(documents: any) {
+    if (documents === null) {
+      return;
+    }
+    documents.forEach((x: any) => {
+      this.editedModelDocumentsNames.push(x.name)
+    })
   }
 
   initializeMeasuredValues(measuredValues: any[]) {
+    const measuredValuesArray = this.deviceForm.get('model.measuredValues') as FormArray;
+    if (measuredValues === null) {
+      return;
+    }
+
     measuredValues.forEach(x => {
-      let physicalMagnitudeFG = this.fb.group({
-        physicalMagnitudeName: [x.physicalMagnitudeName, Validators.required],
-        physicalMagnitudeUnit: [x.physicalMagnitudeUnit]
+      const rangesArray = this.fb.array([] as FormGroup[]);
+      x.measuredRanges.forEach((y: any) => {
+        rangesArray.push(this.fb.group({
+          accuracyInPercent: [y.accuracyInPercent],
+          range: [y.range]
+        }));
       });
 
-      this.measuredValues.push(physicalMagnitudeFG);
-    });
+      const physicalMagnitudeFG = this.fb.group({
+        physicalMagnitudeName: [x.physicalMagnitudeName],
+        physicalMagnitudeUnit: [x.physicalMagnitudeUnit],
+        ranges: rangesArray
+      });
 
-    console.log(this.measuredValues);
+      measuredValuesArray.push(physicalMagnitudeFG);
+    });
+  }
+
+  onSubmit() {
+    this.submitted = true;
+    if (this.deviceForm.invalid) {
+      return;
+    }
   }
 
   ngAfterViewInit(): void {
     this.getDevices();
-    this.bindOldValues();
   }
   get measuredValuesControls() {
     return (this.deviceForm.get('model.measuredValues') as FormArray).controls;
+  }
+
+  onCheckboxChange(name: string, tableName: string, event: MatCheckboxChange) {
+    this.checkedMap[name] = event.checked;
+    // Update selected names array based on checked state
+    if (this.checkedMap[name]) {
+      this.addSelectedCheckboxValue(tableName, name);
+
+    } else {
+      this.removeSelectedCheckboxValue(tableName, name);
+    }
+    // Optional: Do something when checkbox state changes, if needed
+    console.log(name, 'checked:', this.checkedMap[name]);
+    console.log('Selected names:', this.relateModelsNamesToEditSelected);
+    console.log('Selected deviceDocs:', this.editedDeviceDocumentsNames);
+  }
+
+  private addSelectedCheckboxValue(tableName: string, value: string) {
+    if (tableName === TableName.relatedModels) {
+      this.relateModelsNamesToEditSelected.push(value);
+    } else if (tableName === TableName.editedDeviceDocuments) {
+      this.editedDeviceDocumentsNamesSelected.push(value);
+    } else if( tableName === TableName.editedModelDocuments) {
+      this.editedModelDocumentsNamesSelected.push(value);
+    }
+  }
+
+  private removeSelectedCheckboxValue(tableName: string, value: string) {
+    if (tableName === TableName.relatedModels) {
+      this.relateModelsNamesToEditSelected = this.relateModelsNamesToEditSelected.filter(n => n !== value);
+    } else if (tableName === TableName.editedDeviceDocuments) {
+      this.editedDeviceDocumentsNamesSelected = this.editedDeviceDocumentsNamesSelected.filter(n => n !== value);
+    } else if( tableName === TableName.editedModelDocuments) {
+      this.editedModelDocumentsNamesSelected = this.editedModelDocumentsNamesSelected.filter(n => n !== value);
+    }
   }
 
   getDevices() {
@@ -95,6 +209,23 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
         this.modelsSerialNumbers.push(device.modelSerialNumber);
       })
     });
+  }
+  onSelectionChange() {
+    console.log(this.selectedRelatedModelsNames);
+  }
+
+  onDeviceFileChange(event: any) {
+    debugger;
+    if (event.target.files.length > 0) {
+      this.selectedDeviceFiles = Array.from(event.target.files);
+    }
+  }
+
+  onModelFileChange(event: any) {
+    debugger;
+    if (event.target.files.length > 0) {
+      this.selectedModelFiles = Array.from(event.target.files);
+    }
   }
 
   searchModelName: OperatorFunction<string, readonly string[]> = (text$: Observable<string>) =>
@@ -174,6 +305,7 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
   }
 
   addRangeForMeasuredValue(rangeIndex: number) : void {
+    console.log(this.measuredValueRanges(rangeIndex));
     this.measuredValueRanges(rangeIndex).push(this.addNewRangeFG());
   }
 
@@ -184,7 +316,7 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
   private addNewRangeFG(): FormGroup {
     return this.fb.group({
       range:'',
-      accuracy:''
+      accuracyInPercent:''
     })
   }
 

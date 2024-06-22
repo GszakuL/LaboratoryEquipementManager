@@ -9,8 +9,8 @@
   >
     Przejdź do listy urządzeń
   </button>
-  <div class="parameters">
-    <form [formGroup]="deviceForm">
+  <div class="parameters mb-5">
+    <form [formGroup]="deviceForm" class="mb-5">
       <h3>Parametry</h3>
       <h4>Urządzenie</h4>
       <div class="row">
@@ -97,27 +97,48 @@
           </div>
         </div>
       </div>
-
-      <!-- <div class="mb-3">
-          <label for="devicesDocuments" class="form-label"
-            >Dokumenty urządzenia</label
-          >
-          <input
-            formControlName="documents"
-            class="form-control"
-            type="file"
-            id="devicesDocuments"
-            multiple
-            accept=".pdf, .txt, .jpg, .png, .doc, .docx, .csv"
-            (change)="onDeviceFileChange($event)"
-          />
-          <div id="devicesDocumentsHelpBlock" class="form-text">
-            Dokuemnty dotyczące urządzenia w formacie .pdf, .csv, .jpg (np.
-            faktura, raport kalibracji, karta gwarancyjna)
+      <div class="mb-3">
+        <h4>Dokumenty urządzenia</h4>
+        <div *ngIf="anyModelDocuments">
+          <div class="form-text">
+            Zaznacz nazwy dokumentów, które chcesz usunąć dla edytowanego
+            urządzenia
           </div>
+          <section class="example-section">
+            <p *ngFor="let document of editedDeviceDocumentsNames">
+              <mat-checkbox
+                [checked]="checkedMap[document]"
+                (change)="
+                  onCheckboxChange(document, 'editedDeviceDocuments', $event)
+                "
+              >
+                {{ document }}
+              </mat-checkbox>
+            </p>
+          </section>
         </div>
-      </div> -->
+        <div class="form-text">
+          Wybierz dokumenty które chcesz dodać dla edytowanego urządzenia
+        </div>
+        <input
+          formControlName="documents"
+          class="form-control"
+          type="file"
+          id="devicesDocuments"
+          multiple
+          accept=".pdf, .txt, .jpg, .png, .doc, .docx, .csv"
+          (change)="onDeviceFileChange($event)"
+        />
+        <div id="devicesDocumentsHelpBlock" class="form-text">
+          Dokuemnty dotyczące urządzenia w formacie .pdf, .csv, .jpg (np.
+          faktura, raport kalibracji, karta gwarancyjna)
+        </div>
+      </div>
       <h4>Model</h4>
+      <div class="alert alert-danger" role="alert">
+        <b>Uwaga!</b> Wprowadzone zmiany dla modelu, wpływają na każdy model
+        danego rodzaju zapisany w bazie!
+      </div>
       <div formGroupName="model">
         <div class="mb-3 row">
           <label for="name" class="col-sm-3 col-form-label">Nazwa modelu</label>
@@ -170,12 +191,7 @@
           </div>
         </div>
         <h5>Wartości mierzone</h5>
-        <div formArrayName="measuredValues">
-          <div *ngFor="let formControl of measuredValues.controls">
-            <input [value]="formControl.value" />
-          </div>
-        </div>
-        <div formArrayName="measuredValues">
+        <div formArrayName="measuredValues" class="mb-4">
           <div
             *ngFor="let measuredValue of measuredValues.controls; let i = index"
           >
@@ -191,7 +207,6 @@
                     [attr.id]="'physicalMagnitudeName-' + i"
                     type="text"
                     class="form-control"
-                    [value]="measuredValue.value"
                     formControlName="physicalMagnitudeName"
                     required
                   />
@@ -213,7 +228,6 @@
                     type="text"
                     class="form-control"
                     formControlName="physicalMagnitudeUnit"
-                    [value]="measuredValue.value"
                   />
                 </div>
 
@@ -258,7 +272,7 @@
                           [attr.id]="'accuracy-' + i + '-' + j"
                           type="text"
                           class="form-control col-sm-5"
-                          formControlName="accuracy"
+                          formControlName="accuracyInPercent"
                           min="0"
                           appPercentageDirective
                         />
@@ -297,7 +311,80 @@
             Dodaj wartość mierzoną
           </button>
         </div>
+        <div class="mb-3">
+          <h4>Dokumenty modelu</h4>
+          <div *ngIf="anyDeviceDocuments">
+            <div class="form-text">
+              Zaznacz nazwy dokumentów, które chcesz usunąć dla edytowanego
+              modelu
+            </div>
+            <section class="example-section">
+              <p *ngFor="let document of editedModelDocumentsNames">
+                <mat-checkbox
+                  [checked]="checkedMap[document]"
+                  (change)="
+                    onCheckboxChange(document, 'editedModelDocuments', $event)
+                  "
+                >
+                  {{ document }}
+                </mat-checkbox>
+              </p>
+            </section>
+          </div>
+          <div class="form-text">
+            Wybierz dokumenty które chcesz dodać dla edytowanego urządzenia
+          </div>
+          <input
+            formControlName="documents"
+            class="form-control"
+            type="file"
+            id="modelDocuments"
+            multiple
+            (change)="onModelFileChange($event)"
+            [attr.disabled]="modelInputsDisabled"
+          />
+          <div id="modelDocumentsHelpBlock" class="form-text">
+            Dokuemnty dotyczące modelu w formacie .pdf, .csv, .jpg (np.
+            instrukcja obsługi)
+          </div>
+        </div>
       </div>
     </form>
+    <div class="related-devices">
+      <h3>Modele powiązane</h3>
+      <div *ngIf="anyRelatedDevices">
+        <h4>Usuń powiązania</h4>
+        <div class="form-text">
+          Zaznacz nazwy modeli dla których chcesz usunąć powiązania
+        </div>
+        <section class="example-section">
+          <p *ngFor="let control of relateModelsNamesToEdit">
+            <mat-checkbox
+              [checked]="checkedMap[control.name]"
+              (change)="onCheckboxChange(control.name, 'relatedModels', $event)"
+            >
+              {{ control.name }}
+            </mat-checkbox>
+          </p>
+        </section>
+      </div>
+      <h4>Dodaj nowe powiązania</h4>
+      <div class="form-text">
+        Wybierz z listy nazwy modeli, dla których chcesz stworzyć nowe
+        powiązanie z edytowanym modelem
+      </div>
+      <p-multiSelect
+        [options]="modelNameIds"
+        [(ngModel)]="selectedRelatedModelsNames"
+        optionLabel="name"
+        placeholder="Wybierz nazwy modeli które chcesz powiązać"
+        (onChange)="onSelectionChange()"
+      />
+    </div>
+  </div>
+  <div class="d-flex justify-content-end">
+    <button type="submit" (click)="onSubmit()" class="btn btn-success mb-3">
+      Zapisz
+    </button>
   </div>
 </div>
