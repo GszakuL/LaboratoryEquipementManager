@@ -47,5 +47,17 @@ namespace Infrastructure.Repositories
         {
             return _dbContext.Documents.Where(x => x.Name  == documentName).ToListAsync();
         }
+
+        public async Task RemoveDocumentsAsync(ICollection<int> documentIds)
+        {
+            var documents = await GetDocumentsByIds(documentIds);
+            _dbContext.Documents.RemoveRange(documents);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<ICollection<Document>> GetDocumentsByIds(ICollection<int> documentIds)
+        {
+            return await _dbContext.Documents.Where(x => documentIds.Contains(x.Id)).ToListAsync();
+        }
     }
 }

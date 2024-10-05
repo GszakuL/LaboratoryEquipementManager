@@ -36,5 +36,16 @@ namespace Web.Controllers
 
             return File(result.Data, result.ContentType, result.FileName);
         }
+
+        [HttpDelete]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> DeleteFiles(ICollection<int> documentsId)
+        {
+            var deleteDocumentsCommand = new DeleteDocumentsCommand(documentsId);
+
+            var result = await _mediator.Send(deleteDocumentsCommand);
+            return Ok(result);
+        }
     }
 }
