@@ -1,10 +1,10 @@
 import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormControl, FormArray } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormControl, FormArray, AbstractControl } from '@angular/forms';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { Router } from '@angular/router';
 import { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
-import { Observable, OperatorFunction, debounceTime, distinctUntilChanged, map } from 'rxjs';
-import { ApiServiceService, PagedAndSortedQueryOfDevicesList } from 'src/app/api-service.service';
+import { Observable, OperatorFunction, catchError, debounceTime, distinctUntilChanged, forkJoin, map, of, switchMap } from 'rxjs';
+import { AddDeviceDto, ApiServiceService, MeasuredRangesDto, MeasuredValueDto, ModelDto, PagedAndSortedQueryOfDevicesList } from 'src/app/api-service.service';
 
 export enum TableName {
   editedDeviceDocuments = 'editedDeviceDocuments',
@@ -45,6 +45,7 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
   anyDeviceDocuments: boolean = false;
   anyModelDocuments: boolean = false;
   selectedModelFiles: File[] = [];
+  cooperatedModelsIds: number[] = [];
 
 
 
@@ -148,10 +149,141 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
   }
 
   onSubmit() {
+    console.log(this.selectedRelatedModelsNames);
     this.submitted = true;
     if (this.deviceForm.invalid) {
       return;
     }
+
+    let newEditedAddDeviceDto = this.mapDeviceFormValuesToAddDeviceDto();
+
+    const deviceFilesFormData = new FormData();
+    const modelFilesFormData = new FormData();
+
+    this.selectedDeviceFiles.forEach(file => {
+      deviceFilesFormData.append('files', file);
+    });
+
+    this.selectedModelFiles.forEach(file => {
+      modelFilesFormData.append('files', file);
+    });
+
+    if (this.selectedRelatedModelsNames.length > 0) {
+      this.selectedRelatedModelsNames.forEach(x => {
+        this.cooperatedModelsIds.push(x.id);
+      });
+      newEditedAddDeviceDto.Model.CooperatedModelsIds = this.cooperatedModelsIds;
+    }
+
+    this.markFormGroupTouched(this.deviceForm);
+
+    if (this.deviceForm.valid) {
+      this.apiService.createDevice(newEditedAddDeviceDto).pipe(
+        switchMap((x: any) => {
+          const observables = [];
+          if (this.selectedDeviceFiles.length > 0) {
+            deviceFilesFormData.append('deviceId', x.deviceId.toString());
+            deviceFilesFormData.append('modelId', '');
+            observables.push(this.apiService.addDocuments(deviceFilesFormData).pipe(catchError(error => of(error))));
+          }
+          if (this.selectedModelFiles.length > 0) {
+            modelFilesFormData.append('deviceId', '');
+            modelFilesFormData.append('modelId', x.modelId.toString());
+            observables.push(this.apiService.addDocuments(modelFilesFormData).pipe(catchError(error => of(error))));
+          }
+          return forkJoin(observables).pipe(
+            map(() => x)
+          );
+        })
+      ).subscribe((x) => {
+        alert(`Urządzenie o id: ${x.identificationNumber} zostało dodane`);
+        this.deviceForm.reset();
+        window.scroll({
+          top: 0,
+          behavior: 'smooth'
+        });
+      });
+    }
+  }
+
+  markFormGroupTouched(control: AbstractControl) {
+    if (control instanceof FormGroup) {
+      Object.keys(control.controls).forEach(key => {
+        const subControl = control.controls[key];
+        this.markFormGroupTouched(subControl);
+      });
+    } else if (control instanceof FormArray) {
+      control.controls.forEach(subControl => this.markFormGroupTouched(subControl));
+    } else if (control instanceof FormControl) {
+      control.markAsTouched();
+    }
+  }
+
+  private mapDeviceFormValuesToAddDeviceDto(): AddDeviceDto {
+    let addDeviceDto = new AddDeviceDto();
+    addDeviceDto.IdentificationNumber = this.getValueFromDeviceForm('identificationNumber');
+    addDeviceDto.ProductionDate = new Date(this.getValueFromDeviceForm('productionDate'));
+    addDeviceDto.CalibrationPeriodInYears = this.getValueFromDeviceForm('calibrationPeriodInYears');
+    addDeviceDto.LastCalibrationDate = new Date(this.getValueFromDeviceForm('lastCalibrationDate'));
+    addDeviceDto.IsCalibrated = this.getValueFromDeviceForm('isCalibrated');
+    addDeviceDto.IsCalibrationCloseToExpire = this.getValueFromDeviceForm('isCalibrationCloseToExpire');
+    addDeviceDto.StorageLocation = this.getValueFromDeviceForm('storageLocation');
+    addDeviceDto.Model = this.getModelFromDeviceForm();
+
+    return addDeviceDto;
+  }
+
+  private getModelFromDeviceForm(): ModelDto {
+    let modelDto = new ModelDto();
+    modelDto.Name = this.getValueFromDeviceForm('model.name');
+    modelDto.SerialNumber = this.getValueFromDeviceForm('model.serialNumber')
+    modelDto.CompanyName = this.getValueFromDeviceForm('model.companyName');
+    modelDto.CooperatedModelsIds = [];
+    modelDto.MeasuredValues = this.getMeasuredValuesFromDeviceForm();
+
+    return modelDto;
+  }
+
+  private getMeasuredValuesFromDeviceForm(): any {
+    let measuredValues = this.deviceForm.get('model.measuredValues') as FormArray;
+    let measuredValuesDto: MeasuredValueDto[] = [];
+
+    if(measuredValues.length === 0) {
+      return null;
+    }
+
+    measuredValues.controls.forEach(x => {
+      let measuredValueDto = new MeasuredValueDto();
+      measuredValueDto.PhysicalMagnitudeName = x.get('physicalMagnitudeName')?.value;
+      measuredValueDto.PhysicalMagnitudeUnit = x.get('physicalMagnitudeUnit')?.value;
+      measuredValueDto.MeasuredRanges = this.getMeasuredRangesFromDeviceForm(x);
+      measuredValuesDto.push(measuredValueDto);
+    });
+
+    return measuredValuesDto;
+  }
+
+  private getMeasuredRangesFromDeviceForm(measuredValue: AbstractControl): any {
+    let measuredRangesDto: MeasuredRangesDto[] = [];
+
+    let measuredRanges = measuredValue.get('ranges') as FormArray;
+
+    if(!measuredRanges.value) {
+      return null;
+    }
+
+    measuredRanges.controls.forEach(x => {
+      let measuredRangeDto = new MeasuredRangesDto();
+      measuredRangeDto.AccuracyInPercent = +x.get('accuracy')?.value;
+      measuredRangeDto.Range = x.get('range')?.value;
+      measuredRangesDto.push(measuredRangeDto);
+    });
+
+    return measuredRangesDto;
+  }
+
+  private getValueFromDeviceForm(name: string): any {
+    return this.deviceForm.get(name)?.value ? this.deviceForm.get(name)?.value : null;
   }
 
   ngAfterViewInit(): void {

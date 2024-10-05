@@ -48,5 +48,18 @@ namespace Web.Controllers
             var deviceDetails = await _mediator.Send(query, cancellationToken);
             return Ok(deviceDetails);
         }
+
+        [HttpPut("{deviceId}/edit")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> EditDevice([FromRoute] int deviceId, [FromBody] AddDeviceDto oldDeviceDto, [FromBody] EditDeviceDto newDeviceDto, [FromBody] ICollection<int>? modelCooperationsToBeRemoved, CancellationToken cancellationToken)
+        {
+            var query = new EditDeviceCommand(deviceId, oldDeviceDto, newDeviceDto, modelCooperationsToBeRemoved, cancellationToken);
+
+            //tu jeszcze trzeba będzie ogarnąć dokumenty
+
+            var editionResult = await _mediator.Send(query, cancellationToken);
+            return Ok(editionResult);
+        }
     }
 }

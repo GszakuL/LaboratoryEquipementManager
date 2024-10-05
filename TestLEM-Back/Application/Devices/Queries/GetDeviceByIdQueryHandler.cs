@@ -144,10 +144,12 @@ namespace Application.Devices.Queries
                 .Where(x => x.ModelId == modelId)
                 .Select(x => new MeasuredValueDto
                 {
+                    Id = x.Id,
                     PhysicalMagnitudeName = x.PhysicalMagnitude.Name,
                     PhysicalMagnitudeUnit = x.PhysicalMagnitude.Unit,
                     MeasuredRanges = (ICollection<MeasuredRangesDto>)x.MeasuredRanges.Select(y => new MeasuredRangesDto
                     {
+                        Id = y.Id,
                         Range = y.Range,
                         AccuracyInPercent = y.AccuracyInPercet
                     })

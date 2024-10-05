@@ -38,16 +38,18 @@ namespace Application.Models.Queries
             return modelDetailsDto;
         }
 
-        private List<MeasuredValueDto> GetMeasuredValues(int modelId)
+        private List<MeasuredValueDto> GetMeasuredValues(int modelId) //to powinno wylecieć do klasy z przeszukiwaniem bazy
         {
             var measuredValues = _dbContext.MeasuredValues
                 .Where(x => x.ModelId == modelId)
                 .Select(x => new MeasuredValueDto
                 {
+                    Id = x.Id,
                     PhysicalMagnitudeName = x.PhysicalMagnitude.Name,
                     PhysicalMagnitudeUnit = x.PhysicalMagnitude.Unit,
                     MeasuredRanges = (ICollection<MeasuredRangesDto>)x.MeasuredRanges.Select(y => new MeasuredRangesDto
                     {
+                        Id = y.Id,
                         Range = y.Range,
                         AccuracyInPercent = y.AccuracyInPercet
                     })

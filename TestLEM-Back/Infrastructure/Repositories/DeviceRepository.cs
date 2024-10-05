@@ -27,5 +27,14 @@ namespace Infrastructure.Repositories
             var result = await _dbContext.Devices.AnyAsync(x => x.IdentificationNumber == identificationNumber, cancellationToken);
             return result;
         }
+
+        public async Task<Device> GetDeviceById(int id, CancellationToken cancellationToken) => await _dbContext.Devices.FirstAsync(x => x.Id == id, cancellationToken);
+
+        public async Task UpdateDeviceAsync(int deviceId, Device newDevice, CancellationToken cancellationToken)
+        {
+            var device = await GetDeviceById(deviceId, cancellationToken);
+            _dbContext.Devices.Entry(device).CurrentValues.SetValues(newDevice);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
     }
 }

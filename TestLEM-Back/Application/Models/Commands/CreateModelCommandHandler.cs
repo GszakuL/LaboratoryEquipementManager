@@ -59,6 +59,10 @@ namespace Application.Models.Commands
         private ICollection<MeasuredValue> GetMeasuredValuesForModel(ICollection<MeasuredValueDto> measuredValuesDtos)
         {
             var measuredValues = new List<MeasuredValue>();
+            if (measuredValuesDtos == null)
+            {
+                return measuredValues;
+            }
 
             foreach (var measuredValueDto in measuredValuesDtos)
             {

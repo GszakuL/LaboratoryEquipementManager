@@ -34,5 +34,12 @@ namespace Infrastructure.Repositories
             var cooperations = await _dbContext.ModelCooperation.Where(x => x.ModelFromId == modelId || x.ModelToId == modelId).Include(x => x.ModelFrom).Include(x => x.ModelTo).ToListAsync(cancellationToken);
             return cooperations;
         }
+
+        public async Task RemoveModelCooperations(ICollection<int> cooperationsIdsToBeRemoved, CancellationToken cancellationToken)
+        {
+            var cooperationsToRemove = await _dbContext.ModelCooperation.Where(x => cooperationsIdsToBeRemoved.Contains(x.ModelFromId)).ToListAsync(cancellationToken);
+            _dbContext.RemoveRange(cooperationsToRemove);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
     }
 }
