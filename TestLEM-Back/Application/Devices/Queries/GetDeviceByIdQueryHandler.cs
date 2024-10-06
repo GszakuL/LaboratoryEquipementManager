@@ -94,6 +94,7 @@ namespace Application.Devices.Queries
             {
                 var documentDto = new DocumentDto
                 {
+                    Id = document.Id,
                     Name = document.Name,
                     Format = document.Format,
                 };

@@ -40,7 +40,7 @@ namespace Web.Controllers
         [HttpDelete]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> DeleteFiles(ICollection<int> documentsId)
+        public async Task<IActionResult> DeleteFiles([FromBody]ICollection<int> documentsId)
         {
             var deleteDocumentsCommand = new DeleteDocumentsCommand(documentsId);
 

@@ -52,9 +52,10 @@ namespace Web.Controllers
         [HttpPut("{deviceId}/edit")]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> EditDevice([FromRoute] int deviceId, [FromBody] AddDeviceDto oldDeviceDto, [FromBody] EditDeviceDto newDeviceDto, [FromBody] ICollection<int>? modelCooperationsToBeRemoved, CancellationToken cancellationToken)
+        public async Task<IActionResult> EditDevice([FromRoute] int deviceId, [FromBody] EditDeviceRequestDto editDeviceDto, CancellationToken cancellationToken)
         {
-            var query = new EditDeviceCommand(deviceId, oldDeviceDto, newDeviceDto, modelCooperationsToBeRemoved, cancellationToken);
+            //oldDeviceDto powinno być typu AddDeviceDto => oddzielnie przesyłam id do usunięcia kooperacji
+            var query = new EditDeviceCommand(deviceId, editDeviceDto.OldDevice, editDeviceDto.NewDevice, editDeviceDto.ModelCooperationsToBeRemoved, cancellationToken);
 
             //tu jeszcze trzeba będzie ogarnąć dokumenty
 

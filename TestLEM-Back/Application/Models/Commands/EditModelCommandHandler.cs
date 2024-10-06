@@ -40,7 +40,7 @@ namespace Application.Models.Commands
 
             if (CheckIfCooperationsChanged(modelToEdit.CooperateFrom, newModel.CooperatedModelsIds) || request.cooperationsIdsToBeRemoved != null)
             {
-                if(modelToEdit.CooperateFrom == null & newModel.CooperatedModelsIds != null)
+                if(modelToEdit.CooperateFrom == null && newModel.CooperatedModelsIds != null)
                 {
                     await _modelCooperationRepository.AddModelCooperation(request.modelId, newModel.CooperatedModelsIds);
                 } 

@@ -2,6 +2,6 @@
 {
     public class EditDeviceDto : AddDeviceDto
     {
-        public ICollection<int> CooperationsIdsToBeRemoved { get; set; }
+        public ICollection<int>? CooperationsIdsToBeRemoved { get; set; }
     }
 }
