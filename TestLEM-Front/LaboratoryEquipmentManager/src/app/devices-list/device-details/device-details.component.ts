@@ -54,15 +54,15 @@ export class DeviceDetailsComponent implements OnInit {
     this.shouldDisplayMeasuredValuesTable = this.deviceDto.measuredValues.length > 0;
   }
 
-  getDeviceDocuemnts() {
-    console.log(this.deviceDto);
-    this.deviceDocuments = this.deviceDto.deviceDocuments;
-    let deviceDocumentsNames: string[] = [];
-    this.deviceDocuments.forEach((x: any) => {
-      deviceDocumentsNames.push(x.name)
-    });
-    return deviceDocumentsNames.join(',');
-  }
+  // getDeviceDocuemnts() {
+  //   console.log(this.deviceDto);
+  //   this.deviceDocuments = this.deviceDto.deviceDocuments;
+  //   let deviceDocumentsNames: string[] = [];
+  //   this.deviceDocuments.forEach((x: any) => {
+  //     deviceDocumentsNames.push(x.name)
+  //   });
+  //   return deviceDocumentsNames.join(',');
+  // }
 
   getModelDocuemnts() {
     this.modelDocuments = this.deviceDto.modelDocuments;

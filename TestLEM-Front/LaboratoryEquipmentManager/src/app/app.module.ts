@@ -22,6 +22,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { ModelDetailsComponent } from './devices-list/device-details/model-details/model-details/model-details.component';
 import { EditDeviceComponent } from './edit-device/edit-device/edit-device.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { EditionDeviceConfirmationModal } from './edit-device/edition-device-confirmation-modal/edition-device-confirmation-modal.component';
 
 @NgModule({
   declarations: [
@@ -33,7 +34,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     UserComponent,
     PercentageDirective,
     ModelDetailsComponent,
-    EditDeviceComponent
+    EditDeviceComponent,
+    EditionDeviceConfirmationModal
   ],
   imports: [
     BrowserModule,

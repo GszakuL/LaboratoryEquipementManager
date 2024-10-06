@@ -35,8 +35,26 @@ export class ApiServiceService {
     return this.http.post(this.apiUrl + 'device', addDeviceDto).pipe((response: any) => response);
   }
 
+  editDevice(deviceId: number, oldDeviceDto: AddDeviceDto, newDeviceDto: AddDeviceDto, modelCooperationsToBeRemoved: number[] | null): Observable<any> {
+    const url = `${this.apiUrl+'device'}/${deviceId}/edit`;
+
+    const body = {
+      oldDevice: oldDeviceDto,
+      newDevice: newDeviceDto,
+      modelCooperationsToBeRemoved: modelCooperationsToBeRemoved,
+    };
+
+    return this.http.put(url, body).pipe((response: any) => response);
+  }
+
   addDocuments(formData: FormData): Observable<any> {
     return this.http.post(this.apiUrl + 'files', formData);
+  }
+
+  removeDocuments(documentsId: number[]): Observable<any> {
+    return this.http.delete(this.apiUrl + 'files', {
+      body: { documentsId }
+    });
   }
 
   downloadFile(documentName: string, modelId?: string, deviceId?: string): Observable<any>{

@@ -35,7 +35,6 @@ export class DevicesListComponent implements OnInit {
   devicePhysicalMagnitudeNames: string[] = [];
 
   ngOnInit(): void {
-
     this.refreshDevicesList();
   }
 
@@ -48,6 +47,7 @@ export class DevicesListComponent implements OnInit {
     this.deviceQuery.SortOrder = this.order;
     this.deviceQuery.SortColumn = this.sortColumn;
     this.service.getDevices(this.deviceQuery).subscribe((x: any) => {
+      console.log(x);
       this.DevicesList = x;
       this.prepareDevicesMeasuredValuesToDisplay(this.DevicesList.items)
       this.totalDevicesCount = x.totalCount;

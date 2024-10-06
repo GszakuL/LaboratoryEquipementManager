@@ -18,6 +18,7 @@ export enum TableName {
 })
 export class EditDeviceComponent implements AfterViewInit, OnInit {
   deviceToEdit: any;
+  deviceToBeEditedDto: any;
 
   deviceForm: FormGroup;
   deviceQuery = new PagedAndSortedQueryOfDevicesList();
@@ -34,11 +35,11 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
   mesValFormArray:  FormArray = new FormArray([new FormControl]);
   selectedRelatedModelsNames: any[] = [];
   relateModelsNamesToEdit: any[] = [];
-  relateModelsNamesToEditSelected: string[] = [];
-  editedDeviceDocumentsNames: any[] = [];
-  editedDeviceDocumentsNamesSelected: any[] = [];
-  editedModelDocumentsNames: any[] = [];
-  editedModelDocumentsNamesSelected: any[] = [];
+  relateModelsIdsToBeRemoved: number[] = [];
+  editedDeviceDocuments: any[] = [];
+  deviceDocumentsIdsToBeRemoved: any[] = [];
+  editedModelDocuments: any[] = [];
+  modelDocumentsIdsToBeRemoved: any[] = [];
   checkedMap: {[key: string]: boolean} = {};
   selectedDeviceFiles: File[] = [];
   anyRelatedDevices: boolean = false;
@@ -46,9 +47,8 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
   anyModelDocuments: boolean = false;
   selectedModelFiles: File[] = [];
   cooperatedModelsIds: number[] = [];
-
-
-
+  selectedModelFilesIdsToBeRemoved: number[] = [];
+  selectedDeviceFilesIdsToBeRemoved: number[] = [];
 
   constructor(private router: Router, private fb: FormBuilder, private apiService: ApiServiceService) {
     this.deviceForm = this.fb.group({
@@ -84,6 +84,11 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
     this.bindOldValues();
     this.initializeEditedDeviceDocuments(this.deviceToEdit.deviceDocuments);
     this.initializeEditedModelDocuments(this.deviceToEdit.modelDocuments);
+    console.log('deviceToEdit:')
+    console.log(this.deviceToEdit);
+
+    console.log('relatedModels:')
+    console.log(this.deviceToEdit.relatedModels)
   }
 
   private setOptionalAreasVisibility() {
@@ -101,7 +106,7 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
 
   setRelateModelsNamesToEdit(relatedModelsToEdit: any[]) {
     relatedModelsToEdit.forEach(x => {
-      this.relateModelsNamesToEdit.push(x);
+      this.relateModelsNamesToEdit.push({id: x.id, name: x.name});
     })
   }
 
@@ -110,7 +115,7 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
       return;
     }
     documents.forEach((x: any) => {
-      this.editedDeviceDocumentsNames.push(x.name)
+      this.editedDeviceDocuments.push({name: x.name, Id: x.id})
     })
   }
 
@@ -119,7 +124,7 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
       return;
     }
     documents.forEach((x: any) => {
-      this.editedModelDocumentsNames.push(x.name)
+      this.editedModelDocuments.push({name: x.name, Id: x.id})
     })
   }
 
@@ -149,6 +154,7 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
   }
 
   onSubmit() {
+    debugger;
     console.log(this.selectedRelatedModelsNames);
     this.submitted = true;
     if (this.deviceForm.invalid) {
@@ -176,9 +182,9 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
     }
 
     this.markFormGroupTouched(this.deviceForm);
-
+    debugger;
     if (this.deviceForm.valid) {
-      this.apiService.createDevice(newEditedAddDeviceDto).pipe(
+      this.apiService.editDevice(this.deviceToEdit.deviceId, this.deviceToBeEditedDto, newEditedAddDeviceDto, this.relateModelsIdsToBeRemoved).pipe(
         switchMap((x: any) => {
           const observables = [];
           if (this.selectedDeviceFiles.length > 0) {
@@ -190,6 +196,12 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
             modelFilesFormData.append('deviceId', '');
             modelFilesFormData.append('modelId', x.modelId.toString());
             observables.push(this.apiService.addDocuments(modelFilesFormData).pipe(catchError(error => of(error))));
+          }
+          if (this.deviceDocumentsIdsToBeRemoved.length > 0) {
+            observables.push(this.apiService.removeDocuments(this.deviceDocumentsIdsToBeRemoved).pipe(catchError(error => of(error))));
+          }
+          if (this.modelDocumentsIdsToBeRemoved.length > 0) {
+            observables.push(this.apiService.removeDocuments(this.modelDocumentsIdsToBeRemoved).pipe(catchError(error => of(error))));
           }
           return forkJoin(observables).pipe(
             map(() => x)
@@ -288,43 +300,44 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
 
   ngAfterViewInit(): void {
     this.getDevices();
+    this.deviceToBeEditedDto = this.mapDeviceFormValuesToAddDeviceDto();
   }
   get measuredValuesControls() {
     return (this.deviceForm.get('model.measuredValues') as FormArray).controls;
   }
 
-  onCheckboxChange(name: string, tableName: string, event: MatCheckboxChange) {
+  onCheckboxChange(name: string, id: number, tableName: string, event: MatCheckboxChange) {
     this.checkedMap[name] = event.checked;
     // Update selected names array based on checked state
     if (this.checkedMap[name]) {
-      this.addSelectedCheckboxValue(tableName, name);
+      this.addSelectedCheckboxValue(tableName, id);
 
     } else {
-      this.removeSelectedCheckboxValue(tableName, name);
+      this.removeSelectedCheckboxValue(tableName, id);
+      console.log('lelum');
     }
     // Optional: Do something when checkbox state changes, if needed
-    console.log(name, 'checked:', this.checkedMap[name]);
-    console.log('Selected names:', this.relateModelsNamesToEditSelected);
-    console.log('Selected deviceDocs:', this.editedDeviceDocumentsNames);
+    console.log('selectedCooperationsToRemove:')
+    console.log(this.relateModelsIdsToBeRemoved)
   }
 
-  private addSelectedCheckboxValue(tableName: string, value: string) {
+  private addSelectedCheckboxValue(tableName: string, value: number) {
     if (tableName === TableName.relatedModels) {
-      this.relateModelsNamesToEditSelected.push(value);
+      this.relateModelsIdsToBeRemoved.push(value);
     } else if (tableName === TableName.editedDeviceDocuments) {
-      this.editedDeviceDocumentsNamesSelected.push(value);
+      this.deviceDocumentsIdsToBeRemoved.push(value);
     } else if( tableName === TableName.editedModelDocuments) {
-      this.editedModelDocumentsNamesSelected.push(value);
+      this.modelDocumentsIdsToBeRemoved.push(value);
     }
   }
 
-  private removeSelectedCheckboxValue(tableName: string, value: string) {
+  private removeSelectedCheckboxValue(tableName: string, value: number) {
     if (tableName === TableName.relatedModels) {
-      this.relateModelsNamesToEditSelected = this.relateModelsNamesToEditSelected.filter(n => n !== value);
+      this.relateModelsIdsToBeRemoved = this.relateModelsIdsToBeRemoved.filter(n => n !== value);
     } else if (tableName === TableName.editedDeviceDocuments) {
-      this.editedDeviceDocumentsNamesSelected = this.editedDeviceDocumentsNamesSelected.filter(n => n !== value);
+      this.deviceDocumentsIdsToBeRemoved = this.deviceDocumentsIdsToBeRemoved.filter(n => n !== value);
     } else if( tableName === TableName.editedModelDocuments) {
-      this.editedModelDocumentsNamesSelected = this.editedModelDocumentsNamesSelected.filter(n => n !== value);
+      this.modelDocumentsIdsToBeRemoved = this.modelDocumentsIdsToBeRemoved.filter(n => n !== value);
     }
   }
 
