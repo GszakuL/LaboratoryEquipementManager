@@ -99,7 +99,7 @@
       </div>
       <div class="mb-3">
         <h4>Dokumenty urządzenia</h4>
-        <div *ngIf="anyModelDocuments">
+        <div *ngIf="anyDeviceDocuments">
           <h5>Usuń istniejące dokumenty</h5>
           <div class="form-text">
             Zaznacz nazwy dokumentów, które chcesz usunąć dla edytowanego
@@ -144,7 +144,9 @@
       <h4>Model</h4>
       <div class="alert alert-danger" role="alert">
         <b>Uwaga!</b> Wprowadzone zmiany dla modelu, wpływają na każdy model
-        danego rodzaju zapisany w bazie!
+        danego rodzaju zapisany w bazie! Wybierając model z listy proponowanych,
+        wprowadzasz zmiany w istniejącym w bazie modelu, który może być
+        przypisany do wielu urządzeń.
       </div>
       <div formGroupName="model">
         <div class="mb-3 row">
@@ -158,7 +160,6 @@
               id="name"
               formControlName="name"
               placeholder="Wpisz nazwę lub wybierz z listy proponowanych po rozpoczęciu wpisywania"
-              [attr.disabled]="modelNameInputDisabled"
             />
             <div *ngIf="shouldShowError('model.name')" class="error">
               {{ fieldRequired }}
@@ -178,7 +179,6 @@
               class="form-control"
               id="serialNumber"
               formControlName="serialNumber"
-              [attr.disabled]="modelSerialNumberInputDisabled"
             />
             <div *ngIf="shouldShowError('model.serialNumber')" class="error">
               {{ fieldRequired }}
@@ -193,7 +193,6 @@
               class="form-control"
               id="company"
               formControlName="companyName"
-              [attr.disabled]="modelInputsDisabled"
             />
           </div>
         </div>
@@ -313,7 +312,6 @@
             type="button"
             (click)="addMeasuredValue()"
             class="btn btn-success btn-add-mv med"
-            [disabled]="modelInputsDisabled"
           >
             Dodaj wartość mierzoną
           </button>
@@ -355,7 +353,6 @@
             id="modelDocuments"
             multiple
             (change)="onModelFileChange($event)"
-            [attr.disabled]="modelInputsDisabled"
           />
           <div id="modelDocumentsHelpBlock" class="form-text mb-3">
             Dokuemnty dotyczące modelu w formacie .pdf, .csv, .jpg (np.

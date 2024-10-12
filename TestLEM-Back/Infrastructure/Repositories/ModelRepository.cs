@@ -26,7 +26,12 @@ namespace Infrastructure.Repositories
 
         public async Task<Model> GetModelById(int modelId, CancellationToken cancellationToken)
         {
-            return await _dbContext.Models.Include(x => x.MeasuredValues).ThenInclude(x => x.PhysicalMagnitude).ThenInclude(x => x.MeasuredValues).ThenInclude(x => x.MeasuredRanges).FirstAsync(x => x.Id == modelId, cancellationToken);
+            return await _dbContext.Models
+                                    .Include(x => x.Company)
+                                    .Include(x => x.MeasuredValues).ThenInclude(x => x.PhysicalMagnitude).ThenInclude(x => x.MeasuredValues).ThenInclude(x => x.MeasuredRanges)
+                                    .Include(x => x.CooperateFrom)
+                                    .Include(x => x.CooperateTo)
+                                    .FirstAsync(x => x.Id == modelId, cancellationToken);
         }
 
         public async Task<ICollection<Model>> GetModelsByName(string name, CancellationToken cancellationToken)
@@ -47,6 +52,15 @@ namespace Infrastructure.Repositories
             var model = await _dbContext.Models.FirstAsync(x => x.Id == modelId, cancellationToken);
             _dbContext.Entry(model).CurrentValues.SetValues(newModel);
             await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task<Model> GetModelByName(string name)
+        {
+            var result = await _dbContext.Models
+                                .Include(x => x.MeasuredValues).ThenInclude(x => x.PhysicalMagnitude)
+                                .Include(x => x.MeasuredValues).ThenInclude(x => x.MeasuredRanges)
+                                .FirstOrDefaultAsync(x => x.Name == name);               ;
+            return result;
         }
     }
 }

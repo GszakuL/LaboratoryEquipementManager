@@ -25,30 +25,30 @@ namespace Application.Models.Commands
             var modelToEdit = await _modelRepository.GetModelById(request.modelId, cancellationToken);
             var newModel = request.newModelDto;
 
-            if(modelToEdit.Name != newModel.Name)
+            if (modelToEdit.Name != newModel.Name)
             {
                 modelToEdit.Name = newModel.Name;
             }
-            if(modelToEdit.SerialNumber != newModel.SerialNumber)
+            if (modelToEdit.SerialNumber != newModel.SerialNumber)
             {
-                newModel.SerialNumber = newModel.SerialNumber;
+                modelToEdit.SerialNumber = newModel.SerialNumber;
             }
-            if(modelToEdit.Company.Name != newModel.CompanyName)
+            if (modelToEdit.Company?.Name != newModel.CompanyName)
             {
-                await PrepareModelsCompany(modelToEdit, newModel.CompanyName, cancellationToken);
+               modelToEdit = await PrepareModelsCompany(modelToEdit, newModel.CompanyName, cancellationToken);
             }
 
-            if (CheckIfCooperationsChanged(modelToEdit.CooperateFrom, newModel.CooperatedModelsIds) || request.cooperationsIdsToBeRemoved != null)
+            if (CheckIfCooperationsChanged(modelToEdit.CooperateTo, newModel.CooperatedModelsIds) || request.cooperationsIdsToBeRemoved?.Count != 0)
             {
-                if(modelToEdit.CooperateFrom == null && newModel.CooperatedModelsIds != null)
+                if (modelToEdit.CooperateTo == null && newModel.CooperatedModelsIds != null)
                 {
                     await _modelCooperationRepository.AddModelCooperation(request.modelId, newModel.CooperatedModelsIds);
-                } 
+                }
 
-                if(request.cooperationsIdsToBeRemoved != null)
+                if (request.cooperationsIdsToBeRemoved != null)
                 {
                     await _modelCooperationRepository.RemoveModelCooperations(request.cooperationsIdsToBeRemoved, cancellationToken);
-                }                
+                }
             }
 
             if (CheckIfMeasuredValuesChanged(modelToEdit.MeasuredValues, newModel.MeasuredValues))
@@ -56,28 +56,28 @@ namespace Application.Models.Commands
                 modelToEdit.MeasuredValues = GetMeasuredValuesForModel(newModel.MeasuredValues);
             }
 
-            var newMappedModel = _mapper.Map<Model>(newModel);
+            var newMappedModel = _mapper.Map<Model>(modelToEdit);
             await _modelRepository.UpdateModelValuesAsync(modelToEdit.Id, newMappedModel, cancellationToken);
 
             return modelToEdit.Id;
         }
 
 
-        private static bool CheckIfCooperationsChanged(ICollection<ModelCooperation> cooperations, ICollection<int> cooperatedModelsIds)
+        private static bool CheckIfCooperationsChanged(ICollection<ModelCooperation>? cooperations, ICollection<int>? cooperatedModelsIds)
         {
-            if (cooperations == null && cooperatedModelsIds == null)
+            if (cooperations?.Count == 0 || cooperatedModelsIds?.Count == 0)
             {
                 return false;
             }
 
             var cooperationsIds = new List<int>();
-            
-            foreach(var cooperation in cooperations)
+
+            foreach (var cooperation in cooperations)
             {
                 cooperationsIds.Add(cooperation.ModelFromId);
             }
 
-            if(cooperationsIds.Count != cooperatedModelsIds.Count) {
+            if (cooperationsIds.Count != cooperatedModelsIds.Count) {
                 return true;
             }
 
@@ -89,12 +89,92 @@ namespace Application.Models.Commands
 
         private static bool CheckIfMeasuredValuesChanged(ICollection<MeasuredValue>? oldMeasuredValues, ICollection<MeasuredValueDto>? newMeasuredValues)
         {
-            if(oldMeasuredValues == null && newMeasuredValues != null) 
+            if (oldMeasuredValues == null && newMeasuredValues != null || oldMeasuredValues != null && newMeasuredValues == null || oldMeasuredValues?.Count != newMeasuredValues?.Count) 
             { 
                 return true;
             }
-            return false;
+            var oldMeasuredValuesDtos = new List<MeasuredValueDto>();
 
+            //this should be moved to separate mapper
+            if (oldMeasuredValues != null && oldMeasuredValues.Count > 0)
+            {
+                foreach (var measuredValue in oldMeasuredValues)
+                {
+                    var oldMeasuredValueDto = new MeasuredValueDto
+                    {
+                        PhysicalMagnitudeName = measuredValue.PhysicalMagnitude.Name,
+                        PhysicalMagnitudeUnit = measuredValue.PhysicalMagnitude.Unit,
+                        MeasuredRanges = GetMeasuredRangesForMeasuredRange(measuredValue.MeasuredRanges)
+                    };
+                    oldMeasuredValuesDtos.Add(oldMeasuredValueDto);
+                }
+            }
+
+            var oldMeasuredRanges = new List<ICollection<MeasuredRangesDto>>();
+            var newMeasuredRanges = new List<ICollection<MeasuredRangesDto>>();
+
+            foreach(var oldMeasuredValueDto in oldMeasuredValuesDtos)
+            {
+                if (oldMeasuredValueDto.MeasuredRanges.Count > 0)
+                {
+                    oldMeasuredRanges.Add(oldMeasuredValueDto.MeasuredRanges);
+                }
+            }
+
+            foreach (var newMeasuredRange in newMeasuredValues)
+            {
+                if (newMeasuredRange.MeasuredRanges.Count > 0)
+                {
+                    newMeasuredRanges.Add(newMeasuredRange.MeasuredRanges);
+                }
+            }
+
+            if(oldMeasuredRanges.Count != newMeasuredRanges.Count)
+            {
+                return true;
+            }
+
+            for(int i = 0; i < oldMeasuredRanges.Count; i++)
+            {
+                for(int j = 0; j < oldMeasuredRanges[i].Count; j++)
+                {
+                    List<MeasuredRangesDto> oldList = (List<MeasuredRangesDto>)oldMeasuredRanges[i];
+                    List<MeasuredRangesDto> newList = (List<MeasuredRangesDto>)newMeasuredRanges[i];
+
+                    if (!CheckIfMeasuredRangeAreTheSame(oldList[j], newList[j]))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private static bool CheckIfMeasuredRangeAreTheSame(MeasuredRangesDto oldMeasuredRange, MeasuredRangesDto newMeasuredRange)
+        {
+             return oldMeasuredRange.Range == newMeasuredRange.Range && oldMeasuredRange.AccuracyInPercent == newMeasuredRange.AccuracyInPercent;
+        }
+
+
+        private static ICollection<MeasuredRangesDto> GetMeasuredRangesForMeasuredRange(ICollection<MeasuredRange>? measuredRanges)
+        {
+            var measuredRangesDto = new List<MeasuredRangesDto>();
+
+            if(measuredRanges == null)
+            {
+                return measuredRangesDto;
+            }
+            
+            foreach(var measuredRange in measuredRanges)
+            {
+                var measuredRangeDto = new MeasuredRangesDto
+                {
+                    Range = measuredRange.Range,
+                    AccuracyInPercent = measuredRange.AccuracyInPercet
+                };
+                measuredRangesDto.Add(measuredRangeDto);
+            }
+            return measuredRangesDto;
         }
 
         private static bool CheckIfMeasuredRangesChanged(ICollection<MeasuredRange>? oldMeasuredRanges, ICollection<MeasuredRangesDto>? newMeasuredRanges)

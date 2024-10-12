@@ -28,12 +28,21 @@ namespace Infrastructure.Repositories
             return result;
         }
 
-        public async Task<Device> GetDeviceById(int id, CancellationToken cancellationToken) => await _dbContext.Devices.FirstAsync(x => x.Id == id, cancellationToken);
+        public async Task<Device> GetDeviceById(int id, CancellationToken cancellationToken) => await _dbContext.Devices.Include(x => x.Model).FirstAsync(x => x.Id == id, cancellationToken);
 
         public async Task UpdateDeviceAsync(int deviceId, Device newDevice, CancellationToken cancellationToken)
         {
             var device = await GetDeviceById(deviceId, cancellationToken);
-            _dbContext.Devices.Entry(device).CurrentValues.SetValues(newDevice);
+            device.IdentificationNumber = newDevice.IdentificationNumber;
+            device.ProductionDate = newDevice.ProductionDate;
+            device.CalibrationPeriodInYears = newDevice.CalibrationPeriodInYears;
+            device.LastCalibrationDate = newDevice.LastCalibrationDate;
+            device.NextCalibrationDate = newDevice.NextCalibrationDate;
+            device.IsCalibrated = newDevice.IsCalibrated;
+            device.IsCalibrationCloseToExpire = newDevice.IsCalibrationCloseToExpire;
+            device.StorageLocation = newDevice.StorageLocation;
+            device.Model = newDevice.Model;
+            device.ModelId = newDevice.ModelId;
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
     }

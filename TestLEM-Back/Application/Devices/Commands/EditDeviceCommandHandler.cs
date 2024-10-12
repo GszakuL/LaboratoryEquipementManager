@@ -8,7 +8,7 @@ using MediatR;
 
 namespace Application.Devices.Commands
 {
-    internal class EditDeviceCommandHandler : ICommandHandler<EditDeviceCommand, bool>
+    internal class EditDeviceCommandHandler : ICommandHandler<EditDeviceCommand, EditedDeviceResponseDto>
     {
         private readonly IDeviceRepository _deviceRepository;
         private readonly IMapper _mapper;
@@ -25,8 +25,12 @@ namespace Application.Devices.Commands
             _modelRepository = modelRepository;
         }
 
-        public async Task<bool> Handle(EditDeviceCommand request, CancellationToken cancellationToken)
+        public async Task<EditedDeviceResponseDto> Handle(EditDeviceCommand request, CancellationToken cancellationToken)
         {
+            //chyba jednak powinienem działać na danych wyciągniętych z bazy
+            //wyciągam device => sprawdzam
+            //wyciągam model => sprawdzam 
+            //itd...
             var device = await _deviceRepository.GetDeviceById(request.deviceId, cancellationToken);
 
             var oldValues = request.oldDeviceDto;
@@ -69,14 +73,13 @@ namespace Application.Devices.Commands
 
             try
             {
-                if (oldValues.Model.Id != newValues.Model.Id)
-                {
-                    oldValues.Model.Id = await HandleModelEditionAsync(oldValues.Model, newValues.Model, request.modelCooperationsToBeRemoved);
-                }
+                device.ModelId = await HandleModelEditionAsync(device.Model, newValues.Model, request.modelCooperationsToBeRemoved);
 
-                var newMappedDevice = _mapper.Map<Device>(oldValues);
+                var newMappedDevice = _mapper.Map<Device>(device);
                 await _deviceRepository.UpdateDeviceAsync(request.deviceId, newMappedDevice, cancellationToken);
-                return true;
+                transaction.Commit();
+                var result = new EditedDeviceResponseDto(newMappedDevice.IdentificationNumber, newMappedDevice.ModelId, newMappedDevice.Id);
+                return result;
             }
             catch (Exception ex)
             {
@@ -86,44 +89,18 @@ namespace Application.Devices.Commands
         }
 
 
-        private async Task<int> HandleModelEditionAsync(ModelDto currentModel, ModelDto newModel, ICollection<int>? cooperationsToBeRemoved)
+        private async Task<int> HandleModelEditionAsync(Model currentModel, ModelDto newModel, ICollection<int>? cooperationsToBeRemoved)
         {
-            var modelExists = await _modelRepository.CheckIfModelExistsByIdAsync(newModel.Id);
+            var modelExists = await _modelRepository.ChcekIfModelExists(newModel.Name, newModel.SerialNumber);
 
             if (modelExists)
             {
-                var modelDiffers = CheckIfModelValuesDiffer(currentModel, newModel);
-                if (modelDiffers)
-                {
-                    return await _sender.Send(new EditModelCommand(currentModel.Id, newModel, cooperationsToBeRemoved));
-                }
-                else
-                {
-                    return newModel.Id;
-                }
-
+                return await _sender.Send(new EditModelCommand(currentModel.Id, newModel, cooperationsToBeRemoved));
             }
             else
             {
                 return await _sender.Send(new CreateModelCommand(newModel));
             }
-        }
-
-
-        private bool CheckIfModelValuesDiffer(ModelDto oldModel, ModelDto newModel)
-        {
-            var oldValue = oldModel.GetType();
-            foreach(var property in oldValue.GetProperties())
-            {
-                var oldVal = property.GetValue(oldModel);
-                var newVal = property.GetValue(newModel);
-
-                if (oldVal != newVal)
-                {
-                    return false;
-                }
-            }
-            return true;
         }
     }
 }

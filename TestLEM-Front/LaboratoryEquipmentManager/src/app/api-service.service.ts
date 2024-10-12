@@ -52,9 +52,9 @@ export class ApiServiceService {
   }
 
   removeDocuments(documentsId: number[]): Observable<any> {
-    return this.http.delete(this.apiUrl + 'files', {
-      body: { documentsId }
-    });
+    debugger;
+    const body = { documentsId };
+    return this.http.post(this.apiUrl + 'files/delete-files', documentsId)
   }
 
   downloadFile(documentName: string, modelId?: string, deviceId?: string): Observable<any>{

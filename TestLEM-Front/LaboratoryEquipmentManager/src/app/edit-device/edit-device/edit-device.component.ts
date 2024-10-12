@@ -28,9 +28,6 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
   modelsSerialNumbers: string[] = [];
   fieldRequired = 'Pole jest wymagane';
   submitted = false;
-  modelInputsDisabled: boolean = false;
-  modelNameInputDisabled: boolean = false;
-  modelSerialNumberInputDisabled: boolean = false;
   measuredValuesControlss: FormControl[] = [];
   mesValFormArray:  FormArray = new FormArray([new FormControl]);
   selectedRelatedModelsNames: any[] = [];
@@ -92,7 +89,6 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
   }
 
   private setOptionalAreasVisibility() {
-    debugger;
     if (this.deviceToEdit.modelDocuments?.length > 0) {
       this.anyModelDocuments = true;
     }
@@ -130,18 +126,22 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
 
   initializeMeasuredValues(measuredValues: any[]) {
     const measuredValuesArray = this.deviceForm.get('model.measuredValues') as FormArray;
+    measuredValuesArray.clear();
     if (measuredValues === null) {
       return;
     }
 
     measuredValues.forEach(x => {
       const rangesArray = this.fb.array([] as FormGroup[]);
-      x.measuredRanges.forEach((y: any) => {
-        rangesArray.push(this.fb.group({
-          accuracyInPercent: [y.accuracyInPercent],
-          range: [y.range]
-        }));
-      });
+
+      if(x.measuredRanges != null){
+        x.measuredRanges.forEach((y: any) => {
+          rangesArray.push(this.fb.group({
+            accuracyInPercent: [y.accuracyInPercent],
+            range: [y.range]
+          }));
+        });
+      }
 
       const physicalMagnitudeFG = this.fb.group({
         physicalMagnitudeName: [x.physicalMagnitudeName],
@@ -153,9 +153,19 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
     });
   }
 
+  private hasFormChanged(newEditedAddDeviceDto: AddDeviceDto): boolean {
+    let devicesTheSame = this.compareDevices(this.deviceToBeEditedDto, newEditedAddDeviceDto);
+    return devicesTheSame
+      && this.selectedDeviceFiles.length == 0
+      && this.selectedModelFiles.length == 0
+      && this.deviceDocumentsIdsToBeRemoved.length == 0
+      && this.modelDocumentsIdsToBeRemoved.length == 0
+      && this.selectedRelatedModelsNames.length == 0
+      && this.relateModelsIdsToBeRemoved.length == 0
+  }
+
   onSubmit() {
     debugger;
-    console.log(this.selectedRelatedModelsNames);
     this.submitted = true;
     if (this.deviceForm.invalid) {
       return;
@@ -181,11 +191,16 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
       newEditedAddDeviceDto.Model.CooperatedModelsIds = this.cooperatedModelsIds;
     }
 
+    if (this.hasFormChanged(newEditedAddDeviceDto)) {
+      alert('Aby dokonać edycji urządzenia, wprowadzone dane muszą się różnić.');
+      return;
+    }
+
     this.markFormGroupTouched(this.deviceForm);
-    debugger;
     if (this.deviceForm.valid) {
       this.apiService.editDevice(this.deviceToEdit.deviceId, this.deviceToBeEditedDto, newEditedAddDeviceDto, this.relateModelsIdsToBeRemoved).pipe(
         switchMap((x: any) => {
+          debugger;
           const observables = [];
           if (this.selectedDeviceFiles.length > 0) {
             deviceFilesFormData.append('deviceId', x.deviceId.toString());
@@ -197,6 +212,7 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
             modelFilesFormData.append('modelId', x.modelId.toString());
             observables.push(this.apiService.addDocuments(modelFilesFormData).pipe(catchError(error => of(error))));
           }
+          debugger;
           if (this.deviceDocumentsIdsToBeRemoved.length > 0) {
             observables.push(this.apiService.removeDocuments(this.deviceDocumentsIdsToBeRemoved).pipe(catchError(error => of(error))));
           }
@@ -230,6 +246,50 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
       control.markAsTouched();
     }
   }
+
+  compareDevices(device1: AddDeviceDto, device2: AddDeviceDto): boolean {
+    // Call the recursive object comparison function
+    return this.compareObjects(device1, device2);
+}
+
+  compareObjects(obj1: any, obj2: any): boolean {
+    // If both objects are identical, return true
+    if (obj1 === obj2) return true;
+
+    // If either is null or undefined and not the same, return false
+    if (!obj1 || !obj2) return false;
+
+    // If they are of different types, return false
+    if (typeof obj1 !== typeof obj2) return false;
+
+    // Handle arrays: compare element by element
+    if (Array.isArray(obj1)) {
+        if (!Array.isArray(obj2)) return false;
+        if (obj1.length !== obj2.length) return false;
+        for (let i = 0; i < obj1.length; i++) {
+            if (!this.compareObjects(obj1[i], obj2[i])) return false;
+        }
+        return true;
+    }
+
+    // For objects: compare keys and their values recursively
+    if (typeof obj1 === 'object') {
+        const keys1 = Object.keys(obj1);
+        const keys2 = Object.keys(obj2);
+
+        // Check if both objects have the same number of properties
+        if (keys1.length !== keys2.length) return false;
+
+        // Recursively compare each property
+        for (const key of keys1) {
+            if (!this.compareObjects(obj1[key], obj2[key])) return false;
+        }
+        return true;
+    }
+
+    // For primitive values (string, number, boolean), compare directly
+    return obj1 === obj2;
+}
 
   private mapDeviceFormValuesToAddDeviceDto(): AddDeviceDto {
     let addDeviceDto = new AddDeviceDto();
@@ -286,7 +346,7 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
 
     measuredRanges.controls.forEach(x => {
       let measuredRangeDto = new MeasuredRangesDto();
-      measuredRangeDto.AccuracyInPercent = +x.get('accuracy')?.value;
+      measuredRangeDto.AccuracyInPercent = +x.get('accuracyInPercent')?.value;
       measuredRangeDto.Range = x.get('range')?.value;
       measuredRangesDto.push(measuredRangeDto);
     });
@@ -360,14 +420,12 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
   }
 
   onDeviceFileChange(event: any) {
-    debugger;
     if (event.target.files.length > 0) {
       this.selectedDeviceFiles = Array.from(event.target.files);
     }
   }
 
   onModelFileChange(event: any) {
-    debugger;
     if (event.target.files.length > 0) {
       this.selectedModelFiles = Array.from(event.target.files);
     }
@@ -392,16 +450,22 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
 	);
 
   onModelNameSelect($event: NgbTypeaheadSelectItemEvent){
+    debugger;
     const selectedDevice = $event.item;
     let deviceSelected = this.devices.find(x => x.modelName === selectedDevice);
+
+    console.log("selected:")
+    console.log(deviceSelected);
+
+    var modelMeasuredValues = deviceSelected.measuredValues;
+    this.initializeMeasuredValues(modelMeasuredValues);
+
     this.deviceForm.patchValue({
       model: {
         serialNumber: deviceSelected.modelSerialNumber,
         companyName: deviceSelected.producer
       }
     });
-    this.modelInputsDisabled = true;
-    this.modelSerialNumberInputDisabled = true;
   }
 
   onModelSerialNumberSelect($event: NgbTypeaheadSelectItemEvent){
@@ -415,8 +479,6 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
         companyName: deviceSelected.producer
       }
     });
-    this.modelInputsDisabled = true;
-    this.modelNameInputDisabled = true;
   }
 
   navigateToDevicesList(): void {
