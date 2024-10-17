@@ -115,7 +115,6 @@ export class DeviceDetailsComponent implements OnInit {
       },
       error => {
         console.error('Error downloading file:', error);
-        // Handle error as needed
       }
     );
   }
@@ -130,6 +129,7 @@ export class DeviceDetailsComponent implements OnInit {
 
   navigateToEdit(): any {
     this.router.navigate(['edit-device'], { state: { data: this.deviceDto } })
+    this.dialog.closeAll();
   }
 
 }

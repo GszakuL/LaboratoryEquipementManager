@@ -20,7 +20,7 @@ namespace Web.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AddDevice([FromBody] AddDeviceDto addDeviceDto, [FromForm] IFormFileCollection documents, CancellationToken cancellationToken)
-        { 
+        {
             var command = new CreateDeviceCommand(addDeviceDto);
 
             var deviceIdentificationNumber = await _mediator.Send(command, cancellationToken);
@@ -41,7 +41,7 @@ namespace Web.Controllers
         [HttpGet("{deviceId}")]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetDeviceDetails([FromRoute]int deviceId, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetDeviceDetails([FromRoute] int deviceId, CancellationToken cancellationToken)
         {
             var query = new GetDeviceByIdQuery(deviceId);
 
@@ -53,11 +53,19 @@ namespace Web.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> EditDevice([FromRoute] int deviceId, [FromBody] EditDeviceRequestDto editDeviceDto, CancellationToken cancellationToken)
-            {
-            //oldDeviceDto powinno być typu AddDeviceDto => oddzielnie przesyłam id do usunięcia kooperacji
+        {
             var query = new EditDeviceCommand(deviceId, editDeviceDto.OldDevice, editDeviceDto.NewDevice, editDeviceDto.ModelCooperationsToBeRemoved, cancellationToken);
 
-            //tu jeszcze trzeba będzie ogarnąć dokumenty
+            var editionResult = await _mediator.Send(query, cancellationToken);
+            return Ok(editionResult);
+        }
+
+        [HttpDelete("{deviceId}/remove")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> RemoveDevice([FromRoute] int deviceId, CancellationToken cancellationToken)
+        {
+            var query = new RemoveDeviceCommand(deviceId, cancellationToken);
 
             var editionResult = await _mediator.Send(query, cancellationToken);
             return Ok(editionResult);

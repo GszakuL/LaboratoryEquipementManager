@@ -37,7 +37,7 @@ namespace Infrastructure.Repositories
 
         public async Task RemoveModelCooperations(ICollection<int> cooperationsIdsToBeRemoved, CancellationToken cancellationToken)
         {
-            var cooperationsToRemove = await _dbContext.ModelCooperation.Where(x => cooperationsIdsToBeRemoved.Contains(x.ModelFromId)).ToListAsync(cancellationToken);
+            var cooperationsToRemove = await _dbContext.ModelCooperation.Where(x => cooperationsIdsToBeRemoved.Contains(x.ModelFromId) || cooperationsIdsToBeRemoved.Contains(x.ModelToId)).ToListAsync(cancellationToken);
             _dbContext.RemoveRange(cooperationsToRemove);
             await _dbContext.SaveChangesAsync(cancellationToken);
         }

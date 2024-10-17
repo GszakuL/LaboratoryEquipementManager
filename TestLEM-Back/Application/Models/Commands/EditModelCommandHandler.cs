@@ -35,14 +35,30 @@ namespace Application.Models.Commands
             }
             if (modelToEdit.Company?.Name != newModel.CompanyName)
             {
-               modelToEdit = await PrepareModelsCompany(modelToEdit, newModel.CompanyName, cancellationToken);
+                modelToEdit = await PrepareModelsCompany(modelToEdit, newModel.CompanyName, cancellationToken);
             }
 
             if (CheckIfCooperationsChanged(modelToEdit.CooperateTo, newModel.CooperatedModelsIds) || request.cooperationsIdsToBeRemoved?.Count != 0)
             {
-                if (modelToEdit.CooperateTo == null && newModel.CooperatedModelsIds != null)
+                if (newModel.CooperatedModelsIds?.Count > 0)
                 {
-                    await _modelCooperationRepository.AddModelCooperation(request.modelId, newModel.CooperatedModelsIds);
+                    var modelCooperations = new List<int>();
+                    var resultIds = new List<int>();
+                    if (modelToEdit.CooperateTo?.Count > 0)
+                    {
+                        foreach (var modelCoopeartion in modelToEdit.CooperateTo)
+                        {
+                            modelCooperations.Add(modelCoopeartion.ModelFromId);
+                        }
+                    }
+                    foreach (var id in newModel.CooperatedModelsIds)
+                    {
+                        if (!modelCooperations.Contains(id))
+                        {
+                            resultIds.Add(id);
+                        }
+                    }
+                    await _modelCooperationRepository.AddModelCooperation(request.modelId, resultIds);
                 }
 
                 if (request.cooperationsIdsToBeRemoved != null)
@@ -65,7 +81,7 @@ namespace Application.Models.Commands
 
         private static bool CheckIfCooperationsChanged(ICollection<ModelCooperation>? cooperations, ICollection<int>? cooperatedModelsIds)
         {
-            if (cooperations?.Count == 0 || cooperatedModelsIds?.Count == 0)
+            if (cooperations?.Count == 0 && cooperatedModelsIds?.Count == 0)
             {
                 return false;
             }
@@ -77,7 +93,8 @@ namespace Application.Models.Commands
                 cooperationsIds.Add(cooperation.ModelFromId);
             }
 
-            if (cooperationsIds.Count != cooperatedModelsIds.Count) {
+            if (cooperationsIds.Count != cooperatedModelsIds.Count)
+            {
                 return true;
             }
 
@@ -89,8 +106,8 @@ namespace Application.Models.Commands
 
         private static bool CheckIfMeasuredValuesChanged(ICollection<MeasuredValue>? oldMeasuredValues, ICollection<MeasuredValueDto>? newMeasuredValues)
         {
-            if (oldMeasuredValues == null && newMeasuredValues != null || oldMeasuredValues != null && newMeasuredValues == null || oldMeasuredValues?.Count != newMeasuredValues?.Count) 
-            { 
+            if (oldMeasuredValues == null && newMeasuredValues != null || oldMeasuredValues != null && newMeasuredValues == null || oldMeasuredValues?.Count != newMeasuredValues?.Count)
+            {
                 return true;
             }
             var oldMeasuredValuesDtos = new List<MeasuredValueDto>();
@@ -113,7 +130,7 @@ namespace Application.Models.Commands
             var oldMeasuredRanges = new List<ICollection<MeasuredRangesDto>>();
             var newMeasuredRanges = new List<ICollection<MeasuredRangesDto>>();
 
-            foreach(var oldMeasuredValueDto in oldMeasuredValuesDtos)
+            foreach (var oldMeasuredValueDto in oldMeasuredValuesDtos)
             {
                 if (oldMeasuredValueDto.MeasuredRanges.Count > 0)
                 {
@@ -129,14 +146,14 @@ namespace Application.Models.Commands
                 }
             }
 
-            if(oldMeasuredRanges.Count != newMeasuredRanges.Count)
+            if (oldMeasuredRanges.Count != newMeasuredRanges.Count)
             {
                 return true;
             }
 
-            for(int i = 0; i < oldMeasuredRanges.Count; i++)
+            for (int i = 0; i < oldMeasuredRanges.Count; i++)
             {
-                for(int j = 0; j < oldMeasuredRanges[i].Count; j++)
+                for (int j = 0; j < oldMeasuredRanges[i].Count; j++)
                 {
                     List<MeasuredRangesDto> oldList = (List<MeasuredRangesDto>)oldMeasuredRanges[i];
                     List<MeasuredRangesDto> newList = (List<MeasuredRangesDto>)newMeasuredRanges[i];
@@ -152,7 +169,7 @@ namespace Application.Models.Commands
 
         private static bool CheckIfMeasuredRangeAreTheSame(MeasuredRangesDto oldMeasuredRange, MeasuredRangesDto newMeasuredRange)
         {
-             return oldMeasuredRange.Range == newMeasuredRange.Range && oldMeasuredRange.AccuracyInPercent == newMeasuredRange.AccuracyInPercent;
+            return oldMeasuredRange.Range == newMeasuredRange.Range && oldMeasuredRange.AccuracyInPercent == newMeasuredRange.AccuracyInPercent;
         }
 
 
@@ -160,12 +177,12 @@ namespace Application.Models.Commands
         {
             var measuredRangesDto = new List<MeasuredRangesDto>();
 
-            if(measuredRanges == null)
+            if (measuredRanges == null)
             {
                 return measuredRangesDto;
             }
-            
-            foreach(var measuredRange in measuredRanges)
+
+            foreach (var measuredRange in measuredRanges)
             {
                 var measuredRangeDto = new MeasuredRangesDto
                 {
@@ -179,7 +196,7 @@ namespace Application.Models.Commands
 
         private static bool CheckIfMeasuredRangesChanged(ICollection<MeasuredRange>? oldMeasuredRanges, ICollection<MeasuredRangesDto>? newMeasuredRanges)
         {
-            if(oldMeasuredRanges == null && newMeasuredRanges != null)
+            if (oldMeasuredRanges == null && newMeasuredRanges != null)
             {
                 return true;
             }
@@ -189,10 +206,10 @@ namespace Application.Models.Commands
         private ICollection<MeasuredValue> GetMeasuredValuesForModel(ICollection<MeasuredValueDto> measuredValuesDtos)
         {
             var measuredValues = new List<MeasuredValue>();
-            if(measuredValuesDtos == null)
+            if (measuredValuesDtos == null)
             {
                 return measuredValues;
-            } 
+            }
 
             foreach (var measuredValueDto in measuredValuesDtos)
             {

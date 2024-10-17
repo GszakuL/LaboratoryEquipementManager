@@ -322,7 +322,10 @@
         (onChange)="onSelectionChange()"
       />
     </div>
-    <button type="submit" (click)="onSubmit()">klik</button>
+    <div class="d-flex justify-content-end">
+      <button type="submit" (click)="onSubmit()" class="btn btn-success mb-3">
+        Dodaj urządzenie
+      </button>
+    </div>
   </div>
-  {{ this.deviceForm.value | json }}
 </div>
