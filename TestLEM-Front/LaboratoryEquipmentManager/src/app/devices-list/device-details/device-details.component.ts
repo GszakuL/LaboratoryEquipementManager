@@ -1,11 +1,6 @@
-import { AfterViewInit, Component, Inject, OnInit, model } from '@angular/core';
-import {  MAT_DIALOG_DATA, MatDialog,
-  MatDialogActions,
-  MatDialogClose,
-  MatDialogContent,
-  MatDialogTitle }
-from '@angular/material/dialog';
-import { ApiServiceService, DeviceDto, ModelDto } from 'src/app/api-service.service';
+import { Component, Inject, OnInit } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialog} from '@angular/material/dialog';
+import { ApiServiceService } from 'src/app/api-service.service';
 import { RemoveDeviceWarningModalComponent } from './remove-device-warning-modal/remove-device-warning-modal.component';
 import { DialogRef } from '@angular/cdk/dialog';
 import { ModelDetailsComponent } from './model-details/model-details/model-details.component';
@@ -33,12 +28,11 @@ export class DeviceDetailsComponent implements OnInit {
   relatedModels = this.deviceDto.relatedModels;
 
   ngOnInit(): void {
-    console.log(this.data)
     this.setDisplayMeasuredValuesTable();
   }
 
   onDeleteDevice(): void {
-    this.dialog.open(RemoveDeviceWarningModalComponent);
+    this.dialog.open(RemoveDeviceWarningModalComponent, {data: {deviceId: this.deviceDto.deviceId}, autoFocus: false});
   }
 
   onClose(): void {
@@ -54,16 +48,6 @@ export class DeviceDetailsComponent implements OnInit {
     this.shouldDisplayMeasuredValuesTable = this.deviceDto.measuredValues.length > 0;
   }
 
-  // getDeviceDocuemnts() {
-  //   console.log(this.deviceDto);
-  //   this.deviceDocuments = this.deviceDto.deviceDocuments;
-  //   let deviceDocumentsNames: string[] = [];
-  //   this.deviceDocuments.forEach((x: any) => {
-  //     deviceDocumentsNames.push(x.name)
-  //   });
-  //   return deviceDocumentsNames.join(',');
-  // }
-
   getModelDocuemnts() {
     this.modelDocuments = this.deviceDto.modelDocuments;
     let modelDocumentsNames: string[] = [];
@@ -77,13 +61,6 @@ export class DeviceDetailsComponent implements OnInit {
     let relatedModelName = relatedModel.name;
     return relatedModelName;
   }
-
-  // openDeviceDetails(deviceId: any) {
-  //   this.service.getDeviceDetailsById(deviceId).subscribe(deviceDetails => {
-  //     this.dialog.open(DeviceDetailsComponent, {data: {deviceDto: deviceDetails}, autoFocus: false});
-  //   })
-  //   //this.dialog.open(DeviceDetailsComponent, {data: {deviceDto: device}, autoFocus: false });
-  // }
 
   downloadFile(file: any, event: Event, downloadFor: string) {
     const deviceWord = "device";

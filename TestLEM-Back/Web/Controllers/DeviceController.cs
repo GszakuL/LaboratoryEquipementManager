@@ -54,9 +54,9 @@ namespace Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> EditDevice([FromRoute] int deviceId, [FromBody] EditDeviceRequestDto editDeviceDto, CancellationToken cancellationToken)
         {
-            var query = new EditDeviceCommand(deviceId, editDeviceDto.OldDevice, editDeviceDto.NewDevice, editDeviceDto.ModelCooperationsToBeRemoved, cancellationToken);
+            var command = new EditDeviceCommand(deviceId, editDeviceDto.OldDevice, editDeviceDto.NewDevice, editDeviceDto.ModelCooperationsToBeRemoved, cancellationToken);
 
-            var editionResult = await _mediator.Send(query, cancellationToken);
+            var editionResult = await _mediator.Send(command, cancellationToken);
             return Ok(editionResult);
         }
 
@@ -65,10 +65,10 @@ namespace Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> RemoveDevice([FromRoute] int deviceId, CancellationToken cancellationToken)
         {
-            var query = new RemoveDeviceCommand(deviceId, cancellationToken);
+            var command = new RemoveDeviceCommand(deviceId, cancellationToken);
 
-            var editionResult = await _mediator.Send(query, cancellationToken);
-            return Ok(editionResult);
+            var result = await _mediator.Send(command, cancellationToken);
+            return Ok(result);
         }
     }
 }

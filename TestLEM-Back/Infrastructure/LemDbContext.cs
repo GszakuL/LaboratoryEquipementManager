@@ -25,14 +25,16 @@ namespace Infrastructure
             {
                 d.HasOne(x => x.Model)
                 .WithMany(m => m.Devices)
-                .HasForeignKey(x => x.ModelId);
+                .HasForeignKey(x => x.ModelId)
+                .OnDelete(DeleteBehavior.Cascade);
 
                 d.HasIndex(x => x.IdentificationNumber)
                 .IsUnique();
 
                 d.HasMany(x => x.Documents)
                 .WithOne(x => x.Device)
-                .HasForeignKey(x => x.DeviceId);
+                .HasForeignKey(x => x.DeviceId)
+                .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Model>(m =>
@@ -49,11 +51,13 @@ namespace Infrastructure
 
                 m.HasMany(x => x.MeasuredValues)
                 .WithOne(x => x.Model)
-                .HasForeignKey(x => x.ModelId);
+                .HasForeignKey(x => x.ModelId)
+                .OnDelete(DeleteBehavior.Cascade);
 
                 m.HasMany(x => x.Documents)
                 .WithOne(x => x.Model)
-                .HasForeignKey(x => x.ModelId);
+                .HasForeignKey(x => x.ModelId)
+                .OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<Company>(x => x.HasIndex(x => x.Name).IsUnique());
@@ -69,7 +73,8 @@ namespace Infrastructure
             {
                 mv.HasMany(x => x.MeasuredRanges)
                 .WithOne(x => x.MeasuredValue)
-                .HasForeignKey(x => x.MeasuredValueId);
+                .HasForeignKey(x => x.MeasuredValueId)
+                .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<ModelCooperation>(mc =>

@@ -7,5 +7,6 @@ namespace Domain.Abstraction
         Task AddCompany(Company company, CancellationToken cancellationToken = default);
         Task<bool> CheckIfCompanyExists(string companyName, CancellationToken cancellationToken = default);
         Task<int> GetCompanyIdByItsName(string companyName, CancellationToken cancellationToken = default);
+        Task RemoveCompanyById(int companyId, CancellationToken cancellationToken);
     }
 }

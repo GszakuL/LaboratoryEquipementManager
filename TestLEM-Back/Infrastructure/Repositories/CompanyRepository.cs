@@ -30,5 +30,12 @@ namespace Infrastructure.Repositories
             var company = await _dbContext.Companies.FirstAsync(x => x.Name.ToLower() == companyName.ToLower(), cancellationToken);
             return company.Id;
         }
+
+        public async Task RemoveCompanyById(int companyId, CancellationToken cancellationToken)
+        {
+            var companyToBeRemoved = await _dbContext.Companies.FirstAsync(x => x.Id == companyId, cancellationToken);
+            _dbContext.Companies.Remove(companyToBeRemoved);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
     }
 }

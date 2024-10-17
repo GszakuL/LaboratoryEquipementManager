@@ -62,5 +62,22 @@ namespace Infrastructure.Repositories
                                 .FirstOrDefaultAsync(x => x.Name == name);               ;
             return result;
         }
+
+        public async Task<Model> GetModelWithRelatedDevices(int modelId, CancellationToken cancellationToken)
+        {
+            var result = await _dbContext.Models
+                .Include(x => x.Devices)
+                .Include(x => x.Company).ThenInclude(x => x.Models)
+                .FirstAsync(x => x.Id == modelId);
+
+            return result;
+        }
+
+        public async Task RemoveModelById(int modelId, CancellationToken cancellationToken)
+        {
+            var modelToBeRemoved = await _dbContext.Models.FirstAsync(x => x.Id != modelId);
+            _dbContext.Models.Remove(modelToBeRemoved);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
     }
 }

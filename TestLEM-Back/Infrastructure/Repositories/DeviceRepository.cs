@@ -30,6 +30,13 @@ namespace Infrastructure.Repositories
 
         public async Task<Device> GetDeviceById(int id, CancellationToken cancellationToken) => await _dbContext.Devices.Include(x => x.Model).FirstAsync(x => x.Id == id, cancellationToken);
 
+        public async Task RemoveDeviceById(int deviceId, CancellationToken cancellationToken)
+        {
+            var deviceToBeRemoved = await GetDeviceById(deviceId, cancellationToken);
+            _dbContext.Devices.Remove(deviceToBeRemoved);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+
         public async Task UpdateDeviceAsync(int deviceId, Device newDevice, CancellationToken cancellationToken)
         {
             var device = await GetDeviceById(deviceId, cancellationToken);

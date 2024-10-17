@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { Component, Inject } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { ApiServiceService } from 'src/app/api-service.service';
 
 @Component({
   selector: 'app-remove-device-warning-modal',
@@ -8,8 +9,10 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 })
 export class RemoveDeviceWarningModalComponent {
   constructor(
+    @Inject(MAT_DIALOG_DATA) public data: { deviceId: number },
     public dialogRef: MatDialogRef<RemoveDeviceWarningModalComponent>,
-    public matDialog: MatDialog
+    public matDialog: MatDialog,
+    private apiService: ApiServiceService
   ){}
 
   onCancel(): void {
@@ -17,11 +20,16 @@ export class RemoveDeviceWarningModalComponent {
   }
 
   onDeleteDevice(): void {
-    //strzał do api z usunięciem
-    //odpowiedź z info czy się udało
-    this.dialogRef.close();
-    this.dialogRef.afterClosed().subscribe(x => alert('Urządzenie zostało usunięte'));
-    this.matDialog.closeAll();
-  }
-
+    let message: string = "";
+    this.apiService.removeDevice(this.data.deviceId).subscribe(x => {
+      if (x) {
+        message = "Urządzenie zostało usunięte";
+      } else {
+        message = "Wystąpił błąd przy usuwaniu urządzenia";
+      }
+      this.dialogRef.close();
+      this.dialogRef.afterClosed().subscribe(x => alert(message));
+      this.matDialog.closeAll();
+    });
+  };
 }

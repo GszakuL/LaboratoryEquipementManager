@@ -12,5 +12,7 @@ namespace Domain.Abstraction
         Task<ICollection<Model>> GetModelsByName(string name, CancellationToken cancellationToken);
         Task UpdateModelValuesAsync(int modelId, Model newModelValues, CancellationToken cancellationToken);
         Task<Model> GetModelByName(string name);
+        Task<Model> GetModelWithRelatedDevices(int modelId, CancellationToken cancellationToken);
+        Task RemoveModelById(int modelId, CancellationToken cancellationToken);
     }
 }

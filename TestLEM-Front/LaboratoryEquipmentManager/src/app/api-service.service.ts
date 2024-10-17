@@ -47,6 +47,11 @@ export class ApiServiceService {
     return this.http.put(url, body).pipe((response: any) => response);
   }
 
+  removeDevice(deviceId: number): Observable<any> {
+    const url = `${this.apiUrl+'device'}/${deviceId}/remove`;
+    return this.http.delete(url);
+  }
+
   addDocuments(formData: FormData): Observable<any> {
     return this.http.post(this.apiUrl + 'files', formData);
   }
