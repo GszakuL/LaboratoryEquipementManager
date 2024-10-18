@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Domain.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Application.Abstractions;
 
 namespace Infrastructure
 {
-    public class LemDbContext : DbContext, IApplicationDbContext
+    public class LemDbContext : IdentityDbContext<User>, IApplicationDbContext
     {
         public LemDbContext(DbContextOptions<LemDbContext> options) : base(options)
         {
@@ -17,10 +18,12 @@ namespace Infrastructure
         public DbSet<MeasuredRange> MeasuredRanges { get; set; }
         public DbSet<PhysicalMagnitude> PhysicalMagnitudes { get; set; }
         public DbSet<Document> Documents { get; set; }
-        public DbSet<ModelCooperation> ModelCooperation {  get; set; }
+        public DbSet<ModelCooperation> ModelCooperation { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<Device>(d =>
             {
                 d.HasOne(x => x.Model)
@@ -95,6 +98,9 @@ namespace Infrastructure
                 .HasColumnType("decimal(5,3)")
                 .HasPrecision(5, 3)
             );
+
+            // Usuń definicję Entity dla User
+            // Ponieważ IdentityUser i tak są już zarządzane przez IdentityDbContext
         }
     }
 }
