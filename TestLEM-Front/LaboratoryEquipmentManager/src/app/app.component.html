@@ -1,6 +1,17 @@
-<h1>LEM - Laboratory Equipment Manager</h1>
-<nav class="navbar navbar-expand-lg bg-body-tertiary mb-3">
-  <div class="container-fluid">
+<div class="p-4">
+  <div class="container d-flex justify-content-between align-items-center">
+    <div class="title">
+      <h1>LEM - Laboratory Equipment Manager</h1>
+    </div>
+    <div class="image">
+      <img src="/assets/images/logoEE.jpg" alt="" style="max-height: 60px" />
+    </div>
+  </div>
+</div>
+<nav
+  class="navbar navbar-expand-lg bg-body-tertiary container-fluid d-flex mb-3"
+>
+  <div class="container-fluid d-flex" *ngIf="isLoggedIn()">
     <button
       class="navbar-toggler"
       type="button"
@@ -13,16 +24,22 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 d-flex">
         <li class="nav-item">
           <a class="nav-link active" aria-current="page" href=""
             >Lista urządzeń</a
           >
         </li>
+
         <li class="nav-item">
           <a role="button" class="nav-link" (click)="navigateToProfile()"
             >Profil</a
           >
+        </li>
+      </ul>
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a role="button" class="nav-link" (click)="logOut()">Wyloguj</a>
         </li>
       </ul>
     </div>

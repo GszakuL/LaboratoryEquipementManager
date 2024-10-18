@@ -23,6 +23,8 @@ import { ModelDetailsComponent } from './devices-list/device-details/model-detai
 import { EditDeviceComponent } from './edit-device/edit-device/edit-device.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { EditionDeviceConfirmationModal } from './edit-device/edition-device-confirmation-modal/edition-device-confirmation-modal.component';
+import { LoginComponent } from './login/login.component';
+import { AuthService } from './auth-service.service';
 
 @NgModule({
   declarations: [
@@ -35,7 +37,8 @@ import { EditionDeviceConfirmationModal } from './edit-device/edition-device-con
     PercentageDirective,
     ModelDetailsComponent,
     EditDeviceComponent,
-    EditionDeviceConfirmationModal
+    EditionDeviceConfirmationModal,
+    LoginComponent
   ],
   imports: [
     BrowserModule,
@@ -51,7 +54,7 @@ import { EditionDeviceConfirmationModal } from './edit-device/edition-device-con
     NgbModule,
     NgbTypeaheadModule,
     MultiSelectModule,
-    MatCheckboxModule
+    MatCheckboxModule,
     ],
   providers: [
     { provide: MatPaginatorIntl, useClass: PolishPaginatorIntl }
