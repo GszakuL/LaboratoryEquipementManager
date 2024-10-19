@@ -231,7 +231,7 @@ export class AddDeviceComponent implements OnInit, AfterViewInit {
   }
 
   navigateToDevicesList(): void {
-    this.router.navigate(['']);
+    this.router.navigate(['/devices-list']);
   }
 
   shouldShowError(controlName: string): boolean {

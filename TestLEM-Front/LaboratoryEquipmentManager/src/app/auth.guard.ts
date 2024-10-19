@@ -9,15 +9,15 @@ export class AuthGuard implements CanActivate {
   constructor(private authService: AuthService, private router: Router) {}
 
   canActivate(
-    next: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
-  ): boolean {
-    if (this.authService.isAuthenticated()) {
-      return true; // Użytkownik zalogowany
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot): boolean {
+    const isAuthenticated = this.authService.isAuthenticated();
+
+    if (isAuthenticated) {
+      return true;
     } else {
-      // Użytkownik nie jest zalogowany, przekieruj na stronę logowania
       this.router.navigate(['/login']);
-      return false; // Zablokuj dostęp do trasy
+      return false;
     }
   }
 }
