@@ -24,19 +24,22 @@ namespace Application.Devices.Commands
             var deviceModel = deviceToBeRemoved?.Model;
             var modelWithRelatedDevices = await _modelRepository.GetModelWithRelatedDevices(deviceModel.Id, cancellationToken);
 
-            using var transaction = _unitOfWork.BeginTransaction();
+            using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
             try
             {
                 if (modelWithRelatedDevices.Devices.Count == 1)
                 {
-                    if (modelWithRelatedDevices.Company.Models.Count == 1)
+                    if (modelWithRelatedDevices.Company?.Models.Count == 1)
                     {
                         await _companyRepository.RemoveCompanyById(modelWithRelatedDevices.Company.Id, cancellationToken);
                     }
                     await _modelRepository.RemoveModelById(deviceModel.Id, cancellationToken);
+                } else
+                {
+                    await _deviceRepository.RemoveDeviceById(request.deviceId, cancellationToken);
                 }
-                await _deviceRepository.RemoveDeviceById(request.deviceId, cancellationToken);
+                
                 transaction.Commit();
                 return true;
             }

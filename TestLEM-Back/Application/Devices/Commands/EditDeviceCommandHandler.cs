@@ -27,10 +27,6 @@ namespace Application.Devices.Commands
 
         public async Task<EditedDeviceResponseDto> Handle(EditDeviceCommand request, CancellationToken cancellationToken)
         {
-            //chyba jednak powinienem działać na danych wyciągniętych z bazy
-            //wyciągam device => sprawdzam
-            //wyciągam model => sprawdzam 
-            //itd...
             var device = await _deviceRepository.GetDeviceById(request.deviceId, cancellationToken);
 
             var oldValues = request.oldDeviceDto;
@@ -69,7 +65,7 @@ namespace Application.Devices.Commands
                 device.StorageLocation = newValues.StorageLocation;
             }
 
-            using var transaction = _unitOfWork.BeginTransaction();
+            using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
             try
             {

@@ -43,26 +43,28 @@ namespace Application.Devices.Commands
             var model = request.AddDeviceDto.Model;
             var createdDeviceResponse = new CreatedDeviceResponseDto(identificationNumber, null, null);
 
-            using var transaction = _unitOfWork.BeginTransaction();
-
-            try
+            using (var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken))
             {
-                var modelId = await _sender.Send(
-                new CreateModelCommand(model),
-                cancellationToken);
+                try
+                {
+                    var modelId = await _sender.Send(
+                    new CreateModelCommand(model),
+                    cancellationToken);
 
-                device.ModelId = modelId;
+                    device.ModelId = modelId;
 
-                var deviceId = await _deviceRepository.AddDevice(device);
+                    var deviceId = await _deviceRepository.AddDevice(device, cancellationToken);
 
-                createdDeviceResponse.ModelId = modelId;
-                createdDeviceResponse.DeviceId = deviceId;
-                transaction.Commit();
-            }
-            catch (Exception ex)
-            {
-                transaction.Rollback();
-                throw new Exception(ex.Message);
+                    createdDeviceResponse.ModelId = modelId;
+                    createdDeviceResponse.DeviceId = deviceId;
+
+                    await _unitOfWork.CommitAsync(cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    _unitOfWork.Rollback();
+                    throw new Exception(ex.Message);
+                }
             }
 
             return createdDeviceResponse;

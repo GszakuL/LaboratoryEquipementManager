@@ -1,4 +1,5 @@
-﻿using Application.Models;
+﻿using Application.Abstractions;
+using Application.Models;
 using Domain.Abstraction;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -7,9 +8,9 @@ namespace Infrastructure.Repositories
 {
     public class ModelRepository : IModelRepository
     {
-        private readonly LemDbContext _dbContext;
+        private readonly IApplicationDbContext _dbContext;
 
-        public ModelRepository(LemDbContext dbContext)
+        public ModelRepository(IApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -20,7 +21,7 @@ namespace Infrastructure.Repositories
 
         public async Task AddModel(Model model, CancellationToken cancellationToken)
         {
-            _dbContext.Models.Add(model);
+            await _dbContext.Models.AddAsync(model);
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
@@ -50,7 +51,15 @@ namespace Infrastructure.Repositories
         public async Task UpdateModelValuesAsync(int modelId, Model newModel, CancellationToken cancellationToken)
         {
             var model = await _dbContext.Models.FirstAsync(x => x.Id == modelId, cancellationToken);
-            _dbContext.Entry(model).CurrentValues.SetValues(newModel);
+            model.Name = newModel.Name;
+            model.SerialNumber = newModel.SerialNumber;
+            model.Company = newModel.Company;
+            model.Devices = newModel.Devices;
+            model.MeasuredValues = newModel.MeasuredValues;
+            model.Documents = newModel.Documents;
+            model.CooperateTo = newModel.CooperateTo;
+            model.CooperateFrom = newModel.CooperateFrom;
+
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
@@ -75,7 +84,7 @@ namespace Infrastructure.Repositories
 
         public async Task RemoveModelById(int modelId, CancellationToken cancellationToken)
         {
-            var modelToBeRemoved = await _dbContext.Models.FirstAsync(x => x.Id != modelId);
+            var modelToBeRemoved = await _dbContext.Models.Include(x => x.Documents).FirstAsync(x => x.Id == modelId);
             _dbContext.Models.Remove(modelToBeRemoved);
             await _dbContext.SaveChangesAsync(cancellationToken);
         }

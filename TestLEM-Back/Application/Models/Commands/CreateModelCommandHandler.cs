@@ -55,7 +55,7 @@ namespace Application.Models.Commands
 
             return model.Id;
         }
-
+           
         private ICollection<MeasuredValue> GetMeasuredValuesForModel(ICollection<MeasuredValueDto> measuredValuesDtos)
         {
             var measuredValues = new List<MeasuredValue>();

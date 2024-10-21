@@ -1,4 +1,5 @@
-﻿using Domain.Abstraction;
+﻿using Application.Abstractions;
+using Domain.Abstraction;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,9 +7,9 @@ namespace Infrastructure.Repositories
 {
     public class ModelCooperationRepository : IModelCooperationRepository
     {
-        private readonly LemDbContext _dbContext;
+        private readonly IApplicationDbContext _dbContext;
 
-        public ModelCooperationRepository(LemDbContext dbContext)
+        public ModelCooperationRepository(IApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -25,7 +26,7 @@ namespace Infrastructure.Repositories
                 };
                 cooperations.Add(cooperation);
             };
-            await _dbContext.AddRangeAsync(cooperations);
+            await _dbContext.ModelCooperation.AddRangeAsync(cooperations);
             await _dbContext.SaveChangesAsync();
         }
 
@@ -38,7 +39,7 @@ namespace Infrastructure.Repositories
         public async Task RemoveModelCooperations(ICollection<int> cooperationsIdsToBeRemoved, CancellationToken cancellationToken)
         {
             var cooperationsToRemove = await _dbContext.ModelCooperation.Where(x => cooperationsIdsToBeRemoved.Contains(x.ModelFromId) || cooperationsIdsToBeRemoved.Contains(x.ModelToId)).ToListAsync(cancellationToken);
-            _dbContext.RemoveRange(cooperationsToRemove);
+            _dbContext.ModelCooperation.RemoveRange(cooperationsToRemove);
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
     }
