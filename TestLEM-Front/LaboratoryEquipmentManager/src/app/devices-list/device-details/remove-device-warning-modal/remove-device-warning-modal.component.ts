@@ -12,24 +12,22 @@ export class RemoveDeviceWarningModalComponent {
     @Inject(MAT_DIALOG_DATA) public data: { deviceId: number },
     public dialogRef: MatDialogRef<RemoveDeviceWarningModalComponent>,
     public matDialog: MatDialog,
-    private apiService: ApiServiceService
+    private apiService: ApiServiceService,
   ){}
 
   onCancel(): void {
-    this.dialogRef.close();
+    this.dialogRef.close(false);
   }
 
   onDeleteDevice(): void {
-    let message: string = "";
-    this.apiService.removeDevice(this.data.deviceId).subscribe(x => {
-      if (x) {
-        message = "Urządzenie zostało usunięte";
+    this.apiService.removeDevice(this.data.deviceId).subscribe(response => {
+      if (response) {
+        alert('Urządzenie zostało usunięte');
+        this.dialogRef.close(true);
       } else {
-        message = "Wystąpił błąd przy usuwaniu urządzenia";
+        alert('Wystąpił błąd przy usuwaniu urządzenia');
+        this.dialogRef.close(false);
       }
-      this.dialogRef.close();
-      this.dialogRef.afterClosed().subscribe(x => alert(message));
-      this.matDialog.closeAll();
     });
-  };
+  }
 }

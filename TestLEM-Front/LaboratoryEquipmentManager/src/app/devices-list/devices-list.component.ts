@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { ApiServiceService, DeviceDto, PagedAndSortedQueryOfDevicesList, SearchPhraseDto } from '../api-service.service';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
@@ -11,7 +11,7 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
   templateUrl: './devices-list.component.html',
   styleUrls: ['./devices-list.component.css']
 })
-export class DevicesListComponent implements OnInit {
+export class DevicesListComponent implements OnInit, AfterViewInit {
 
   constructor(
     private service: ApiServiceService,
@@ -35,6 +35,8 @@ export class DevicesListComponent implements OnInit {
   devicePhysicalMagnitudeNames: string[] = [];
 
   ngOnInit(): void {
+  }
+  ngAfterViewInit(): void {
     this.refreshDevicesList();
   }
 
@@ -74,9 +76,18 @@ export class DevicesListComponent implements OnInit {
 
   openDeviceDetails(deviceId: any) {
     this.service.getDeviceDetailsById(deviceId).subscribe(deviceDetails => {
-      this.dialog.open(DeviceDetailsComponent, {data: {deviceDto: deviceDetails}, autoFocus: false});
-    })
-    //this.dialog.open(DeviceDetailsComponent, {data: {deviceDto: device}, autoFocus: false });
+      const dialogRef = this.dialog.open(DeviceDetailsComponent, {
+        data: { deviceDto: deviceDetails },
+        autoFocus: false
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+        console.log('Wynik z DeviceDetails:', result);
+        if (result) {
+          this.refreshDevicesList();
+        }
+      });
+    });
   }
 
   clearList(){

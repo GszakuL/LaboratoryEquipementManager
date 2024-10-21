@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialog} from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
 import { ApiServiceService } from 'src/app/api-service.service';
 import { RemoveDeviceWarningModalComponent } from './remove-device-warning-modal/remove-device-warning-modal.component';
 import { DialogRef } from '@angular/cdk/dialog';
@@ -15,7 +15,7 @@ export class DeviceDetailsComponent implements OnInit {
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: { deviceDto: any },
     private dialog: MatDialog,
-    private selfDialog: DialogRef<DeviceDetailsComponent>,
+    private selfDialog: MatDialogRef<DeviceDetailsComponent>,
     private apiService: ApiServiceService,
     private router: Router
   ){}
@@ -32,7 +32,16 @@ export class DeviceDetailsComponent implements OnInit {
   }
 
   onDeleteDevice(): void {
-    this.dialog.open(RemoveDeviceWarningModalComponent, {data: {deviceId: this.deviceDto.deviceId}, autoFocus: false});
+    const dialogRef = this.dialog.open(RemoveDeviceWarningModalComponent, {
+      data: { deviceId: this.data.deviceDto.deviceId },
+      autoFocus: false
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.selfDialog.close(true);
+      }
+    });
   }
 
   onClose(): void {
