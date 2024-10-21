@@ -28,17 +28,15 @@ builder.Services.RegisterApplicationServices();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<LemDbContext>(
-        option => option.UseSqlServer(builder.Configuration.GetConnectionString("TestLemDbConnectionString")
-        ,x => x.MigrationsAssembly("Infrastructure")
-    ));
+builder.Services.AddDbContext<LemDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IModelRepository, ModelRepository>();
 builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
 builder.Services.AddScoped<IModelCooperationRepository, ModelCooperationRepository>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
-builder.Services.AddScoped<IUnitOfWork, UnitWork>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IApplicationDbContext, LemDbContext>();
 
 builder.Services.AddCors(x =>
@@ -78,6 +76,8 @@ app.UseCors("AllowAngularOrigins");
 using var scope = app.Services.CreateScope();
 
 var dbContext = scope.ServiceProvider.GetService<LemDbContext>();
+dbContext.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
+
 
 var pendingMigrations = dbContext.Database.GetPendingMigrations();
 if (pendingMigrations.Any())

@@ -95,12 +95,19 @@ namespace Infrastructure
 
             modelBuilder.Entity<MeasuredRange>(mr =>
                 mr.Property(x => x.AccuracyInPercet)
-                .HasColumnType("decimal(5,3)")
-                .HasPrecision(5, 3)
+                .HasConversion<double>()
             );
+        }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                var timeoutInterceptor = new BusyTimeoutCommandInterceptor(5000); // Timeout 5 sekund
 
-            // Usuń definicję Entity dla User
-            // Ponieważ IdentityUser i tak są już zarządzane przez IdentityDbContext
+                optionsBuilder.UseSqlite("Data Source=mydb.db;")
+                              .AddInterceptors(timeoutInterceptor);
+            }
+
         }
     }
 }
