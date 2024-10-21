@@ -36,6 +36,10 @@ export class AppComponent implements OnInit {
     this.router.navigate(['/user']);
   }
 
+  navigateToDevicesList() {
+    this.router.navigate(['/devices-list']);
+  }
+
   logOut() {
     debugger;
     this.authService.logout();
