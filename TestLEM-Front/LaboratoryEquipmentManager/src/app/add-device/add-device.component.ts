@@ -32,6 +32,7 @@ export class AddDeviceComponent implements OnInit, AfterViewInit {
   selectedRelatedModelsNames: any[] = [];
   modelNameIds: any[] = [];
   cooperatedModelsIds: number[] = [];
+  modelSelected: boolean = false;
 
   constructor(private router: Router, private fb: FormBuilder, private apiService: ApiServiceService) {
     this.deviceForm = this.fb.group({
@@ -86,8 +87,21 @@ export class AddDeviceComponent implements OnInit, AfterViewInit {
         companyName: deviceSelected.producer
       }
     });
+    this.modelSelected = true;
+    this.setModelInputAsDisabledByName('model.name');
+    this.setModelInputAsDisabledByName('model.serialNumber');
+    this.setModelInputAsDisabledByName('model.companyName');
+    this.setModelInputAsDisabledByName('model.documents');
     this.modelInputsDisabled = true;
-    this.modelSerialNumberInputDisabled = true;
+  }
+
+  resetModelSelection(){
+    this.resetModelInputByName('model.name');
+    this.resetModelInputByName('model.serialNumber');
+    this.resetModelInputByName('model.companyName');
+    this.resetModelInputByName('model.documents');
+    this.modelSelected = false;
+    this.modelInputsDisabled = false;
   }
 
   serchModelSerialNumber: OperatorFunction<string, readonly string[]> = (text$: Observable<string>) =>
@@ -160,7 +174,6 @@ export class AddDeviceComponent implements OnInit, AfterViewInit {
   }
 
   onSubmit() {
-    console.log(this.selectedRelatedModelsNames);
     this.submitted = true;
     if (this.deviceForm.invalid) {
       return;
@@ -202,9 +215,13 @@ export class AddDeviceComponent implements OnInit, AfterViewInit {
             modelFilesFormData.append('modelId', x.modelId.toString());
             observables.push(this.apiService.addDocuments(modelFilesFormData).pipe(catchError(error => of(error))));
           }
-          return forkJoin(observables).pipe(
-            map(() => x)
-          );
+          if(observables.length > 0){
+            return forkJoin(observables).pipe(
+              map(() => x)
+            );
+          } else {
+            return of(x);
+          }
         })
       ).subscribe((x) => {
         alert(`Urządzenie o id: ${x.identificationNumber} zostało dodane`);
@@ -276,9 +293,11 @@ export class AddDeviceComponent implements OnInit, AfterViewInit {
   private mapDeviceFormValuesToAddDeviceDto(): AddDeviceDto {
     let addDeviceDto = new AddDeviceDto();
     addDeviceDto.IdentificationNumber = this.getValueFromDeviceForm('identificationNumber');
-    addDeviceDto.ProductionDate = new Date(this.getValueFromDeviceForm('productionDate'));
+    let productionDate = this.getValueFromDeviceForm('productionDate');
+    addDeviceDto.ProductionDate = productionDate != null ? new Date(this.getValueFromDeviceForm('productionDate')) : undefined;
     addDeviceDto.CalibrationPeriodInYears = this.getValueFromDeviceForm('calibrationPeriodInYears');
-    addDeviceDto.LastCalibrationDate = new Date(this.getValueFromDeviceForm('lastCalibrationDate'));
+    let lastCalibrationDate = this.getValueFromDeviceForm('lastCalibrationDate');
+    addDeviceDto.LastCalibrationDate = lastCalibrationDate != null ? new Date(this.getValueFromDeviceForm('lastCalibrationDate')) : undefined;
     addDeviceDto.IsCalibrated = this.getValueFromDeviceForm('isCalibrated');
     addDeviceDto.IsCalibrationCloseToExpire = this.getValueFromDeviceForm('isCalibrationCloseToExpire');
     addDeviceDto.StorageLocation = this.getValueFromDeviceForm('storageLocation');
@@ -289,6 +308,15 @@ export class AddDeviceComponent implements OnInit, AfterViewInit {
 
   private getValueFromDeviceForm(name: string): any {
     return this.deviceForm.get(name)?.value ? this.deviceForm.get(name)?.value : null;
+  }
+
+  private setModelInputAsDisabledByName(name: string) {
+    this.deviceForm.get(name)?.disable();
+  }
+
+  private resetModelInputByName(name: string) {
+    this.deviceForm.get(name)?.enable();
+    this.deviceForm.get(name)?.setValue(null);
   }
 
   private getModelForm() : FormGroup {

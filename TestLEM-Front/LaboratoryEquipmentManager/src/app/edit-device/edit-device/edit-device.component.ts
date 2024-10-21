@@ -331,9 +331,11 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
   private mapDeviceFormValuesToAddDeviceDto(): AddDeviceDto {
     let addDeviceDto = new AddDeviceDto();
     addDeviceDto.IdentificationNumber = this.getValueFromDeviceForm('identificationNumber');
-    addDeviceDto.ProductionDate = new Date(this.getValueFromDeviceForm('productionDate'));
+    let productionDate = this.getValueFromDeviceForm('productionDate');
+    addDeviceDto.ProductionDate = productionDate != null ? new Date(this.getValueFromDeviceForm('productionDate')) : undefined;
     addDeviceDto.CalibrationPeriodInYears = this.getValueFromDeviceForm('calibrationPeriodInYears');
-    addDeviceDto.LastCalibrationDate = new Date(this.getValueFromDeviceForm('lastCalibrationDate'));
+    let lastCalibrationDate = this.getValueFromDeviceForm('lastCalibrationDate');
+    addDeviceDto.LastCalibrationDate = lastCalibrationDate != null ? new Date(this.getValueFromDeviceForm('lastCalibrationDate')) : undefined;
     addDeviceDto.IsCalibrated = this.getValueFromDeviceForm('isCalibrated');
     addDeviceDto.IsCalibrationCloseToExpire = this.getValueFromDeviceForm('isCalibrationCloseToExpire');
     addDeviceDto.StorageLocation = this.getValueFromDeviceForm('storageLocation');
@@ -510,7 +512,7 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
   }
 
   navigateToDevicesList(): void {
-    this.router.navigate(['']);
+    this.router.navigate(['/devices-list']);
   }
 
   shouldShowError(controlName: string): boolean {

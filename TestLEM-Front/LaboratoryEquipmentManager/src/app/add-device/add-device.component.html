@@ -116,7 +116,20 @@
         </div>
       </div>
       <h4>Model</h4>
+      <div class="alert alert-info" role="alert">
+        <b>&#9432;</b> Dodając nowe urządzenie, możesz wybrać dla niego
+        istniejący model z listy podpowiedzi. W takim przypadku zostaną dla
+        niego podstawione wszystkie aktualne dane. Dane danego modelu możesz
+        zmienić na ekranie edycji urządzenia.
+      </div>
       <div formGroupName="model">
+        <button
+          class="btn btn-warning"
+          *ngIf="modelSelected"
+          (click)="resetModelSelection()"
+        >
+          Resetuj podstawienie
+        </button>
         <div class="mb-3 row">
           <label for="name" class="col-sm-3 col-form-label">Nazwa modelu</label>
           <div class="col-sm-9">
@@ -148,7 +161,6 @@
               class="form-control"
               id="serialNumber"
               formControlName="serialNumber"
-              [attr.disabled]="modelSerialNumberInputDisabled"
             />
             <div *ngIf="shouldShowError('model.serialNumber')" class="error">
               {{ fieldRequired }}
@@ -163,7 +175,6 @@
               class="form-control"
               id="company"
               formControlName="companyName"
-              [attr.disabled]="modelInputsDisabled"
             />
           </div>
         </div>
@@ -299,7 +310,6 @@
             id="modelDocuments"
             multiple
             (change)="onModelFileChange($event)"
-            [attr.disabled]="modelInputsDisabled"
           />
           <div id="modelDocumentsHelpBlock" class="form-text">
             Dokuemnty dotyczące modelu w formacie .pdf, .csv, .jpg (np.
@@ -320,6 +330,7 @@
         optionLabel="name"
         placeholder="Wybierz nazwy modeli które chcesz powiązać"
         (onChange)="onSelectionChange()"
+        [disabled]="modelInputsDisabled"
       />
     </div>
     <div class="d-flex justify-content-end">
