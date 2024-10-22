@@ -13,4 +13,6 @@ public class RegisterUserModel
     [Required]
     [DataType(DataType.Password)]
     public string Password { get; set; }
+
+    public bool IsAdmin { get; set; } = false;
 }
