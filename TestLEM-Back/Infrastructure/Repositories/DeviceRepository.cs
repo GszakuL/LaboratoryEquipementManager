@@ -37,6 +37,9 @@ namespace Infrastructure.Repositories
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
+        public int TotalDevicesByModelCount(string modelName) => _dbContext.Devices.Include(x => x.Model).Where(x => x.Model.Name.ToLower() == modelName.ToLower()).Count();
+        
+
         public async Task UpdateDeviceAsync(int deviceId, Device newDevice, CancellationToken cancellationToken)
         {
             var device = await GetDeviceById(deviceId, cancellationToken);

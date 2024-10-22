@@ -13,20 +13,18 @@ namespace Application.Devices.Queries
     {
         private readonly IApplicationDbContext _dbContext;
         private readonly IModelCooperationRepository _modelCooperationRepository;
+        private readonly IDeviceRepository _deviceRepository;
 
-        public GetDeviceByIdQueryHandler(IApplicationDbContext dbContext, IModelCooperationRepository modelCooperationRepository)
+        public GetDeviceByIdQueryHandler(IApplicationDbContext dbContext, IModelCooperationRepository modelCooperationRepository, IDeviceRepository deviceRepository)
         {
             _dbContext = dbContext;
             _modelCooperationRepository = modelCooperationRepository;
+            _deviceRepository = deviceRepository;
         }
 
         public async Task<DeviceDetailsDto> Handle(GetDeviceByIdQuery request, CancellationToken cancellationToken)
         {
-            var device = await _dbContext.Devices
-                .Include(x => x.Model)
-                    .ThenInclude(x => x.Company)
-                .Include(x => x.Documents)
-                .FirstAsync(x => x.Id == request.deviceId);
+            var device = await _deviceRepository.GetDeviceById(request.deviceId, cancellationToken);
 
             if (device == null)
             {
@@ -37,6 +35,7 @@ namespace Application.Devices.Queries
             {
                 DeviceId = device.Id,
                 ModelName = device.Model.Name,
+                TotalDevicesOfModelCount = _deviceRepository.TotalDevicesByModelCount(device.Model.Name),
                 DeviceIdentificationNumber = device.IdentificationNumber,
                 MeasuredValues = GetMeasuredValues(device.ModelId),
                 ModelSerialNumber = device.Model.SerialNumber,

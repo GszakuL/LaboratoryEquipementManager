@@ -11,23 +11,25 @@ namespace Application.Models.Queries
         private readonly IModelRepository _modelRepository;
         private readonly IModelCooperationRepository _modelCooperationRepository;
         private readonly IApplicationDbContext _dbContext;
+        private readonly IDeviceRepository _deviceRepository;
 
-        public GetModelDetailsQueryHandler(IModelRepository modelRepository, IModelCooperationRepository modelCooperationRepository, IApplicationDbContext dbContext)
+        public GetModelDetailsQueryHandler(IModelRepository modelRepository, IModelCooperationRepository modelCooperationRepository, IApplicationDbContext dbContext, IDeviceRepository deviceRepository)
         {
             _modelRepository = modelRepository;
             _modelCooperationRepository = modelCooperationRepository;
             _dbContext = dbContext;
+            _deviceRepository = deviceRepository;
         }
 
         public async Task<ModelDetailsDto> Handle(GetModelDetailsQuery request, CancellationToken cancellationToken)
         {
             var model = await _modelRepository.GetModelById(request.modelId, cancellationToken);
-            var modelsWithName = await _modelRepository.GetModelsByName(request.modelName, cancellationToken);
+            var modelsWithNameCount = _deviceRepository.TotalDevicesByModelCount(request.modelName);
 
             var modelDetailsDto = new ModelDetailsDto
             {
                 Id = model.Id,
-                TotalModelCount = modelsWithName.Count,
+                TotalModelCount = modelsWithNameCount,
                 Name = model.Name,
                 SerialNumber = model.SerialNumber,
                 CompanyName = model.Company?.Name,
@@ -38,7 +40,8 @@ namespace Application.Models.Queries
             return modelDetailsDto;
         }
 
-        private List<MeasuredValueDto> GetMeasuredValues(int modelId) //to powinno wylecieć do klasy z przeszukiwaniem bazy
+        //TODO: move to separate repository
+        private List<MeasuredValueDto> GetMeasuredValues(int modelId)
         {
             var measuredValues = _dbContext.MeasuredValues
                 .Where(x => x.ModelId == modelId)
@@ -58,6 +61,7 @@ namespace Application.Models.Queries
             return measuredValues;
         }
 
+        //TODO: move to separate repository
         private ICollection<DocumentDto>? GetDocuments(int modelId)
         {
             var modelDocuments = _dbContext.Documents.Where(x => x.ModelId == modelId).ToList();

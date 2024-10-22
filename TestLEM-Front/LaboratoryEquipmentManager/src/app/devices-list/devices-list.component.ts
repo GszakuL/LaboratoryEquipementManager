@@ -82,7 +82,6 @@ export class DevicesListComponent implements OnInit, AfterViewInit {
       });
 
       dialogRef.afterClosed().subscribe(result => {
-        console.log('Wynik z DeviceDetails:', result);
         if (result) {
           this.refreshDevicesList();
         }
