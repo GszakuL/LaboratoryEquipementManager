@@ -25,6 +25,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { EditionDeviceConfirmationModal } from './edit-device/edition-device-confirmation-modal/edition-device-confirmation-modal.component';
 import { LoginComponent } from './login/login.component';
 import { AuthService } from './auth-service.service';
+import { UsersListComponent } from './user/users-list/users-list.component';
 
 @NgModule({
   declarations: [
@@ -55,6 +56,7 @@ import { AuthService } from './auth-service.service';
     NgbTypeaheadModule,
     MultiSelectModule,
     MatCheckboxModule,
+    UsersListComponent
     ],
   providers: [
     { provide: MatPaginatorIntl, useClass: PolishPaginatorIntl }
