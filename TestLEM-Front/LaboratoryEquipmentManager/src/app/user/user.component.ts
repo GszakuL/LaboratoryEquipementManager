@@ -20,7 +20,7 @@ export class UserComponent implements OnInit {
   registerEmail: string = '';
   registerUsername: string = '';
   registerPassword: string = '';
-  isAdmin: boolean | undefined = false;
+  isAdmin: boolean = false;
   isCurrentUserAdmin: boolean = false;
   currentUserUsername: string = '';
   confirmRegisterPassword: string = '';
@@ -97,7 +97,7 @@ export class UserComponent implements OnInit {
       return;
     }
 
-    this.authService.register(this.registerEmail, this.registerUsername, this.registerPassword, !this.isAdmin)
+    this.authService.register(this.registerEmail, this.registerUsername, this.registerPassword, this.isAdmin)
       .subscribe({
         next: () => {
           alert('Nowy użytkownik został dodany');
@@ -162,7 +162,6 @@ export class UserComponent implements OnInit {
   private getUserInfo(): void {
     this.authService.getUserInfo().subscribe({
       next: (data) => {
-        console.log(data);
         this.userInfo = data;
         this.isCurrentUserAdmin = data.isAdmin;
         this.currentUserUsername = data.username;
