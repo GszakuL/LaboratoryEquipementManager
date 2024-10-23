@@ -35,9 +35,9 @@ namespace Application.Devices.Commands
             }
             var device = _mapper.Map<Device>(request.AddDeviceDto);
 
-            if (device.LastCalibrationDate == null && device.CalibrationPeriodInYears != null && device.LastCalibrationDate != null)
+            if (device.NextCalibrationDate == null && device.CalibrationPeriodInYears != null && device.LastCalibrationDate != null)
             {
-                device.LastCalibrationDate = SetNextCalibrationDate(request.AddDeviceDto);
+                device.NextCalibrationDate = SetNextCalibrationDate(request.AddDeviceDto);
             }
 
             var model = request.AddDeviceDto.Model;
