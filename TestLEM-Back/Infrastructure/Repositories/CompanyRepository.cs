@@ -22,6 +22,10 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> CheckIfCompanyExists(string companyName, CancellationToken cancellationToken)
         {
+            if(companyName == null)
+            {
+                return false;
+            }
             return await _dbContext.Companies.AnyAsync(x => x.Name.ToLower() == companyName.ToLower(), cancellationToken);
         }
 

@@ -249,6 +249,12 @@ namespace Application.Models.Commands
 
         private async Task<Model> PrepareModelsCompany(Model model, string companyName, CancellationToken cancellationToken)
         {
+            if(companyName == null)
+            {
+                model.Company = null;
+                return model;
+            }
+
             var companyExists = await _companyRepository.CheckIfCompanyExists(companyName);
 
             if (!companyExists)
