@@ -28,7 +28,7 @@ namespace Infrastructure.Repositories
             return result;
         }
 
-        public async Task<Device> GetDeviceById(int id, CancellationToken cancellationToken) => await _dbContext.Devices.Include(x => x.Model).FirstAsync(x => x.Id == id, cancellationToken);
+        public async Task<Device> GetDeviceById(int id, CancellationToken cancellationToken) => await _dbContext.Devices.Include(x => x.Model).ThenInclude(x => x.Company).FirstAsync(x => x.Id == id, cancellationToken);
 
         public async Task RemoveDeviceById(int deviceId, CancellationToken cancellationToken)
         {
