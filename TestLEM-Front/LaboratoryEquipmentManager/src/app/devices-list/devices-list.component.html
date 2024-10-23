@@ -116,9 +116,8 @@
         </td>
         <td>
           {{
-            getCalibrationExpireDateForDevice(device)
-              ? (getCalibrationExpireDateForDevice(device)
-                | date : "dd.MM.yyyy")
+            device.nextCalibrationDate
+              ? (device.nextCalibrationDate | date : "dd.MM.yyyy")
               : "--"
           }}
         </td>

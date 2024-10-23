@@ -304,6 +304,10 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
 
     if (typeof obj1 !== typeof obj2) return false;
 
+    if (obj1 instanceof Date && obj2 instanceof Date) {
+      return obj1.getTime() === obj2.getTime();
+    }
+
     if (Array.isArray(obj1)) {
         if (!Array.isArray(obj2)) return false;
         if (obj1.length !== obj2.length) return false;
@@ -336,6 +340,8 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
     addDeviceDto.CalibrationPeriodInYears = this.getValueFromDeviceForm('calibrationPeriodInYears');
     let lastCalibrationDate = this.getValueFromDeviceForm('lastCalibrationDate');
     addDeviceDto.LastCalibrationDate = lastCalibrationDate != null ? new Date(this.getValueFromDeviceForm('lastCalibrationDate')) : undefined;
+    let nextCalibrationDate = this.getValueFromDeviceForm('nextCalibrationDate');
+    addDeviceDto.NextCalibrationDate = nextCalibrationDate != null ? new Date(this.getValueFromDeviceForm('nextCalibrationDate')) : undefined;
     addDeviceDto.IsCalibrated = this.getValueFromDeviceForm('isCalibrated');
     addDeviceDto.IsCalibrationCloseToExpire = this.getValueFromDeviceForm('isCalibrationCloseToExpire');
     addDeviceDto.StorageLocation = this.getValueFromDeviceForm('storageLocation');

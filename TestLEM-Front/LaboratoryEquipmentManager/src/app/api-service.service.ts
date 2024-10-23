@@ -85,6 +85,7 @@ export class AddDeviceDto {
    ProductionDate?: Date;
    CalibrationPeriodInYears?: number;
    LastCalibrationDate?: Date;
+   NextCalibrationDate?: Date;
    IsCalibrated: boolean;
    IsCalibrationCloseToExpire?: boolean;
    StorageLocation?: string;

@@ -49,7 +49,6 @@ export class DevicesListComponent implements OnInit, AfterViewInit {
     this.deviceQuery.SortOrder = this.order;
     this.deviceQuery.SortColumn = this.sortColumn;
     this.service.getDevices(this.deviceQuery).subscribe((x: any) => {
-      console.log(x);
       this.DevicesList = x;
       this.prepareDevicesMeasuredValuesToDisplay(this.DevicesList.items)
       this.totalDevicesCount = x.totalCount;
@@ -98,23 +97,17 @@ export class DevicesListComponent implements OnInit, AfterViewInit {
   }
 
   onSearchChanged($event: any){
-    console.log('changed');
     this.refreshDevicesList();
   }
 
-  //okres kalibracji na decimal -> min 0,5roku
-
-  //dodatkowo powinne być dodane pole z momentem dodania urządzenia do BD
-  //dodatkowe pole dla daty ważności kalibracji do wyświetlenia w tabeli
-  //odświeżenie paginatora wg strony na której się akutalnie znajduje
-  //to powinno być przeniesione do backEndu
   markDeviceCloseToExpire(device: any): string {
     const now = new Date();
-    if(device.lastCalibrationDate === null || device.calibrationPeriodInYears === null) {
+
+    if(device.nextCalibrationDate === null){
       return "";
     }
-    const expireDate = this.getCalibrationExpireDateForDevice(device);
-    const calibrationPeriodInYears = device.calibrationPeriodInYears;
+    let expireDate = device.nextCalibrationDate;
+    expireDate = new Date(expireDate);
 
     if (now > expireDate){
       return "table-danger";
@@ -124,7 +117,7 @@ export class DevicesListComponent implements OnInit, AfterViewInit {
     const diffrerenceInDays = Math.floor(differenceInMilliseconds / (1000 * 60 * 60 * 24));
     const diffrerenceInYears = diffrerenceInDays/(365.6);
 
-    if(this.selectedValue > calibrationPeriodInYears){
+    if(this.selectedValue > expireDate){
       return "table-warning";
     }
 
