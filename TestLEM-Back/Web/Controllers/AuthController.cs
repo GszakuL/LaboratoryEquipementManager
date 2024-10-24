@@ -89,7 +89,7 @@ public class AuthController : ControllerBase
     }
 
     [Authorize]
-    [HttpGet("user")]
+    [HttpGet("me")]
     public async Task<IActionResult> GetUserInfo()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

@@ -37,7 +37,7 @@ namespace Web.Controllers
             return File(result.Data, result.ContentType, result.FileName);
         }
 
-        [HttpPost("delete-files")]
+        [HttpDelete]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteFiles([FromBody]ICollection<int> documentsId)

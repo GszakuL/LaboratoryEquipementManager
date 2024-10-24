@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Web.Controllers
 {
-    [Route("api/device")]
+    [Route("api/devices")]
     public class DeviceController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -27,13 +27,12 @@ namespace Web.Controllers
             return Ok(deviceIdentificationNumber);
         }
 
-        [HttpPost("sorted")]
+        [HttpGet]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetDevices([FromBody] PagedAndSortedDevicesListQueryDto pagedAndSortedDevicesQuery, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetDevices([FromQuery] PagedAndSortedDevicesListQueryDto pagedAndSortedDevicesQuery, CancellationToken cancellationToken)
         {
             var query = new GetAllDevicesQuery(pagedAndSortedDevicesQuery);
-
             var pagedAndSortedDevicesList = await _mediator.Send(query, cancellationToken);
             return Ok(pagedAndSortedDevicesList);
         }
@@ -49,7 +48,7 @@ namespace Web.Controllers
             return Ok(deviceDetails);
         }
 
-        [HttpPut("{deviceId}/edit")]
+        [HttpPut("{deviceId}")]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> EditDevice([FromRoute] int deviceId, [FromBody] EditDeviceRequestDto editDeviceDto, CancellationToken cancellationToken)
@@ -60,7 +59,7 @@ namespace Web.Controllers
             return Ok(editionResult);
         }
 
-        [HttpDelete("{deviceId}/remove")]
+        [HttpDelete("{deviceId}")]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> RemoveDevice([FromRoute] int deviceId, CancellationToken cancellationToken)

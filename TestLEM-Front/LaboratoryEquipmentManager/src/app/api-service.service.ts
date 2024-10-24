@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -11,16 +11,32 @@ export class ApiServiceService {
 
   constructor(private http: HttpClient) { }
 
-  getDevices(query : PagedAndSortedQueryOfDevicesList): Observable<any[]> {
-    return this.http.post(this.apiUrl + 'device/sorted', query).pipe((response: any) => response);
+  getDevices(query: PagedAndSortedQueryOfDevicesList): Observable<any[]> {
+   debugger;
+    let params = new HttpParams()
+
+    if (query.SearchTerm) {
+      params = params.set('searchTerm', query.SearchTerm);
+    }
+
+    params
+    .set('searchTerm', query.SearchTerm)
+    .set('sortColumn', query.SortColumn)
+    .set('sortOrder', query.SortOrder)
+    .set('page', query.Page.toString())
+    .set('pageSize', query.PageSize.toString());
+
+    return this.http.get<any[]>(this.apiUrl + 'devices', { params }).pipe(
+      map((response: any) => response)
+    );
   }
 
   getDeviceDetailsById(deviceId: number): Observable<Object> {
-    return this.http.get(this.apiUrl + 'device/' + deviceId);
+    return this.http.get(this.apiUrl + 'devices/' + deviceId);
   }
 
   getDevicesByModelName(searchPhrase: SearchPhraseDto): Observable<Object> {
-    return this.http.post(this.apiUrl + 'device/search', searchPhrase);
+    return this.http.post(this.apiUrl + 'devices/search', searchPhrase);
   }
 
   getModelDetails(modelId: number, modelName: string): Observable<Object> {
@@ -32,11 +48,11 @@ export class ApiServiceService {
   }
 
   createDevice(addDeviceDto: any): Observable<any> {
-    return this.http.post(this.apiUrl + 'device', addDeviceDto).pipe((response: any) => response);
+    return this.http.post(this.apiUrl + 'devices', addDeviceDto).pipe((response: any) => response);
   }
 
   editDevice(deviceId: number, oldDeviceDto: AddDeviceDto, newDeviceDto: AddDeviceDto, modelCooperationsToBeRemoved: number[] | null): Observable<any> {
-    const url = `${this.apiUrl+'device'}/${deviceId}/edit`;
+    const url = `${this.apiUrl+'devices'}/${deviceId}`;
 
     const body = {
       oldDevice: oldDeviceDto,
@@ -48,7 +64,7 @@ export class ApiServiceService {
   }
 
   removeDevice(deviceId: number): Observable<any> {
-    const url = `${this.apiUrl+'device'}/${deviceId}/remove`;
+    const url = `${this.apiUrl+'devices'}/${deviceId}`;
     return this.http.delete(url);
   }
 
@@ -57,8 +73,9 @@ export class ApiServiceService {
   }
 
   removeDocuments(documentsId: number[]): Observable<any> {
-    const body = { documentsId };
-    return this.http.post(this.apiUrl + 'files/delete-files', documentsId)
+    return this.http.request<any>('delete', this.apiUrl + 'files', {
+      body: documentsId
+    });
   }
 
   downloadFile(documentName: string, modelId?: string, deviceId?: string): Observable<any>{

@@ -46,7 +46,7 @@ export class AuthService {
 
   getUserInfo(): Observable<any> {
     const headers = this.createAuthorizationHeader();
-    return this.http.get(`${this.apiUrl}/user`, { headers });
+    return this.http.get(`${this.apiUrl}/me`, { headers });
   }
 
   changePassword(currentPassword: string, newPassword: string): Observable<any> {
