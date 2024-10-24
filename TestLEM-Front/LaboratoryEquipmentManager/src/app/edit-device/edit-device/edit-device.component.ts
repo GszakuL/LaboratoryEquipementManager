@@ -81,6 +81,7 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
     this.bindOldValues();
     this.initializeEditedDeviceDocuments(this.deviceToEdit.deviceDocuments);
     this.initializeEditedModelDocuments(this.deviceToEdit.modelDocuments);
+    this.deviceToBeEditedDto = this.mapDeviceFormValuesToAddDeviceDto();
   }
 
   private setOptionalAreasVisibility() {
@@ -405,7 +406,6 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
 
   ngAfterViewInit(): void {
     this.getDevices();
-    this.deviceToBeEditedDto = this.mapDeviceFormValuesToAddDeviceDto();
   }
   get measuredValuesControls() {
     return (this.deviceForm.get('model.measuredValues') as FormArray).controls;
