@@ -1,15 +1,15 @@
-using Application;
 using Application.Abstractions;
+using Application;
 using Domain.Abstraction;
 using Domain.Entities;
-using Infrastructure;
 using Infrastructure.Repositories;
+using Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using System.Text.Json.Serialization;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -24,7 +24,6 @@ builder.Services.AddControllers().AddJsonOptions(x =>
 
 builder.Services.RegisterApplicationServices();
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -39,14 +38,16 @@ builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IApplicationDbContext, LemDbContext>();
 
-builder.Services.AddCors(x =>
+builder.Services.AddCors(options =>
 {
-    x.AddPolicy("AllowAngularOrigins",
-        builder =>
+    options.AddPolicy("AllowConfiguredOrigins",
+        policy =>
         {
-            builder.WithOrigins("http://localhost:4200")
-            .AllowAnyHeader()
-            .AllowAnyMethod();
+            var allowedOrigins = configuration.GetSection("Cors:AllowedOrigins").Value;
+            policy.WithOrigins(allowedOrigins)
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
         });
 });
 
@@ -71,16 +72,18 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
-app.UseCors("AllowAngularOrigins");
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/error");
+    app.UseHsts();
+}
+
+app.UseCors("AllowConfiguredOrigins");
 
 using var scope = app.Services.CreateScope();
-
-var dbContext = scope.ServiceProvider.GetService<LemDbContext>();
+var dbContext = scope.ServiceProvider.GetRequiredService<LemDbContext>();
 dbContext.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
-
-
-var pendingMigrations = dbContext.Database.GetPendingMigrations();
-if (pendingMigrations.Any())
+if (dbContext.Database.GetPendingMigrations().Any())
 {
     dbContext.Database.Migrate();
 }
@@ -91,14 +94,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.UseRouting();
-
-app.UseAuthentication();
 
 app.UseHttpsRedirection();
-
+app.UseRouting();
+app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();
