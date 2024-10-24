@@ -444,22 +444,36 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
   getDevices() {
     this.apiService.getDevices(this.deviceQuery).subscribe((x: any) => {
       this.devices = x.items;
+      let modelIdNamesWithDuplicates: any = [];
       this.devices.forEach( device => {
         let modelIdName = {
           id: device.modelId,
           name: device.modelName
         };
+        modelIdNamesWithDuplicates.push(modelIdName);
         this.modelNameIds.push(modelIdName);
         this.modelsNames.push(device.modelName);
         this.modelsSerialNumbers.push(device.modelSerialNumber);
       })
       if(this.relateModelsNamesToEdit.length > 0) {
-        this.modelNameIds = this.modelNameIds.filter(x => !this.relateModelsNamesToEdit.some(y => y.id == x.id))
+        this.modelNameIds = this.modelNameIds.filter(x => !this.relateModelsNamesToEdit.some(y => y.id == x.id));
       }
+      this.modelNameIds = this.prepareReatedModelsListToDisplay(modelIdNamesWithDuplicates);
     });
   }
-  onSelectionChange() {
-    console.log(this.selectedRelatedModelsNames);
+
+  private prepareReatedModelsListToDisplay(modelIdNamesWithDuplicates: any) : any[] {
+    const uniqueIds = new Set();
+
+    const filteredModels = modelIdNamesWithDuplicates.filter((model : any) => {
+        if (!uniqueIds.has(model.id)) {
+            uniqueIds.add(model.id);
+            return true;
+        }
+        return false;
+    });
+
+    return filteredModels;
   }
 
   onDeviceFileChange(event: any) {
@@ -548,7 +562,6 @@ export class EditDeviceComponent implements AfterViewInit, OnInit {
   }
 
   addRangeForMeasuredValue(rangeIndex: number) : void {
-    console.log(this.measuredValueRanges(rangeIndex));
     this.measuredValueRanges(rangeIndex).push(this.addNewRangeFG());
   }
 

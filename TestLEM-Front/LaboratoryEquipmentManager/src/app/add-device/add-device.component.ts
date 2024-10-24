@@ -58,7 +58,6 @@ export class AddDeviceComponent implements OnInit, AfterViewInit {
   }
   ngAfterViewInit(): void {
     this.getDevices();
-    console.log(this.devices);
    }
 
   ngOnInit(): void {
@@ -75,7 +74,6 @@ export class AddDeviceComponent implements OnInit, AfterViewInit {
 	);
 
   onSelectionChange() {
-    console.log(this.selectedRelatedModelsNames);
   }
 
   onModelNameSelect($event: NgbTypeaheadSelectItemEvent){
@@ -116,8 +114,6 @@ export class AddDeviceComponent implements OnInit, AfterViewInit {
   onModelSerialNumberSelect($event: NgbTypeaheadSelectItemEvent){
     const selectedSerialNumber = $event.item;
     let deviceSelected = this.devices.find(x => x.modelSerialNumber === selectedSerialNumber);
-    console.log('deviceSelected:')
-    console.log(deviceSelected);
     this.deviceForm.patchValue({
       model: {
         name: deviceSelected.modelName,
@@ -131,23 +127,35 @@ export class AddDeviceComponent implements OnInit, AfterViewInit {
   getDevices() {
     this.apiService.getDevices(this.deviceQuery).subscribe((x: any) => {
       this.devices = x.items;
+      let modelIdNamesWithDuplicates: any = [];
       this.devices.forEach( device => {
         let modelIdName = {
           id: device.modelId,
           name: device.modelName
         };
-        this.modelNameIds.push(modelIdName);
+        modelIdNamesWithDuplicates.push(modelIdName);
         this.modelsNames.push(device.modelName);
         this.modelsSerialNumbers.push(device.modelSerialNumber);
       })
+      if (modelIdNamesWithDuplicates.length > 0){
+        this.modelNameIds = this.prepareReatedModelsListToDisplay(modelIdNamesWithDuplicates);
+      }
     });
   }
-  //dodać walidację
-  //dać measured ranges na nullable w BE +
-  //ogarnać duplikaty firm
-  //dodać urządzenia powiązane
-  //ogarnać dokumenty
 
+  private prepareReatedModelsListToDisplay(modelIdNamesWithDuplicates: any) : any[] {
+    const uniqueIds = new Set();
+
+    const filteredModels = modelIdNamesWithDuplicates.filter((model : any) => {
+        if (!uniqueIds.has(model.id)) {
+            uniqueIds.add(model.id);
+            return true;
+        }
+        return false;
+    });
+
+    return filteredModels;
+  }
 
   get measuredValues() {
     return this.deviceForm.get('model.measuredValues') as FormArray;
@@ -262,14 +270,12 @@ export class AddDeviceComponent implements OnInit, AfterViewInit {
   }
 
   onDeviceFileChange(event: any) {
-    debugger;
     if (event.target.files.length > 0) {
       this.selectedDeviceFiles = Array.from(event.target.files);
     }
   }
 
   onModelFileChange(event: any) {
-    debugger;
     if (event.target.files.length > 0) {
       this.selectedModelFiles = Array.from(event.target.files);
     }
