@@ -57,7 +57,6 @@ export class ApiServiceService {
   }
 
   removeDocuments(documentsId: number[]): Observable<any> {
-    debugger;
     const body = { documentsId };
     return this.http.post(this.apiUrl + 'files/delete-files', documentsId)
   }

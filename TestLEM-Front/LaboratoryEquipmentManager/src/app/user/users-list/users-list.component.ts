@@ -18,7 +18,6 @@ export class UsersListComponent implements OnInit {
 
   ngOnInit(): void {
     this.authService.users$.subscribe(users => {
-      debugger;
       this.users = users;
     });
 

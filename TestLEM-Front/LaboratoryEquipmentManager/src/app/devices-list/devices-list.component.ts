@@ -56,7 +56,6 @@ export class DevicesListComponent implements OnInit, AfterViewInit {
     if (this.paginator){
       this.paginator.firstPage();
     }
-    console.log(this.paginator);
   }
 
   onPageChanged($event: any): void {
@@ -129,8 +128,6 @@ export class DevicesListComponent implements OnInit, AfterViewInit {
   }
 
   refreshCloseToExpireValue($event: any) {
-    console.log('changed')
-    console.log(this.selectedValue)
     this.refreshDevicesList();
   }
 
@@ -145,7 +142,6 @@ export class DevicesListComponent implements OnInit, AfterViewInit {
       orderBtn?.setAttribute("style", "transform: rotate(0deg)")
     }
     this.sortColumn = columnName;
-    console.log(this.sortColumn);
     this.refreshDevicesList();
     this.sortColumn = '';
   }

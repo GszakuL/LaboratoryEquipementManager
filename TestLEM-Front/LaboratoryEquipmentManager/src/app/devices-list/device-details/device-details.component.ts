@@ -49,7 +49,6 @@ export class DeviceDetailsComponent implements OnInit {
   }
 
   setRowspan(measuredValue: any): number {
-    console.log(measuredValue.measuringRanges.length);
     return measuredValue.measuringRanges.length;
   }
 

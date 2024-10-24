@@ -23,7 +23,6 @@ export class ModelDetailsComponent implements OnInit {
 
 
   ngOnInit(): void {
-    console.log(this.data)
     this.setDisplayMeasuredValuesTable();
   }
 
