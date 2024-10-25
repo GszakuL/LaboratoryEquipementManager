@@ -88,6 +88,8 @@ if (dbContext.Database.GetPendingMigrations().Any())
     dbContext.Database.Migrate();
 }
 
+await CreateDefaultAdminUser(scope.ServiceProvider);
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -101,3 +103,22 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
+
+async Task CreateDefaultAdminUser(IServiceProvider serviceProvider)
+{
+    using var scope = serviceProvider.CreateScope();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+
+    var adminUser = await userManager.FindByNameAsync("admin");
+    if (adminUser == null)
+    {
+        var user = new User
+        {
+            UserName = "admin",
+            Email = "admin@admin.pl",
+            IsAdmin = true
+        };
+
+        var result = await userManager.CreateAsync(user, "Admin123$");
+    }
+}
