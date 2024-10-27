@@ -22,7 +22,6 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { ModelDetailsComponent } from './devices-list/device-details/model-details/model-details/model-details.component';
 import { EditDeviceComponent } from './edit-device/edit-device/edit-device.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { EditionDeviceConfirmationModal } from './edit-device/edition-device-confirmation-modal/edition-device-confirmation-modal.component';
 import { LoginComponent } from './login/login.component';
 import { AuthService } from './auth-service.service';
 import { UsersListComponent } from './user/users-list/users-list.component';
@@ -38,7 +37,6 @@ import { UsersListComponent } from './user/users-list/users-list.component';
     PercentageDirective,
     ModelDetailsComponent,
     EditDeviceComponent,
-    EditionDeviceConfirmationModal,
     LoginComponent
   ],
   imports: [
