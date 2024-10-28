@@ -20,7 +20,7 @@ export class DevicesListComponent implements OnInit, AfterViewInit {
     ){}
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
-  selectedValue: number = 1;
+  selectedMonthsToExpire: number = 1;
   DevicesList: any = [];
   measuredValues: any = [];
   measuredValuesAsStringTab: string[] = [];
@@ -114,13 +114,13 @@ export class DevicesListComponent implements OnInit, AfterViewInit {
 
     const differenceInMilliseconds = expireDate.getTime() - now.getTime()
     const diffrerenceInDays = Math.floor(differenceInMilliseconds / (1000 * 60 * 60 * 24));
-    const diffrerenceInYears = diffrerenceInDays/(365.6);
+    const diffrerenceInMonths = diffrerenceInDays/(30);
 
-    if(this.selectedValue > expireDate){
+    if(this.selectedMonthsToExpire > expireDate){
       return "table-warning";
     }
 
-    if (this.selectedValue < diffrerenceInYears){
+    if (this.selectedMonthsToExpire < diffrerenceInMonths){
       return "table-success";
     } else {
       return "table-warning";

@@ -12,19 +12,17 @@ export class ApiServiceService {
   constructor(private http: HttpClient) { }
 
   getDevices(query: PagedAndSortedQueryOfDevicesList): Observable<any[]> {
-   debugger;
     let params = new HttpParams()
 
     if (query.SearchTerm) {
       params = params.set('searchTerm', query.SearchTerm);
     }
 
-    params
-    .set('searchTerm', query.SearchTerm)
+    params = params
     .set('sortColumn', query.SortColumn)
     .set('sortOrder', query.SortOrder)
-    .set('page', query.Page.toString())
-    .set('pageSize', query.PageSize.toString());
+    .set('page', query.Page?.toString())
+    .set('pageSize', query.PageSize?.toString());
 
     return this.http.get<any[]>(this.apiUrl + 'devices', { params }).pipe(
       map((response: any) => response)
